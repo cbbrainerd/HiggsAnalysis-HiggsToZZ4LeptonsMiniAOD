@@ -1,0 +1,7 @@
+----- Begin Fatal Exception 19-Aug-2016 12:52:24 CDT-----------------------
+An exception of category 'ConfigFileReadError' occurred while
+   [0] Processing the python configuration file named HiggsTozz_MiniAOD.py
+Exception Message:
+python encountered the error: <type 'exceptions.IOError'>
+[Errno 2] No such file or directory: 'HiggsTozz_MiniAOD.py'
+----- End Fatal Exception -------------------------------------------------

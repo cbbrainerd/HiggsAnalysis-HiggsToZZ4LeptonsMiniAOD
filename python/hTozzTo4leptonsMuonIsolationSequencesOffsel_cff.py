@@ -1,0 +1,32 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi import *
+import RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi
+
+
+muIsoDepositTkOffsel=RecoMuon.MuonIsolationProducers.muIsoDepositTk_cfi.muIsoDepositTk.clone()
+muIsoDepositTkOffsel.IOPSet.inputMuonCollection = cms.InputTag("hTozzTo4leptonsMuonIsolationProducer")
+
+from RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi  import *
+muIsoDepositCalByAssociatorTowersOffsel=RecoMuon.MuonIsolationProducers.muIsoDepositCalByAssociatorTowers_cfi.muIsoDepositCalByAssociatorTowers.clone()
+muIsoDepositCalByAssociatorTowersOffsel.IOPSet.inputMuonCollection = cms.InputTag("hTozzTo4leptonsMuonIsolationProducer")
+
+from RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi  import *
+muIsoDepositJetsOffsel=RecoMuon.MuonIsolationProducers.muIsoDepositJets_cfi.muIsoDepositJets.clone()
+muIsoDepositJetsOffsel.IOPSet.inputMuonCollection = cms.InputTag("hTozzTo4leptonsMuonIsolationProducer")
+
+muIsoDeposits_muonsOffsel = cms.Sequence(muIsoDepositTkOffsel+muIsoDepositCalByAssociatorTowersOffsel+muIsoDepositJetsOffsel)
+muIsolation_muonsOffsel = cms.Sequence(muIsoDeposits_muonsOffsel)
+muIsolationOffsel = cms.Sequence(muIsolation_muonsOffsel)
+
+
+from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonIsolationProducer_cfi import *
+import HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonIsolationProducer_cfi
+hTozzTo4leptonsMuonIsolationProducerOffsel=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonIsolationProducer_cfi.hTozzTo4leptonsMuonIsolationProducer.clone()
+hTozzTo4leptonsMuonIsolationProducerOffsel.HCALIsoDepositLabel=cms.InputTag("muIsoDepositCalByAssociatorTowersOffsel","hcal")
+hTozzTo4leptonsMuonIsolationProducerOffsel.MuonsLabel = cms.InputTag("hTozzTo4leptonsMuonIsolationProducer")
+hTozzTo4leptonsMuonIsolationProducerOffsel.TrackerIsoDepositLabel = cms.InputTag("muIsoDepositTkOffsel")
+hTozzTo4leptonsMuonIsolationProducerOffsel.HOCALIsoDepositLabel = cms.InputTag("muIsoDepositCalByAssociatorTowersOffsel","ho")
+hTozzTo4leptonsMuonIsolationProducerOffsel.ECALIsoDepositLabel = cms.InputTag("muIsoDepositCalByAssociatorTowersOffsel","ecal")
+
+hTozzTo4leptonsMuonIsolationSequenceOffsel = cms.Sequence( muIsolationOffsel + hTozzTo4leptonsMuonIsolationProducerOffsel )

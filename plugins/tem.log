@@ -1,0 +1,103 @@
+Reading cached build data
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+****WARNING: Invalid tool MiniAOD/MiniAOD. Please fix src/MiniAOD/MiniAOD/plugins/BuildFile.xml file.
+>> Creating project symlinks
+>> Entering Package HiggsAnalysis/HiggsToZZ4Leptons
+>> Entering Package Alignment/CommonAlignment
+  src/Alignment/APEEstimation/python -> python/Alignment/APEEstimation
+>> Entering Package CommonTools/CandUtils
+>> Entering Package CommonTools/RecoAlgos
+>> Entering Package DataFormats/ParticleFlowCandidate
+>> Entering Package CommonTools/Statistics
+>> Entering Package CommonTools/UtilAlgos
+  src/Alignment/CommonAlignment/python -> python/Alignment/CommonAlignment
+>> Entering Package CommonTools/Utils
+>> Entering Package CondCore/CondDB
+>> Entering Package CondFormats/L1TObjects
+>> Entering Package EgammaAnalysis/ElectronTools
+>> Entering Package RecoEgamma/EgammaTools
+>> Entering Package KaMuCa/Calibration
+  src/Alignment/CommonAlignmentAlgorithm/python -> python/Alignment/CommonAlignmentAlgorithm
+>> Entering Package RecoParticleFlow/PFProducer
+  src/Alignment/MillePedeAlignmentAlgorithm/python -> python/Alignment/MillePedeAlignmentAlgorithm
+  src/Alignment/OfflineValidation/python -> python/Alignment/OfflineValidation
+  src/Alignment/TrackerAlignment/python -> python/Alignment/TrackerAlignment
+  src/CommonTools/PileupAlgos/python -> python/CommonTools/PileupAlgos
+  src/CommonTools/RecoAlgos/python -> python/CommonTools/RecoAlgos
+  src/CommonTools/UtilAlgos/python -> python/CommonTools/UtilAlgos
+  src/CommonTools/ParticleFlow/python -> python/CommonTools/ParticleFlow
+  src/CommonTools/CandAlgos/python -> python/CommonTools/CandAlgos
+  src/CommonTools/RecoUtils/python -> python/CommonTools/RecoUtils
+  src/CommonTools/TrackerMap/python -> python/CommonTools/TrackerMap
+  src/CondCore/CondDB/python -> python/CondCore/CondDB
+  src/Configuration/AlCa/python -> python/Configuration/AlCa
+  src/EgammaAnalysis/ElectronTools/python -> python/EgammaAnalysis/ElectronTools
+  src/EventFilter/L1TRawToDigi/python -> python/EventFilter/L1TRawToDigi
+  src/HLTrigger/HLTanalyzers/python -> python/HLTrigger/HLTanalyzers
+  src/HLTrigger/JetMET/python -> python/HLTrigger/JetMET
+  src/JetMETCorrections/Modules/python -> python/JetMETCorrections/Modules
+  src/L1Trigger/L1TCalorimeter/python -> python/L1Trigger/L1TCalorimeter
+  src/PhysicsTools/Heppy/python -> python/PhysicsTools/Heppy
+  src/PhysicsTools/HeppyCore/python -> python/PhysicsTools/HeppyCore
+  src/RecoEgamma/EgammaTools/python -> python/RecoEgamma/EgammaTools
+  src/RecoEgamma/PhotonIdentification/python -> python/RecoEgamma/PhotonIdentification
+  src/RecoMuon/MuonIsolationProducers/python -> python/RecoMuon/MuonIsolationProducers
+  src/RecoParticleFlow/PFProducer/python -> python/RecoParticleFlow/PFProducer
+  src/RecoParticleFlow/PFTracking/python -> python/RecoParticleFlow/PFTracking
+  src/HiggsAnalysis/HiggsToZZ4Leptons/python -> python/HiggsAnalysis/HiggsToZZ4Leptons
+  src/HiggsAnalysis/CombinedLimit/python -> python/HiggsAnalysis/CombinedLimit
+  src/RecoLuminosity/LumiProducer/python -> python/RecoLuminosity/LumiProducer
+  src/RecoMET/METFilters/python -> python/RecoMET/METFilters
+  src/MiniAOD/MiniAOD/python -> python/MiniAOD/MiniAOD
+>> Compiling edm plugin /uscms_data/d3/zwang4/WORKSPCACE/tem/CMSSW_7_6_3/src/HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsCommonRootTree.cc 
+>> Compiling edm plugin /uscms_data/d3/zwang4/WORKSPCACE/tem/CMSSW_7_6_3/src/HiggsAnalysis/HiggsToZZ4Leptons/plugins/SealModule.cc 
+>> Building edm plugin tmp/slc6_amd64_gcc493/src/HiggsAnalysis/HiggsToZZ4Leptons/plugins/HiggsAnalysisHiggsToZZ4LeptonsPlugins/libHiggsAnalysisHiggsToZZ4LeptonsPlugins.so
+Leaving library rule at src/HiggsAnalysis/HiggsToZZ4Leptons/plugins
+@@@@ Running edmWriteConfigs for HiggsAnalysisHiggsToZZ4LeptonsPlugins
+--- Registered EDM Plugin: HiggsAnalysisHiggsToZZ4LeptonsPlugins
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+****WARNING: Invalid tool MiniAOD/MiniAOD. Please fix src/MiniAOD/MiniAOD/plugins/BuildFile.xml file.
+gmake[1]: Entering directory `/uscms_data/d3/zwang4/WORKSPCACE/tem/CMSSW_7_6_3'
+@@@@ Refreshing Plugins:edmPluginRefresh
+>> Done generating edm plugin poisoned information
+>> Creating project symlinks
+  src/Alignment/APEEstimation/python -> python/Alignment/APEEstimation
+  src/Alignment/CommonAlignment/python -> python/Alignment/CommonAlignment
+  src/Alignment/CommonAlignmentAlgorithm/python -> python/Alignment/CommonAlignmentAlgorithm
+  src/Alignment/MillePedeAlignmentAlgorithm/python -> python/Alignment/MillePedeAlignmentAlgorithm
+  src/Alignment/OfflineValidation/python -> python/Alignment/OfflineValidation
+  src/Alignment/TrackerAlignment/python -> python/Alignment/TrackerAlignment
+  src/CommonTools/PileupAlgos/python -> python/CommonTools/PileupAlgos
+  src/CommonTools/RecoAlgos/python -> python/CommonTools/RecoAlgos
+  src/CommonTools/UtilAlgos/python -> python/CommonTools/UtilAlgos
+  src/CommonTools/ParticleFlow/python -> python/CommonTools/ParticleFlow
+  src/CommonTools/CandAlgos/python -> python/CommonTools/CandAlgos
+  src/CommonTools/RecoUtils/python -> python/CommonTools/RecoUtils
+  src/CommonTools/TrackerMap/python -> python/CommonTools/TrackerMap
+  src/CondCore/CondDB/python -> python/CondCore/CondDB
+  src/Configuration/AlCa/python -> python/Configuration/AlCa
+  src/EgammaAnalysis/ElectronTools/python -> python/EgammaAnalysis/ElectronTools
+  src/EventFilter/L1TRawToDigi/python -> python/EventFilter/L1TRawToDigi
+  src/HLTrigger/HLTanalyzers/python -> python/HLTrigger/HLTanalyzers
+  src/HLTrigger/JetMET/python -> python/HLTrigger/JetMET
+  src/JetMETCorrections/Modules/python -> python/JetMETCorrections/Modules
+  src/L1Trigger/L1TCalorimeter/python -> python/L1Trigger/L1TCalorimeter
+  src/PhysicsTools/Heppy/python -> python/PhysicsTools/Heppy
+  src/PhysicsTools/HeppyCore/python -> python/PhysicsTools/HeppyCore
+  src/RecoEgamma/EgammaTools/python -> python/RecoEgamma/EgammaTools
+  src/RecoEgamma/PhotonIdentification/python -> python/RecoEgamma/PhotonIdentification
+  src/RecoMuon/MuonIsolationProducers/python -> python/RecoMuon/MuonIsolationProducers
+  src/RecoParticleFlow/PFProducer/python -> python/RecoParticleFlow/PFProducer
+  src/RecoParticleFlow/PFTracking/python -> python/RecoParticleFlow/PFTracking
+  src/HiggsAnalysis/HiggsToZZ4Leptons/python -> python/HiggsAnalysis/HiggsToZZ4Leptons
+  src/HiggsAnalysis/CombinedLimit/python -> python/HiggsAnalysis/CombinedLimit
+  src/RecoLuminosity/LumiProducer/python -> python/RecoLuminosity/LumiProducer
+  src/RecoMET/METFilters/python -> python/RecoMET/METFilters
+  src/MiniAOD/MiniAOD/python -> python/MiniAOD/MiniAOD
+>> Done python_symlink
+>> Compiling python modules python
+>> All python modules compiled
+>> Pluging of all type refreshed.
+gmake[1]: Leaving directory `/uscms_data/d3/zwang4/WORKSPCACE/tem/CMSSW_7_6_3'

@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="edm::ValueMap<float>">
+ </class>
+ <class name="edm::Wrapper<edm::ValueMap<float> >" />
+
+</lcgdict>
