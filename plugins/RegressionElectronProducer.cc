@@ -193,8 +193,11 @@ void RegressionElectronProducer::produce(edm::Event& iEvent, const edm::EventSet
   
   
   const string iName = "";
-  iEvent.put( Gelec, iName );
+  // iEvent.put( Gelec, iName );
 
+  iEvent.put(std::make_unique<reco::GsfElectronCollection>(*Gelec), iName );
+
+  //auto_ptr<reco::GsfElectronCollection> Gelec
 }
 
 

@@ -71,7 +71,7 @@ HZZ4LeptonsCommonRootTree::~HZZ4LeptonsCommonRootTree() {
 
   cout << "Number of events analysed for the ROOT tree= " << nevt << std::endl;
 
-}
+  }
 
 
 void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -242,7 +242,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   // Fill RECO block in the rootple
   // PF Jets
   cout << "fill jet test" << endl;
-  filljets(iEvent);
+  filljets(iEvent,iSetup);
   cout << "fill jet test end" << endl;
 
 //  if (useAdditionalRECO==true) {

@@ -487,8 +487,9 @@ PhiPlusPlusMCGenProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
  
   }
   
-  iEvent.put(FiredExoticHiggs,"ExoticFired");     
-  
+  // iEvent.put(FiredExoticHiggs,"ExoticFired"); 
+  iEvent.put(std::make_unique< vector<std::string> >(*FiredExoticHiggs),"ExoticFired");      
+ 
 
 }
 

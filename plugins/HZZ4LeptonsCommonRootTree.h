@@ -25,6 +25,18 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+//@
+//To retrieve LHE info
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+//To retrieve JEC Uncertainty
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+//To compute Pt calibration
+#include "KaMuCa/Calibration/interface/KalmanMuonCalibrator.h"
+
 // Data format
 #include "DataFormats/Common/interface/Handle.h" 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -119,6 +131,12 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 #include <TMatrixD.h>
+#include <TLorentzVector.h>
+
+//for muon Rochester correction
+
+#include "RoccoR.h"
+#include "TRandom3.h"
 
 //chisquare
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -150,7 +168,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginJob();
   void endJob();
-  
+
+  RoccoR* calibrator; //muon calibrator 
+ 
   void respondToOpenInputFile(edm::FileBlock const& fb) {
     inputfileName = fb.fileName();
     cout << "Input Filename is=" << inputfileName.c_str() << endl;
@@ -176,6 +196,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     // Generator
     generator_                = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("Generator"));
+
+    //@ for LHE informations for Jets
+    LHE_                      = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag> ("LHEProduct"));
 
     // Get HLT flags
     fillHLTinfo               = pset.getUntrackedParameter<bool>("fillHLTinfo");
@@ -240,6 +263,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
  
     muonTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("MuonsLabel"));
     muonCorrPtErrorMapTag_    = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsCorrPtErrorMapLabel"));
+
+    //@
+     isData                    = pset.getParameter<bool>("isData");
+     slimmedMuonsTag_          = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("SlimmedMuonsLabel"));
     
     muonPFTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("PFMuonsLabel"));
 /*
@@ -261,6 +288,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     mvaElectronTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("mvaElectronTag"));
     mvaTrigV0MapTag_         = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaTrigV0MapTag"));
     mvaNonTrigV0MapTag_      = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaNonTrigV0MapTag"));
+
 /*    
     electronPFIsoValueChargedAllTag_= consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueChargedAll"));
     electronPFIsoValueChargedTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueCharged"));
@@ -401,9 +429,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     // Other objets
     photonsTag_              = consumes<edm::View<pat::Photon> >(pset.getParameter<edm::InputTag>("PhotonsLabel"));
 //    tracksTag_               = consumes<vector<reco::Track> >(pset.getParameter<edm::InputTag>("TracksLabel"));
-    jetsTag_                 = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel"));
+    jetsTag_                 = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel")); 
  //   jetsDataTag_             = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsDataLabel"));
     jetsMVATag_              = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsMVALabel"));
+    jetsQGTag_               = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel"));//REHAM
+    jetQGMapTag_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag"));//REHAM
+    jetQGMapTag_axis2_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_axis2"));//REHAM
+    jetQGMapTag_ptd_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_ptd"));//REHAM
+    jetQGMapTag_mult_             = consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("jetQGMapTag_mult"));//REHAM
+
 //    PuJetMvaMCfullDiscr_     = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaMCfullDiscrLabel"));
 //    PuJetMvaMCfullId_        = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaMCfullIdLabel"));
 //    PuJetMvaDatafullDiscr_   = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaDatafullDiscrLabel"));
@@ -458,7 +492,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
    tCHighEff_bTag_         =pset.getParameter<std::string>("tCHighEff_bTagLabel");
    tCHighPur_bTag_         =pset.getParameter<std::string>("tCHighPur_bTagLabel");
-   cSV_bTag_         =pset.getParameter<std::string>("cSV_bTagLabel");
+   cSV_bTag1_         =pset.getParameter<std::string>("cSV_bTagLabel1");
+   cSV_bTag2_         =pset.getParameter<std::string>("cSV_bTagLabel2");
 //    tCHighPur_bTag_         = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >(pset.getParameter<edm::InputTag>("tCHighPur_bTagLabel"));
 //    cSV_bTag_               = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >(pset.getParameter<edm::InputTag>("cSV_bTagLabel"));
 
@@ -467,14 +502,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 //    ConvMapDcotTag_       = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ConvMapDcot"));
     
     // Matching
-/*
+   // /* to add matching informations Reham
+
     goodElectronMCMatch_  = consumes<edm::Association<std::vector<reco::GenParticle> >>(pset.getParameter<edm::InputTag>("goodElectronMCMatch"));
     myElectrons_          = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myElectrons"));
-    goodMuonMCMatch_      = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodMuonMCMatch"));
+    goodMuonMCMatch_      = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodMuonMCMatch")); 
     myMuons_              = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myMuons"));
     goodGammaMCMatch_     = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodGammaMCMatch"));
     myGammas_             = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myGammas"));
-*/
+    //  */
 
     // Beam Spot
     offlineBeamSpot_      = consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("offlineBeamSpot"));
@@ -815,13 +851,14 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOMU_isTrackerHighPtMu", RECOMU_isTrackerHighPtMu, "RECOMU_isTrackerHighPtMu[100]/b");
     Tree_->Branch("RECOMU_isME0Muon", RECOMU_isME0Muon, "RECOMU_isME0Muon[100]/b");
     Tree_->Branch("RECOMU_E",RECOMU_E,"RECOMU_E[100]/F"); 
-    Tree_->Branch("RECOMU_PT",RECOMU_PT,"RECOMU_PT[100]/F"); 
+    Tree_->Branch("RECOMU_PT",RECOMU_PT,"RECOMU_PT[100]/F");
     Tree_->Branch("RECOMU_P",RECOMU_P,"RECOMU_P[100]/F"); 
     Tree_->Branch("RECOMU_ETA",RECOMU_ETA,"RECOMU_ETA[100]/F"); 
     Tree_->Branch("RECOMU_THETA",RECOMU_THETA,"RECOMU_THETA[100]/F"); 
     Tree_->Branch("RECOMU_PHI",RECOMU_PHI,"RECOMU_PHI[100]/F"); 
     Tree_->Branch("RECOMU_MASS",RECOMU_MASS,"RECOMU_MASS[100]/F"); 
     Tree_->Branch("RECOMU_CHARGE",RECOMU_CHARGE,"RECOMU_CHARGE[100]/F");
+    Tree_->Branch("RECOMU_Roch_calib_error",RECOMU_Roch_calib_error,"RECOMU_Roch_calib_error[100]/F");
 
     Tree_->Branch("RECOMU_COV",RECOMU_COV,"RECOMU_COV[100][3][3]/D"); 
 
@@ -1148,8 +1185,57 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFJET_PHI", RECO_PFJET_PHI, "RECO_PFJET_PHI[200]/F");
     Tree_->Branch( "RECO_PFJET_PUID", RECO_PFJET_PUID, "RECO_PFJET_PUID[200]/I");
     Tree_->Branch( "RECO_PFJET_PUID_MVA", RECO_PFJET_PUID_MVA, "RECO_PFJET_PUID_MVA[200]/F");
+    Tree_->Branch( "RECO_PFJET_QG_Likelihood", RECO_PFJET_QG_Likelihood, "RECO_PFJET_QG_Likelihood[200]/F");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_axis2", RECO_PFJET_QG_axis2, "RECO_PFJET_QG_axis2[200]/F");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_ptd", RECO_PFJET_QG_ptd, "RECO_PFJET_QG_ptd[200]/F");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_mult", RECO_PFJET_QG_mult, "RECO_PFJET_QG_mult[200]/I");//REHAM QG tagger
     Tree_->Branch( "RHO_ele", &RHO_ele, "RHO_ele/D");
     Tree_->Branch( "RHO_mu", &RHO_mu, "RHO_mu/D");
+
+ //@
+    Tree_->Branch("LHE_PARTON_N", &LHE_PARTON_N, "LHE_PARTON_N/I");
+    Tree_->Branch("LHE_PARTON_CLEAR", LHE_PARTON_CLEAR, "LHE_PARTON_CLEAR[10]/b");
+    Tree_->Branch("LHE_PARTON_PDGID", LHE_PARTON_PDGID, "LHE_PARTON_PDGID[10]/I");
+    Tree_->Branch("LHE_PARTON_PT", LHE_PARTON_PT, "LHE_PARTON_PT[10]/F");
+    Tree_->Branch("LHE_PARTON_ETA", LHE_PARTON_ETA, "LHE_PARTON_ETA[10]/F");
+    Tree_->Branch("LHE_PARTON_PHI", LHE_PARTON_PHI, "LHE_PARTON_PHI[10]/F");
+    Tree_->Branch("LHE_PARTON_E", LHE_PARTON_E, "LHE_PARTON_E[10]/F");
+    Tree_->Branch("RECO_PFJET_PT_UncUp", RECO_PFJET_PT_UncUp, "RECO_PFJET_PT_UncUp[200]/F");
+    Tree_->Branch("RECO_PFJET_PT_UncDn", RECO_PFJET_PT_UncDn, "RECO_PFJET_PT_UncDn[200]/F");
+    Tree_->Branch("RECO_PFJET_AREA", RECO_PFJET_AREA, "RECO_PFJET_AREA[200]/F");
+    Tree_->Branch("RECO_PFJET_PTD", RECO_PFJET_PTD, "RECO_PFJET_PTD[200]/F");
+    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_ENERGY", RECO_PFJET_CHARGED_HADRON_ENERGY, "RECO_PFJET_CHARGED_HADRON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_ENERGY", RECO_PFJET_NEUTRAL_HADRON_ENERGY, "RECO_PFJET_NEUTRAL_HADRON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_PHOTON_ENERGY", RECO_PFJET_PHOTON_ENERGY, "RECO_PFJET_PHOTON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_ELECTRON_ENERGY", RECO_PFJET_ELECTRON_ENERGY, "RECO_PFJET_ELECTRON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_MUON_ENERGY", RECO_PFJET_MUON_ENERGY, "RECO_PFJET_MUON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_HF_HADRON_ENERGY", RECO_PFJET_HF_HADRON_ENERGY, "RECO_PFJET_HF_HADRON_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_HF_EM_ENERGY", RECO_PFJET_HF_EM_ENERGY, "RECO_PFJET_HF_EM_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_CHARGED_EM_ENERGY", RECO_PFJET_CHARGED_EM_ENERGY, "RECO_PFJET_CHARGED_EM_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_CHARGED_MU_ENERGY", RECO_PFJET_CHARGED_MU_ENERGY, "RECO_PFJET_CHARGED_MU_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_EM_ENERGY", RECO_PFJET_NEUTRAL_EM_ENERGY, "RECO_PFJET_NEUTRAL_EM_ENERGY[200]/F");
+    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_MULTIPLICITY", RECO_PFJET_CHARGED_HADRON_MULTIPLICITY, "RECO_PFJET_CHARGED_HADRON_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY", RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY, "RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_PHOTON_MULTIPLICITY", RECO_PFJET_PHOTON_MULTIPLICITY, "RECO_PFJET_PHOTON_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_ELECTRON_MULTIPLICITY", RECO_PFJET_ELECTRON_MULTIPLICITY, "RECO_PFJET_ELECTRON_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_MUON_MULTIPLICITY", RECO_PFJET_MUON_MULTIPLICITY, "RECO_PFJET_MUON_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_HF_HADRON_MULTIPLICTY", RECO_PFJET_HF_HADRON_MULTIPLICTY, "RECO_PFJET_HF_HADRON_MULTIPLICTY[200]/I");
+    Tree_->Branch("RECO_PFJET_HF_EM_MULTIPLICITY", RECO_PFJET_HF_EM_MULTIPLICITY, "RECO_PFJET_HF_EM_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_CHARGED_MULTIPLICITY", RECO_PFJET_CHARGED_MULTIPLICITY, "RECO_PFJET_CHARGED_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_MULTIPLICITY", RECO_PFJET_NEUTRAL_MULTIPLICITY, "RECO_PFJET_NEUTRAL_MULTIPLICITY[200]/I");
+    Tree_->Branch("RECO_PFJET_NCOMPONENTS", RECO_PFJET_NCOMPONENTS, "RECO_PFJET_NCOMPONENTS[200]/I");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PDGID", RECO_PFJET_COMPONENT_PDGID, "RECO_PFJET_COMPONENT_PDGID[200][100]/I");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PT", RECO_PFJET_COMPONENT_PT, "RECO_PFJET_COMPONENT_PT[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_ETA", RECO_PFJET_COMPONENT_ETA, "RECO_PFJET_COMPONENT_ETA[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PHI", RECO_PFJET_COMPONENT_PHI, "RECO_PFJET_COMPONENT_PHI[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_E", RECO_PFJET_COMPONENT_E, "RECO_PFJET_COMPONENT_E[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_CHARGE", RECO_PFJET_COMPONENT_CHARGE, "RECO_PFJET_COMPONENT_CHARGE[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_TRANSVERSE_MASS", RECO_PFJET_COMPONENT_TRANSVERSE_MASS, "RECO_PFJET_COMPONENT_TRANSVERSE_MASS[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_XVERTEX", RECO_PFJET_COMPONENT_XVERTEX, "RECO_PFJET_COMPONENT_XVERTEX[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_YVERTEX", RECO_PFJET_COMPONENT_YVERTEX, "RECO_PFJET_COMPONENT_YVERTEX[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_ZVERTEX", RECO_PFJET_COMPONENT_ZVERTEX, "RECO_PFJET_COMPONENT_ZVERTEX[200][100]/F");
+    Tree_->Branch("RECO_PFJET_COMPONENT_VERTEX_CHI2", RECO_PFJET_COMPONENT_VERTEX_CHI2, "RECO_PFJET_COMPONENT_VERTEX_CHI2[200][100]/F");
+    
     
     //CaloMET
     Tree_->Branch( "RECO_CALOMET",          &calomet,          "RECO_CALOMET/F");
@@ -1160,12 +1246,40 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 /*     Tree_->Branch( "RECO_CALOMETOPTNOHFHO", &calometoptnohfho, "RECO_CALOMETOPTNOHFHO/F"); */
 /*     Tree_->Branch( "RECO_CALOMETOPTNOHF",   &calometoptnohf,   "RECO_CALOMETOPTNOHF/F"); */
 /*     Tree_->Branch( "RECO_CALOMETOPT",       &calometopt,       "RECO_CALOMETOPT/F"); */
-    //Particle Flow MET
+ 
+   //Particle Flow MET
+    //Type1 correction //Reham
+
     Tree_->Branch( "RECO_PFMET", &pfmet, "RECO_PFMET/F");
     Tree_->Branch( "RECO_PFMET_X", &pfmet_x, "RECO_PFMET_X/F");
     Tree_->Branch( "RECO_PFMET_Y", &pfmet_y, "RECO_PFMET_Y/F");
     Tree_->Branch( "RECO_PFMET_PHI", &pfmet_phi, "RECO_PFMET_PHI/F");
     Tree_->Branch( "RECO_PFMET_THETA", &pfmet_theta, "RECO_PFMET_THETA/F");
+
+    //Uncorrected //Reham
+    Tree_->Branch( "RECO_PFMET_uncorr", &pfmet_uncorr, "RECO_PFMET_uncorr/F");
+    Tree_->Branch( "RECO_PFMET_X_uncorr", &pfmet_x_uncorr, "RECO_PFMET_X_uncorr/F");
+    Tree_->Branch( "RECO_PFMET_Y_uncorr", &pfmet_y_uncorr, "RECO_PFMET_Y_uncorr/F");
+    Tree_->Branch( "RECO_PFMET_PHI_uncorr", &pfmet_phi_uncorr, "RECO_PFMET_PHI_uncorr/F");
+    Tree_->Branch( "RECO_PFMET_THETA_uncorr", &pfmet_theta_uncorr, "RECO_PFMET_THETA_uncorr/F");
+
+    //MET uncertinities
+
+    Tree_->Branch( "RECO_PFMET_JetEnUp", &pfmet_JetEnUp, "RECO_PFMET_JetEnUp/F");
+    Tree_->Branch( "RECO_PFMET_JetEnDn", &pfmet_JetEnDn, "RECO_PFMET_JetEnDn/F");
+    Tree_->Branch( "RECO_PFMET_ElectronEnUp", &pfmet_ElectronEnUp, "RECO_PFMET_ElectronEnUp/F");
+    Tree_->Branch( "RECO_PFMET_ElectronEnDn", &pfmet_ElectronEnDn, "RECO_PFMET_ElectronEnDn/F");
+    Tree_->Branch( "RECO_PFMET_MuonEnUp", &pfmet_MuonEnUp, "RECO_PFMET_MuonEnUp/F");
+    Tree_->Branch( "RECO_PFMET_MuonEnDn", &pfmet_MuonEnDn, "RECO_PFMET_MuonEnDn/F");
+    Tree_->Branch( "RECO_PFMET_JetResUp", &pfmet_JetResUp, "RECO_PFMET_JetResUp/F");
+    Tree_->Branch( "RECO_PFMET_JetResDn", &pfmet_JetResDn, "RECO_PFMET_JetResDn/F");
+    Tree_->Branch( "RECO_PFMET_UnclusteredEnUp", &pfmet_UnclusteredEnUp, "RECO_PFMET_UnclusteredEnUp/F");
+    Tree_->Branch( "RECO_PFMET_UnclusteredEnDn", &pfmet_UnclusteredEnDn, "RECO_PFMET_UnclusteredEnDn/F");
+    Tree_->Branch( "RECO_PFMET_PhotonEnUp", &pfmet_PhotonEnUp, "RECO_PFMET_PhotonEnUp/F");
+    Tree_->Branch( "RECO_PFMET_PhotonEnDn", &pfmet_PhotonEnDn, "RECO_PFMET_PhotonEnDn/F");
+    Tree_->Branch( "RECO_PFMET_TauEnUp ", &pfmet_TauEnUp , "RECO_PFMET_TauEnUp /F");
+    Tree_->Branch( "RECO_PFMET_TauEnDown", &pfmet_TauEnDown, "RECO_PFMET_TauEnDown/F");
+
     //Track Corrected MET
     Tree_->Branch( "RECO_TCMET", &tcmet, "RECO_TCMET/F");
     //Type I correction MET
@@ -1391,6 +1505,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECO_PFJET_PHI[ijets] = -999.;
       RECO_PFJET_PUID[ijets] = -999;
       RECO_PFJET_PUID_MVA[ijets] = -999.;
+      RECO_PFJET_QG_Likelihood[ijets] = -999.;
+      RECO_PFJET_QG_axis2[ijets] = -999.;
+      RECO_PFJET_QG_ptd[ijets] = -999.;
+      RECO_PFJET_QG_mult[ijets] = -999.;
     }
     
 /*     calomet=-999.; */
@@ -1401,11 +1519,20 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 /*     calometnohf=-999.; */
 /*     calometnohfho=-999.; */
 /*     calometho=-999.; */
+
+
     pfmet=-999.;
     pfmet_x=-999.;
     pfmet_y=-999.;
     pfmet_phi=-999.;
     pfmet_theta=-999.;
+
+    pfmet_uncorr=-999.;
+    pfmet_x_uncorr=-999.;
+    pfmet_y_uncorr=-999.;
+    pfmet_phi_uncorr=-999.;
+    pfmet_theta_uncorr=-999.;
+
     tcmet=-999.;
     cormetmuons=-999.;
     
@@ -1800,6 +1927,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
       RECOMU_E[i]=-999.;
       RECOMU_PT[i]=-999.;
+      RECOMU_Roch_calib_error[i]=-999.;
       RECOMU_P[i]=-999.;
       RECOMU_PHI[i]=-999.;
       RECOMU_ETA[i]=-999.;
@@ -2052,55 +2180,66 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
   void triggermatching(const edm::Event& iEvent){
 
-    cout << "Start Trigger matching for muon" << endl;
+    cout << "Start Trigger matching for muons" << endl;
     // check HLTrigger/Configuration/python/HLT_GRun_cff.py
 
 //AOD    edm::Handle<trigger::TriggerEvent> handleTriggerEvent;
     edm::Handle<edm::TriggerResults> triggerBits;
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
     iEvent.getByToken(triggerObjects_, triggerObjects );
-//    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());
+    //    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());
     size_t nMuHLT =0, nEleHLT=0;
-
-
-    //const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);    
-
-
+    
+    
+    //Reham
+    ////
+     iEvent.getByToken(triggerBits_, triggerBits);//Reham
+     iEvent.getByToken(triggerObjects_, triggerObjects);//Reham
+    
+     const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits); //Reham   
+    
+    
+    // cout<<"number 1"<<endl;
+    
     std::vector<pat::TriggerObjectStandAlone>  HLTMuMatched,HLTEleMatched;
     std::vector<string> HLTMuMatchedNames,HLTEleMatchedNames;
-   
-//MiniAOD
-    for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
-      // obj.unpackPathNames(names);
-       for (unsigned h = 0; h < obj.filterLabels().size(); ++h){
-           std::string fullname = obj.filterLabels()[h];
-           std::string name;
-           size_t p = fullname.find_first_of(':');
-      if ( p != std::string::npos) {
-        name = fullname.substr(0, p);
-      }
-      else {
-        name = fullname;
-      } 
-     
-
-          if (name == triggerFilter.c_str()) {
-            HLTMuMatched.push_back(obj);
-            HLTMuMatchedNames.push_back(name);
-            cout << "Matching " << triggerFilter.c_str()  << endl;
-            nMuHLT++;
-          }
-          if (name == triggerEleFilter.c_str()) {
-            HLTEleMatched.push_back(obj);
-            HLTEleMatchedNames.push_back(name);
-            cout << "Matching " << triggerEleFilter.c_str()  << endl;
-            nEleHLT++;
-          }
-        }
-      }
     
+    //MiniAOD
+    for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
 
+       obj.unpackPathNames(names);//Reham
+       obj.unpackFilterLabels(iEvent,*triggerBits);//Reham
 
+      for (unsigned h = 0; h < obj.filterLabels().size(); ++h){
+	std::string fullname = obj.filterLabels()[h];
+	std::string name;
+	size_t p = fullname.find_first_of(':');
+	if ( p != std::string::npos) {
+	  name = fullname.substr(0, p);
+	}
+	else {
+	  name = fullname;
+	} 
+	
+	//cout<<"number 2"<<endl;
+	
+	if (name == triggerFilter.c_str()) {
+	  HLTMuMatched.push_back(obj);
+	  HLTMuMatchedNames.push_back(name);
+	  cout << "Matching " << triggerFilter.c_str()  << endl;
+	  nMuHLT++;
+	}
+	if (name == triggerEleFilter.c_str()) {
+	  HLTEleMatched.push_back(obj);
+	  HLTEleMatchedNames.push_back(name);
+	  cout << "Matching " << triggerEleFilter.c_str()  << endl;
+	  nEleHLT++;
+	}
+      }
+    }
+    
+    
+    
     edm::Handle<edm::View<pat::Muon> > MuCandidates;
     iEvent.getByToken(muonTag_, MuCandidates);
     float maxDeltaR_=0.2;
@@ -3180,7 +3319,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     int index=0;
     RECO_NELE=EleRefs->size();
    
-/*
+    ///* to add matching informations
     // Matching
     edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchEle;
     iEvent.getByToken(goodElectronMCMatch_, GenParticlesMatchEle);
@@ -3190,7 +3329,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     if (GenParticlesMatchEle.isValid()){
       cout << endl<< "Electrons:"<<endl<<"The reco collection to be matched has size= " <<  CollEle->size() << endl;
       cout << "The matched map collection has size= " <<  GenParticlesMatchEle->size() << endl;
-    }*/
+    }//*/
     //
 
 
@@ -3485,8 +3624,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       //Conversion variables
       RECOELE_gsftrack_losthits[index]  = cand->gsfTrack()->numberOfLostHits();
       RECOELE_gsftrack_validhits[index] = cand->gsfTrack()->numberOfValidHits();
-      RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);
-
+      // RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS);//original
+       RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS);//Reham
+      // RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfValidHits();//Reham
+      // RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->trackerExpectedHitsInner().numberOfHits();//Nicola Not work
+     
       std::cout << "--gfstrack properties: " 
 	<< "  nPixhits=" << RECOELE_gsftrack_NPixHits[index]
 	<< "  nStriphits=" << RECOELE_gsftrack_NStripHits[index]
@@ -3674,10 +3816,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 */
       index ++;
     }    
-  }
-  
+  } 
 
   void fillMuons(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+
+    cout<<"filling muons"<<endl;
 
     // Get the B-field
     //edm::ESHandle<MagneticField> magfield_;
@@ -3690,7 +3833,179 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     edm::Handle<edm::ValueMap<float> > corrpterrormumap;
     iEvent.getByToken(muonCorrPtErrorMapTag_,corrpterrormumap);
+
+    ////////////////////////////////////////////
+    //Kalman Muon Calibrator for 2016 data
+    //using Rochester correction for 2017 data
+
+    /*   //@ Miquias
+    edm::Handle<edm::View<pat::Muon> > SlimmedMuons;
+    iEvent.getByToken(slimmedMuonsTag_, SlimmedMuons);
+    vector<double> vcorrPt, vcorrPtError;
+    double corrPt=0.,corrPtError=0.;
+    double smearedPt=0., smearedPtError=0.;
+    TLorentzVector p4;
+    for(edm::View<pat::Muon>::const_iterator SlimmedMuonsIter = SlimmedMuons->begin(); SlimmedMuonsIter != SlimmedMuons->end(); ++SlimmedMuonsIter){
+      smearedPt=SlimmedMuonsIter->pt();
+      smearedPtError=SlimmedMuonsIter->muonBestTrack()->ptError();
+      if (SlimmedMuonsIter->muonBestTrackType() == 1 && SlimmedMuonsIter->pt()<=200.){
+    	if (isData){
+    	  if (SlimmedMuonsIter->pt()>2.0 && fabs(SlimmedMuonsIter->eta())<2.4){
+    	    KalmanMuonCalibrator calibrator("DATA_80X_13TeV");
+    	    corrPt = calibrator.getCorrectedPt(SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), SlimmedMuonsIter->charge());
+    	    corrPtError = corrPt * calibrator.getCorrectedError(corrPt, SlimmedMuonsIter->eta(), SlimmedMuonsIter->bestTrack()->ptError()/corrPt );
+    	    smearedPt=corrPt; // no smearing on data
+    	    smearedPtError=corrPtError; // no smearing on data
+    	  }
+    	}
+    	else { // isMC - calibration from data + smearing
+    	  KalmanMuonCalibrator calibrator("MC_80X_13TeV");
+    	  corrPt = calibrator.getCorrectedPt(SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), SlimmedMuonsIter->charge());
+    	  corrPtError = corrPt * calibrator.getCorrectedError(corrPt, SlimmedMuonsIter->eta(), SlimmedMuonsIter->bestTrack()->ptError()/corrPt );
+    	  // smearedPt = calibrator.smearForSync(corrPt, SlimmedMuonsIter->eta()); // for synchronization
+    	  smearedPt = calibrator.smear(corrPt, SlimmedMuonsIter->eta());
+    	  smearedPtError = corrPtError;
+    	  //smearedPt * calibrator.getCorrectedErrorAfterSmearing(smearedPt, SlimmedMuonsIter->eta(), corrPtError /smearedPt );
+    	}
+      }
+      vcorrPt.push_back(smearedPt);
+      vcorrPtError.push_back(smearedPtError);
+    }
+    */  
+  /////////////////////////////////////////////////////////////////
+   
+     //Reham To get the error in muon PT
+
+
+      // To add matching informations Reham
+    // Matching
+
+    edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchMu;
+    iEvent.getByToken(goodMuonMCMatch_, GenParticlesMatchMu);
+    edm::Handle<reco::CandidateCollection > CollMu;
+    iEvent.getByToken(myMuons_, CollMu);
+
+    if (GenParticlesMatchMu.isValid()){
+      cout << endl<< "#Muons:"<<endl<<"#The reco collection to be matched has size= " <<  CollMu->size() << endl;
+      cout << "#The matched map collection has size= " <<  GenParticlesMatchMu->size() << endl;
+    }
     
+    /*
+    //using Rochester muon correction for 2017 data
+
+    edm::Handle<edm::View<pat::Muon> > SlimmedMuons;
+    iEvent.getByToken(slimmedMuonsTag_, SlimmedMuons);
+
+
+    cout<<"######## //Muon correction// ########"<<endl;
+   
+    //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
+
+    edm::FileInPath corrPath("roccor_Run2_v2/RoccoR2017.txt");
+    calibrator = new RoccoR(corrPath.fullPath());
+
+    cout<<"#open the txt file for muon corrections"<<endl;
+   
+    for(edm::View<pat::Muon>::const_iterator SlimmedMuonsIter = SlimmedMuons->begin(); SlimmedMuonsIter != SlimmedMuons->end(); ++SlimmedMuonsIter){
+
+    vector<double> vcorrPt, vcorrPtError;
+    double oldPt=0., oldPtError=0.;
+    double  smearedPt=0., smearedPtError=0.;
+    double correction=1, correction_error=0;
+    TLorentzVector p4;
+    int nl;
+
+    TRandom3* rgen_;
+    rgen_ = new TRandom3(0);
+    double u = rgen_->Rndm();
+
+    bool Muon_Match = false;
+    double Gen_Mu_pt= 0.;
+
+
+      oldPt=SlimmedMuonsIter->pt();
+      oldPtError=SlimmedMuonsIter->muonBestTrack()->ptError();
+      
+      ////
+      
+      // To add matching informations Reham
+      // Matching
+      // if (fillMCTruth==true){
+	int i=0;
+	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){
+	  cout << "Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl;
+	  if (fabs(hIter->pt()- SlimmedMuonsIter->pt()) <0.01){
+	      i=hIter-(CollMu->begin());
+	      cout<<"i = "<<i<<endl;
+	      CandidateRef Ref( CollMu, i );
+	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMus)[Ref];
+	      if (!genrefMu.isNull()){
+		cout<<"#Matched found "<<endl;
+		cout << "#GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;
+		 Muon_Match = true;
+		 Gen_Mu_pt = genrefMu->p4().pt();
+	      }
+	      else {
+		cout << "There is no reference to a genMuon" << endl;
+		Muon_Match = false;
+	      }
+	  }  
+	} //end of matching
+	// }
+      ////
+      
+      cout<<"#slimmed muon pt = "<<SlimmedMuonsIter->pt()<<" and best track type = "<<SlimmedMuonsIter->muonBestTrackType()<<endl;
+     
+      if (SlimmedMuonsIter->muonBestTrackType() == 1 && SlimmedMuonsIter->pt()<=200.){
+
+	nl =  SlimmedMuonsIter->track()->hitPattern().trackerLayersWithMeasurement();
+
+    	if (isData && nl>5 ){ //on data correction oly
+
+	  cout<<"#Data Muon correction "<<endl;
+
+    	  if (SlimmedMuonsIter->pt()>2.0 && fabs(SlimmedMuonsIter->eta())<2.4){
+
+	    //RoccoR Calibrator;
+	    correction = calibrator->kScaleDT( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), 0 ,0); 
+	     correction_error = calibrator->kScaleDTerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi()); }//end eta > 2.4
+	    else {// with pt<2 or not in the acceptance
+	       correction =1;
+	       correction_error =0;}//end else
+	}//end data
+   
+    	else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
+
+	  cout<<"#This is MC Muon correction"<<endl;
+
+	  if ( Muon_Match == true){// when matched gen muon available
+	    
+	    cout<<"MC and matched gen muon "<<endl;	    
+	    cout<<"gen muon pt = "<<Gen_Mu_pt<<endl;
+	    
+	    correction = calibrator->kSpreadMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt , 0 ,0 ); 
+	    correction_error = calibrator->kSpreadMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt);}
+	  
+	  else { //when matched gen muon not available
+	    
+	    cout<<"#MC and No matched gen muon "<<endl;		 
+	    
+	    correction = calibrator->kSmearMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl , u, 0 ,0 ); 
+	    correction_error = calibrator->kSmearMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl ,u );}
+	  
+	}//ends if !isdata
+      }//end if tracker , pt<200
+   
+    smearedPt = oldPt*correction;
+    smearedPtError = oldPtError*correction_error;
+    cout<<"#Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
+    vcorrPt.push_back(smearedPt);
+    vcorrPtError.push_back(smearedPtError);
+    }//end of for loop
+
+    */
+    ///////////////////////////////////////////////////////////
+ 
     // Particle Flow Isolation
 /*
     edm::Handle<edm::ValueMap<double> > isoPFChargedAllmumap;
@@ -3782,7 +4097,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     RECO_NMU=MuCandidates->size();
     cout << "Event has muon numbers of " << RECO_NMU << endl;
 
-/*
+    /*      // To add matching informations Reham
     // Matching
     edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchMu;
     iEvent.getByToken(goodMuonMCMatch_, GenParticlesMatchMu);
@@ -3793,25 +4108,43 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       cout << endl<< "Muons:"<<endl<<"The reco collection to be matched has size= " <<  CollMu->size() << endl;
       cout << "The matched map collection has size= " <<  GenParticlesMatchMu->size() << endl;
     }
-*/
+    */
     //
 
 
     for (edm::View<pat::Muon>::const_iterator cand = MuCandidates->begin(); cand != MuCandidates->end(); ++cand) {
             
       if(indexbis>99) break;
+
+      /*     /////Reham need to check this part 
+      //Reham comment for now 
+   
+     //@ finds the pt error
+      double calibratorPtError = 0;
+      unsigned int NslimmedMuons = vcorrPt.size();
+      cout << ">>>>> NslimmedMuons = " << NslimmedMuons << "NMuCandidates = " << MuCandidates->size() << endl;
+      for(unsigned int iref=0; iref<NslimmedMuons; ++iref){
+	if(vcorrPt.at(iref) == cand->pt()){
+	  calibratorPtError = vcorrPtError.at(iref);
+	  cout<< "MuCandPt = " << cand->pt() << ", calibratorPt = " << vcorrPt.at(iref) << ", calibratorPtError = " << vcorrPtError.at(iref) << endl;
+	} 
+      }
+*/
       
       edm::Ref<edm::View<pat::Muon> > mutrackref(MuCandidates,indexbis); 
       edm::Ref<edm::View<pat::Muon> > mutrackrefv(VertMuCandidates,indexbis); 
-     
-      RECOMU_isPFMu[indexbis]=cand->isPFMuon();
 
+    
+      RECOMU_isPFMu[indexbis]=cand->isPFMuon();     
       RECOMU_isGlobalMu[indexbis]=cand->isGlobalMuon();
       RECOMU_isStandAloneMu[indexbis]=cand->isStandAloneMuon();
       RECOMU_isTrackerMu[indexbis]=cand->isTrackerMuon();
       RECOMU_isCaloMu[indexbis]=cand->isCaloMuon();
-      RECOMU_isTrackerHighPtMu[indexbis]=isTrackerHighPtMu(*cand,pVertex);   
 
+      if(cand->track().isNonnull()){//Reham
+      // if(cand->innerTrack().isNonnull()){//Reham
+      RECOMU_isTrackerHighPtMu[indexbis]=isTrackerHighPtMu(*cand,pVertex); //Reham error here 
+       }//Reham
       std::cout << "\n Muon in the event: "
 	        <<   "  isPF=" << RECOMU_isPFMu[indexbis]
 		<<   "  isGB=" << RECOMU_isGlobalMu[indexbis]
@@ -3992,6 +4325,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_mubesttrkDzError[indexbis]=cand->muonBestTrack()->dzError();
 	//RECOMU_mubesttrkPTError[indexbis]=(*corrpterrormumap)[mutrackref];;
       }
+      //@ Reham comment for now
+      // RECOMU_mubesttrkPTError[indexbis]=calibratorPtError;
 
       if(cand->globalTrack().isAvailable()){
 	RECOMU_mutrkPT[indexbis]=cand->globalTrack()->pt();
@@ -4100,7 +4435,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		  << std::endl;
       }
   
-/*    
+      /*      // To add matching informations Reham
       // Matching
       if (fillMCTruth==true){
 	int i=0;
@@ -4115,18 +4450,110 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	      RECOMU_MatchingMCTruth[i]= true;
 	      RECOMU_MatchingMCpT[i]= genrefMu->p4().pt();
 	      RECOMU_MatchingMCEta[i]= genrefMu->p4().eta();
-	      RECOMU_MatchingMCPhi[i]= genrefMu->p4().phi();	    
+	      RECOMU_MatchingMCPhi[i]= genrefMu->p4().phi();
+	      cout<<"GenMuon pT check = "<< RECOMU_MatchingMCpT[i]<<endl;
+	      cout<<"GenMuon eta check = "<< RECOMU_MatchingMCEta[i]<<endl;
+	      cout<<"GenMuon phi check = "<< RECOMU_MatchingMCPhi[i]<<endl;
 	    } 
 	    else {
 	      cout << "There is no reference to a genMuon" << endl;
 	    }
 	  }   
 	}   
-      }  
-*/ 
+      }  //end of matching
+      */
+      
+      ///////////////////////////////////////////////////////////////
+      /*      
+      //Reham 
+      
+      //using Rochester muon correction for 2017 data
+      
+      vector<double> vcorrPt, vcorrPtError;
+      double oldPt=0., oldPtError=0.;
+      double  smearedPt=0., smearedPtError=0.;
+      double correction=1, correction_error=0;
+      TLorentzVector p4;
+      int nl;
+      
+      TRandom3* rgen_;
+      rgen_ = new TRandom3(0);
+    double u = rgen_->Rndm();
+    
+    cout<<"######## Muon correction ########"<<endl;
+    
+    //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
+    
+    edm::FileInPath corrPath("roccor_Run2_v2/RoccoR2017.txt");
+    calibrator = new RoccoR(corrPath.fullPath());
+    
+    cout<<"open the txt file for muon corrections"<<endl;
+    
+    oldPt=cand->p4().pt();
+    oldPtError=cand->muonBestTrack()->ptError();
+    
+    cout<<" muon pt = "<<cand->p4().pt()<<" and best track type = "<<cand->muonBestTrackType()<<endl;
+    
+    if (cand->muonBestTrackType() == 1 && cand->p4().pt()<=200.){
+      
+      nl =  cand->track()->hitPattern().trackerLayersWithMeasurement();
+      
+      if (isData && nl>5 ){ //on data correction oly
+	
+	cout<<"Data Muon correction "<<endl;
+	
+	if (cand->p4().pt()>2.0 && fabs(cand->p4().eta())<2.4){
+	  
+	  //RoccoR Calibrator;
+	  correction = calibrator->kScaleDT( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), 0 ,0); 
+	  correction_error = calibrator->kScaleDTerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi()); }//end eta > 2.4
+	else {// with pt<2 or not in the acceptance
+	  correction =1;
+	  correction_error =0;}//end else
+      }//end data
+      
+      else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
+	
+	cout<<"This is MC Muon correction"<<endl;
+	
+	if ( RECOMU_MatchingMCTruth[indexbis] == true){// when matched gen muon available
+	  
+	  cout<<"MC and matched gen muon "<<endl;
+	  
+	  correction = calibrator->kSpreadMC( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), RECOMU_MatchingMCpT[indexbis] , 0 ,0 ); 
+	  correction_error = calibrator->kSpreadMCerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(),RECOMU_MatchingMCpT[indexbis]);
+	}
+	
+	else { //when matched gen muon not available
+	  
+	  cout<<"MC and No matched gen muon "<<endl;		 
+	  
+	  correction = calibrator->kSmearMC( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), nl , u, 0 ,0 ); 
+	  correction_error = calibrator->kSmearMCerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), nl ,u );}
+	
+      }//ends if !isdata
+    }//end if tracker , pt<200
+    
+    smearedPt = oldPt*correction;
+    //smearedPtError = oldPtError*correction_error;
+    smearedPtError = oldPtError*correction;
+    cout<<"Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
+    cout<<"Old pt error (from muon best track pt error) = "<<oldPtError<<", correction_error = "<<correction_error<<"smeared pt Error = "<< smearedPtError<<"+/- "<<correction_error<<endl;
+    
+    vcorrPt.push_back(smearedPt);
+    vcorrPtError.push_back(smearedPtError);
+     
+    RECOMU_mubesttrkPTError[indexbis]=smearedPtError;
+    RECOMU_Roch_calib_error[indexbis]= correction_error;
+*/
+           
+    ///////////////////////////////////////////////////////////////
+    
       indexbis++;
     }
   }
+
+
 
   void fillPhotons(const edm::Event& iEvent){
     // Photons
@@ -4341,15 +4768,44 @@ void fillTracks(const edm::Event& iEvent){
     edm::Handle<pat::METCollection> pfmetHandle;
     iEvent.getByToken(pfmetTag_,pfmetHandle);
     for ( pat::METCollection::const_iterator i=pfmetHandle->begin(); i!=pfmetHandle->end(); i++) {
+      
       cormetmuons = i->pt();
-      pfmet       = i->uncorPt();     
-      pfmet_x     = i->uncorPx();
-      pfmet_y     = i->uncorPy();
-      pfmet_phi   = i->uncorPhi();
-      pfmet_theta = i->uncorP3().theta();
+      
+      //Type1 correction Reham
+      pfmet       = i->corPt();     
+      pfmet_x     = i->corPx();
+      pfmet_y     = i->corPy();
+      pfmet_phi   = i->corPhi();
+      pfmet_theta = i->corP3().theta();
+      
+      //uncorrected met Reham
+      pfmet_uncorr       = i->uncorPt();     
+      pfmet_x_uncorr     = i->uncorPx();
+      pfmet_y_uncorr     = i->uncorPy();
+      pfmet_phi_uncorr   = i->uncorPhi();
+      pfmet_theta_uncorr = i->uncorP3().theta();
+      
       //std::cout<<"met uncer"<< i->MET::METUncertainty(0) <<endl;
-    }
 
+      //MET uncertinities 
+
+      pfmet_JetEnUp         = i->shiftedPt(pat::MET::JetEnUp, pat::MET::Type1);
+      pfmet_JetEnDn         = i->shiftedPt(pat::MET::JetEnDown, pat::MET::Type1);
+      pfmet_ElectronEnUp    = i->shiftedPt(pat::MET::ElectronEnUp, pat::MET::Type1);
+      pfmet_ElectronEnDn    = i->shiftedPt(pat::MET::ElectronEnDown, pat::MET::Type1);
+      pfmet_MuonEnUp        = i->shiftedPt(pat::MET::MuonEnUp, pat::MET::Type1);
+      pfmet_MuonEnDn        = i->shiftedPt(pat::MET::MuonEnDown, pat::MET::Type1);
+      pfmet_JetResUp        = i->shiftedPt(pat::MET::JetResUp, pat::MET::Type1);
+      pfmet_JetResDn        = i->shiftedPt(pat::MET::JetResDown, pat::MET::Type1);
+      pfmet_UnclusteredEnUp = i->shiftedPt(pat::MET::UnclusteredEnUp, pat::MET::Type1);
+      pfmet_UnclusteredEnDn = i->shiftedPt(pat::MET::UnclusteredEnDown, pat::MET::Type1);
+      pfmet_PhotonEnUp      = i->shiftedPt(pat::MET::PhotonEnUp, pat::MET::Type1);
+      pfmet_PhotonEnDn      = i->shiftedPt(pat::MET::PhotonEnDown, pat::MET::Type1);
+      pfmet_TauEnUp         = i->shiftedPt(pat::MET::TauEnUp , pat::MET::Type1);
+      pfmet_TauEnDown       = i->shiftedPt(pat::MET::TauEnDown, pat::MET::Type1); 
+
+    }
+    
 
 
 
@@ -4910,11 +5366,18 @@ void fillTracks(const edm::Event& iEvent){
 
   
   		      
-  void filljets(const edm::Event& iEvent){
+  void filljets(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     edm::Handle<pat::JetCollection> pfjets,pfjetsmva;
 
    iEvent.getByToken(jetsTag_, pfjets);
    iEvent.getByToken(jetsMVATag_, pfjetsmva);
+
+    //@ To retrieve JEC Uncertainty
+     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+     iSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);//slimmedJets are ak4PFJetsCHS
+     JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+     JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+
 /*    
     if (fillMCTruth == 1){
       cout << "Using Jet energy collection for MC " << endl;
@@ -4943,10 +5406,34 @@ void fillTracks(const edm::Event& iEvent){
       edm::Ref<pat::JetCollection> pfjetrefmva(pfjetsmva,index_jets);
       
       float mva = 0.;
-      int pupass = 1;
+      // int pupass = 1;
   
 //      mva = i->userFloat("vtxPx");    
       mva = i->userFloat("pileupJetId:fullDiscriminant");
+
+ 
+      ////////////////////////////////////
+
+     //test Reham    
+
+      /* cout<<"tesssssssssst"<<endl;
+      cout <<"pileupjetid = "<<i->userInt("pileupJetId:fullId")<<" and in binary = "<<std::bitset<4>(i->userInt("pileupJetId:fullId"))<<endl;
+      cout<<"condition (1 << 2) = "<<(1 << 2)<<"and in binary = "<<std::bitset<4>((1 << 2))<<endl;
+      cout<<"condition (1 << 1) = "<<(1 << 1)<<"and in binary = "<<std::bitset<4>((1 << 1))<<endl;
+      cout<<"condition (1 << 0) = "<<(1 << 0)<<"and in binary = "<<std::bitset<4>((1 << 0))<<endl;
+      cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 2))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 2)))<<endl;
+       cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 1))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 1)))<<endl;
+       cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 0))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 0)))<<endl; */
+
+      bool passLoose_PUID = (i->userInt("pileupJetId:fullId") & (1 << 2));
+      bool passMedium_PUID = (i->userInt("pileupJetId:fullId") & (1 << 1));
+      bool passTight_PUID = (i->userInt("pileupJetId:fullId") & (1 << 0));
+ 
+      cout<<"passLoose_PUID = "<<passLoose_PUID<<endl;
+      cout<<"passMedium_PUID = "<<passMedium_PUID<<endl;
+      cout<<"passTight_PUID = "<<passTight_PUID<<endl;
+
+      /////////////////////////////////////
 /*
       if (fillMCTruth == 1){
 	mva = (*puJetIdMVAMC)[pfjetrefmva];
@@ -4955,7 +5442,8 @@ void fillTracks(const edm::Event& iEvent){
 	mva = (*puJetIdMVAData)[pfjetrefmva];
       }
 */      
-      //      New Selection
+  
+/*    //      New Selection
       if(i->pt()>20.){
 	if(fabs(i->eta())>3.){
 	  if(mva<=-0.45) pupass=0;
@@ -4972,7 +5460,7 @@ void fillTracks(const edm::Event& iEvent){
 	}else if(fabs(i->eta())>2.5){
 	  if(mva<=-0.96) pupass=0;
 	}else if(mva<=-0.95) pupass=0;
-      }
+	} */
         
       
       RECO_PFJET_CHARGE[index_jets] = i->charge();
@@ -4980,9 +5468,101 @@ void fillTracks(const edm::Event& iEvent){
       RECO_PFJET_PT[index_jets]     = i->pt();
       RECO_PFJET_ETA[index_jets]    = i->eta();
       RECO_PFJET_PHI[index_jets]    = i->phi();
-      RECO_PFJET_PUID[index_jets]     = pupass;
+      //RECO_PFJET_PUID[index_jets]     = pupass;
+      RECO_PFJET_PUID[index_jets]     = passTight_PUID;
       RECO_PFJET_PUID_MVA[index_jets] = mva;
-      
+
+      cout 
+	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]   
+	<< " PT="   << RECO_PFJET_PT[index_jets]   
+	<< " ETA="  << RECO_PFJET_ETA[index_jets]  
+	<< " PHI="  << RECO_PFJET_PHI[index_jets]  
+	<< " PUID=" << RECO_PFJET_PUID[index_jets] 
+	<< " PUID_MVA=" << RECO_PFJET_PUID_MVA[index_jets]
+       //qier test
+        << " Uncorrected Pt=" << i->correctedP4("Uncorrected").Pt()
+        << " L1FastJet Pt=" << i->correctedP4("L1FastJet").Pt()
+        << " L2Relative Pt=" << i->correctedP4("L2Relative").Pt()
+        << " L3Absolute Pt=" << i->correctedP4("L3Absolute").Pt()
+	<< endl;
+
+      //Branches for Uncertinity
+
+      jecUnc->setJetEta( i->eta() );
+      jecUnc->setJetPt( i->pt() ); // here you must use the CORRECTED jet pt
+      double unc = jecUnc->getUncertainty(true);
+      RECO_PFJET_PT_UncUp[index_jets] = i->pt() + unc;
+      RECO_PFJET_PT_UncDn[index_jets] = i->pt() - unc;
+      RECO_PFJET_AREA[index_jets] = i->jetArea();
+      RECO_PFJET_CHARGED_HADRON_ENERGY[index_jets] = i->chargedHadronEnergy();
+      RECO_PFJET_NEUTRAL_HADRON_ENERGY[index_jets] = i->neutralHadronEnergy();
+      RECO_PFJET_PHOTON_ENERGY[index_jets] = i->photonEnergy();
+      RECO_PFJET_ELECTRON_ENERGY[index_jets] = i->electronEnergy();
+      RECO_PFJET_MUON_ENERGY[index_jets] = i->muonEnergy();
+      RECO_PFJET_HF_HADRON_ENERGY[index_jets] = i->HFHadronEnergy();
+      RECO_PFJET_HF_EM_ENERGY[index_jets] = i->HFEMEnergy();
+      RECO_PFJET_CHARGED_EM_ENERGY[index_jets] = i->chargedEmEnergy();
+      RECO_PFJET_CHARGED_MU_ENERGY[index_jets] = i->chargedMuEnergy();
+      RECO_PFJET_NEUTRAL_EM_ENERGY[index_jets] = i->neutralEmEnergy();
+      RECO_PFJET_CHARGED_HADRON_MULTIPLICITY[index_jets] = i->chargedHadronMultiplicity();
+      RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY[index_jets] = i->neutralHadronMultiplicity();
+      RECO_PFJET_PHOTON_MULTIPLICITY[index_jets] = i->photonMultiplicity();
+      RECO_PFJET_ELECTRON_MULTIPLICITY[index_jets] = i->electronMultiplicity();
+      RECO_PFJET_MUON_MULTIPLICITY[index_jets] = i->muonMultiplicity();
+      RECO_PFJET_HF_HADRON_MULTIPLICTY[index_jets] = i->HFHadronMultiplicity();
+      RECO_PFJET_HF_EM_MULTIPLICITY[index_jets] = i->HFEMMultiplicity();
+      RECO_PFJET_CHARGED_MULTIPLICITY[index_jets] = i->chargedMultiplicity();
+      RECO_PFJET_NEUTRAL_MULTIPLICITY[index_jets] = i->neutralMultiplicity();
+
+      //Stores jet components (jet substructure)
+
+      int Ncomponents = i->numberOfDaughters();
+      RECO_PFJET_NCOMPONENTS[index_jets] = Ncomponents;
+      std::vector<float> o_jc_pt, o_jc_eta, o_jc_phi, o_jc_energy, o_jc_charge, o_jc_mt, o_jc_vx, o_jc_vy, o_jc_vz, o_jc_pdgid, o_jc_vchi2;
+      float sumpt = 0, sumpt2 = 0;
+      for(int idau=0; idau<Ncomponents; ++idau){
+        const reco::Candidate *jetComponent = i->daughter(idau);
+        float jetComponentPt = jetComponent->pt();
+        sumpt  += jetComponentPt;
+        sumpt2 += (jetComponentPt*jetComponentPt);
+        o_jc_pt      .push_back( jetComponentPt );
+        o_jc_eta     .push_back( jetComponent->eta() );
+        o_jc_phi     .push_back( jetComponent->phi() );
+        o_jc_energy  .push_back( jetComponent->energy() );
+        o_jc_charge  .push_back( jetComponent->charge() );
+        o_jc_mt      .push_back( jetComponent->mt() );//transverse mass
+        o_jc_vx      .push_back( jetComponent->vx() );
+        o_jc_vy      .push_back( jetComponent->vy() );
+        o_jc_vz      .push_back( jetComponent->vz() );
+        o_jc_pdgid   .push_back( jetComponent->pdgId() );
+        o_jc_vchi2   .push_back( jetComponent->vertexNormalizedChi2() );
+      }
+      RECO_PFJET_PTD[index_jets] = sqrt(sumpt2)/sumpt;
+
+      //Sort the jet components by pt (to keep thing organized for MVA)
+
+      for(int i1=0; i1 < Ncomponents; ++i1){
+        float maxpt = -1, ci2 = -1;
+        for(int i2=0; i2 < Ncomponents; ++i2){
+          if(o_jc_pt.at(i2) > maxpt){
+            maxpt = o_jc_pt[i2];
+            ci2 = i2;
+          }
+        }
+        RECO_PFJET_COMPONENT_PDGID[index_jets][i1] = o_jc_pdgid[ci2];
+        RECO_PFJET_COMPONENT_PT[index_jets][i1] = o_jc_pt[ci2];
+        RECO_PFJET_COMPONENT_ETA[index_jets][i1] = o_jc_eta[ci2];
+        RECO_PFJET_COMPONENT_PHI[index_jets][i1] = o_jc_phi[ci2];
+        RECO_PFJET_COMPONENT_E[index_jets][i1] = o_jc_energy[ci2];
+        RECO_PFJET_COMPONENT_CHARGE[index_jets][i1] = o_jc_charge[ci2];
+        RECO_PFJET_COMPONENT_TRANSVERSE_MASS[index_jets][i1] = o_jc_mt[ci2];
+        RECO_PFJET_COMPONENT_XVERTEX[index_jets][i1] = o_jc_vx[ci2];
+        RECO_PFJET_COMPONENT_YVERTEX[index_jets][i1] = o_jc_vy[ci2];
+        RECO_PFJET_COMPONENT_ZVERTEX[index_jets][i1] = o_jc_vz[ci2];
+        RECO_PFJET_COMPONENT_VERTEX_CHI2[index_jets][i1] = o_jc_vchi2[ci2];
+        o_jc_pt[ci2] = -2;
+      }
+    
       cout 
 	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]   
 	<< " PT="   << RECO_PFJET_PT[index_jets]   
@@ -4998,7 +5578,101 @@ void fillTracks(const edm::Event& iEvent){
 	<< endl;
       
       index_jets++;
+
+      
     } // for loop on PFJets jets
+
+
+    /////////////////////////////////////
+
+    //QGTagger REHAM
+    
+    edm::Handle<edm::ValueMap<float> > QGjetmap;
+    iEvent.getByToken(jetQGMapTag_, QGjetmap);
+
+    edm::Handle<edm::ValueMap<float> > QGjetmap_axis2;
+    iEvent.getByToken(jetQGMapTag_axis2_, QGjetmap_axis2);
+
+    edm::Handle<edm::ValueMap<float> > QGjetmap_ptd;
+    iEvent.getByToken(jetQGMapTag_ptd_, QGjetmap_ptd);
+
+    edm::Handle<edm::ValueMap<int> > QGjetmap_mult;
+    iEvent.getByToken(jetQGMapTag_mult_, QGjetmap_mult);
+
+    edm::Handle<pat::JetCollection> pfjetsQG;
+    iEvent.getByToken(jetsQGTag_, pfjetsQG); 
+    
+    int N_QGjets = 0;
+    
+    for ( pat::JetCollection::const_iterator i=pfjetsQG->begin(); i!=pfjetsQG->end(); i++) {  
+      if (N_QGjets>99) continue;
+    
+      edm::Ref<pat::JetCollection> pfjetref(pfjetsQG , N_QGjets);     
+
+      float qgLikelihood = (*QGjetmap)[pfjetref];
+      float qgaxis2 = (*QGjetmap_axis2)[pfjetref];
+      float qgptd = (*QGjetmap_ptd)[pfjetref];
+      int qgmult = (*QGjetmap_mult)[pfjetref];
+
+      // cout <<"qgLikelihood = "<<qgLikelihood<<endl;
+
+      RECO_PFJET_QG_Likelihood[N_QGjets] = qgLikelihood;
+      RECO_PFJET_QG_axis2[N_QGjets] = qgaxis2;
+      RECO_PFJET_QG_ptd[N_QGjets] = qgptd;
+      RECO_PFJET_QG_mult[N_QGjets] = qgmult;
+
+      // cout<<"qgLikelihood branch = "<< RECO_PFJET_QG_Likelihood[N_QGjets]<<endl;
+
+      N_QGjets++;
+
+    }
+
+    /////////////////////////////////////////////
+
+    //@
+    //For Q/G study
+    
+    if( fillMCTruth ){
+      //Prepare LHE particles list (only the partons in final state and check if they have DR=0.4 clean)
+
+      //cout<<"MCCCCCCCCCCCCC onlyyyyyyyyyyy"<<endl;
+
+      edm::Handle<LHEEventProduct> lheInfo;
+      iEvent.getByToken(LHE_, lheInfo);
+      std::vector<lhef::HEPEUP::FiveVector> lheParticles = lheInfo->hepeup().PUP;
+      int NlheParticles = lheParticles.size();
+      int lhep_index = 0;
+      bool lhep_clear = true;
+      TLorentzVector lheParton1, lheParton2;
+      for(int ip1=0; ip1<NlheParticles; ++ip1){
+    	int lhep1_pdgid = abs(lheInfo->hepeup().IDUP.at(ip1));
+    	int lhep1_state = lheInfo->hepeup().ISTUP.at(ip1);
+        if(lhep1_state == 1 && ((lhep1_pdgid >= 1 && lhep1_pdgid <= 8) || lhep1_pdgid == 21)){
+          lheParton1.SetPxPyPzE(lheParticles[ip1][0],lheParticles[ip1][1],lheParticles[ip1][2],lheParticles[ip1][3]);
+          for(int ip2=0; ip2<NlheParticles; ++ip2){
+    	      int lhep2_pdgid = abs(lheInfo->hepeup().IDUP.at(ip2));
+    	      int lhep2_state = lheInfo->hepeup().ISTUP.at(ip2);
+            if(ip2 != ip1 && lhep2_state == 1 && ((lhep2_pdgid >= 1 && lhep2_pdgid <= 8) || lhep2_pdgid == 21)){
+              lheParton2.SetPxPyPzE(lheParticles[ip2][0],lheParticles[ip2][1],lheParticles[ip2][2],lheParticles[ip2][3]);
+              //Check parton isolation (is there different partons inside PF Jet (Ak4) radius?)
+              //If so, then the PFJet-Parton matching is of course not the best (we might want to avoid those jets?)
+              //Does this take in account the case of different PFJets matching better to same parton?
+              if( deltaR2(lheParton1.Eta(), lheParton1.Phi(), lheParton2.Eta(), lheParton2.Phi()) < 0.4 ) lhep_clear = false;
+            }
+          }
+          LHE_PARTON_CLEAR[lhep_index] = lhep_clear;
+          LHE_PARTON_PDGID[lhep_index] = lhep1_pdgid;
+    	  LHE_PARTON_PT[lhep_index]    = lheParton1.Pt();
+    	  LHE_PARTON_ETA[lhep_index]   = lheParton1.Eta();
+    	  LHE_PARTON_PHI[lhep_index]   = lheParton1.Phi();
+    	  LHE_PARTON_E[lhep_index]     = lheParton1.E();
+    	  ++lhep_index;
+        }
+      }
+      LHE_PARTON_N = lhep_index;
+    }
+
+    ////////////////////////////////////
     
     edm::Handle<double> rhoHandle;
 
@@ -5052,11 +5726,14 @@ void fillTracks(const edm::Event& iEvent){
 	tCHighPur_BTagJet_PHI[l]=btagIter->phi();
 	tCHighPur_BTagJet_DISCR[l]=discrCSV2;
 
-    // combinedSecondaryVertexBJetTags
-    double discrCSV3 = btagIter->bDiscriminator(cSV_bTag_);
+    // Deep CSV tagger 2017 Reham
+    double discrCSV3_1 = btagIter->bDiscriminator(cSV_bTag1_);
+    double discrCSV3_2 = btagIter->bDiscriminator(cSV_bTag2_);
+    double discrCSV3 = discrCSV3_1 + discrCSV3_2 ;
+
 	cout<<" Jet "<< l
-	    <<" has b tag discriminator combinedSecondaryVertexBJetTags = "<< discrCSV3
-	    << " and jet Pt = "<<btagIter->pt()<<endl;      
+	    <<" has b tag discriminator pfDeepCSVJetTags:probb  = "<< discrCSV3_1<<" and pfDeepCSVJetTags:probbb  = "<<discrCSV3_2<<" and total = "
+            <<discrCSV3 << " and jet Pt = "<<btagIter->pt()<<endl;      
 	cSV_BTagJet_PT[l]=btagIter->pt();
 	cSV_BTagJet_ETA[l]=btagIter->eta();
 	cSV_BTagJet_PHI[l]=btagIter->phi();
@@ -5280,7 +5957,12 @@ void fillTracks(const edm::Event& iEvent){
   vector<reco::Vertex> PV;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
   edm::EDGetTokenT<double> rhojetsTag_;
-  edm::EDGetTokenT<vector<pat::Jet> > jetsTag_,jetsMVATag_;
+  edm::EDGetTokenT<vector<pat::Jet> > jetsTag_,jetsMVATag_, jetsQGTag_;
+  edm::EDGetTokenT<edm::ValueMap<float> > jetQGMapTag_;
+  edm::EDGetTokenT<edm::ValueMap<float> > jetQGMapTag_axis2_;
+  edm::EDGetTokenT<edm::ValueMap<float> > jetQGMapTag_ptd_;
+  edm::EDGetTokenT<edm::ValueMap<int> > jetQGMapTag_mult_;
+
 //  edm::EDGetTokenT<edm::ValueMap<float> >  PuJetMvaMCfullDiscr_,PuJetMvaMCfullId_;
 //  edm::EDGetTokenT<edm::ValueMap<float> >  PuJetMvaDatafullDiscr_,PuJetMvaDatafullId_;
 
@@ -5304,8 +5986,8 @@ void fillTracks(const edm::Event& iEvent){
   // Matching
   edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodElectronMCMatch_;
   edm::EDGetTokenT<reco::CandidateCollection> myElectrons_;
-  edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodMuonMCMatch_;
-  edm::EDGetTokenT<reco::CandidateCollection> myMuons_;
+  edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodMuonMCMatch_; 
+  edm::EDGetTokenT<reco::CandidateCollection> myMuons_; 
   edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodGammaMCMatch_;
   edm::EDGetTokenT<reco::CandidateCollection> myGammas_;
 
@@ -5319,7 +6001,7 @@ void fillTracks(const edm::Event& iEvent){
 
   // bTagging
 //  edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >  
-  std::string tCHighEff_bTag_, tCHighPur_bTag_,cSV_bTag_;
+  std::string tCHighEff_bTag_, tCHighPur_bTag_,cSV_bTag1_,cSV_bTag2_;
 
 //  const std::vector<std::string> bDiscriminators_;
 
@@ -5487,7 +6169,7 @@ void fillTracks(const edm::Event& iEvent){
   // RECO muons
   bool RECOMU_isPFMu[100],RECOMU_isGlobalMu[100],RECOMU_isStandAloneMu[100],RECOMU_isTrackerMu[100],RECOMU_isCaloMu[100],RECOMU_isTrackerHighPtMu[100],RECOMU_isME0Muon[100];
   float RECOMU_E[100],RECOMU_PT[100],RECOMU_P[100],RECOMU_ETA[100],RECOMU_THETA[100],RECOMU_PHI[100],RECOMU_MASS[100],RECOMU_CHARGE[100];
-  double RECOMU_COV[100][3][3];
+  double RECOMU_COV[100][3][3],RECOMU_Roch_calib_error[100];
 
   float 
     RECOMU_TRACKISO[100],RECOMU_TRACKISO_SUMPT[100],RECOMU_ECALISO[100],RECOMU_HCALISO[100], RECOMU_X[100],   
@@ -5643,8 +6325,22 @@ void fillTracks(const edm::Event& iEvent){
   
   // RECO JETS
   int RECO_PFJET_N, RECO_PFJET_CHARGE[200],RECO_PFJET_PUID[200];
-  float RECO_PFJET_ET[200], RECO_PFJET_PT[200], RECO_PFJET_ETA[200], RECO_PFJET_PHI[200],RECO_PFJET_PUID_MVA[200];
+  float RECO_PFJET_ET[200], RECO_PFJET_PT[200], RECO_PFJET_ETA[200], RECO_PFJET_PHI[200],RECO_PFJET_PUID_MVA[200],RECO_PFJET_QG_Likelihood[200],RECO_PFJET_QG_axis2[200],RECO_PFJET_QG_ptd[200],RECO_PFJET_QG_mult[200];
   double RHO,RHO_ele,RHO_mu;
+
+ //@
+  bool isData;
+  edm::EDGetTokenT<edm::View<pat::Muon>> slimmedMuonsTag_;
+  edm::EDGetTokenT<LHEEventProduct> LHE_;
+  bool LHE_PARTON_CLEAR[10];
+  int LHE_PARTON_N, LHE_PARTON_PDGID[10];
+  float LHE_PARTON_PT[10], LHE_PARTON_ETA[10], LHE_PARTON_PHI[10], LHE_PARTON_E[10];
+  int RECO_PFJET_CHARGED_HADRON_MULTIPLICITY[200], RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY[200], RECO_PFJET_PHOTON_MULTIPLICITY[200], RECO_PFJET_ELECTRON_MULTIPLICITY[200], RECO_PFJET_COMPONENT_PDGID[200][100];
+  int RECO_PFJET_MUON_MULTIPLICITY[200], RECO_PFJET_HF_HADRON_MULTIPLICTY[200], RECO_PFJET_HF_EM_MULTIPLICITY[200], RECO_PFJET_CHARGED_MULTIPLICITY[200], RECO_PFJET_NEUTRAL_MULTIPLICITY[200], RECO_PFJET_NCOMPONENTS[200];
+  float RECO_PFJET_PT_UncUp[200], RECO_PFJET_PT_UncDn[200], RECO_PFJET_AREA[200], RECO_PFJET_CHARGED_HADRON_ENERGY[200], RECO_PFJET_NEUTRAL_HADRON_ENERGY[200], RECO_PFJET_PHOTON_ENERGY[200], RECO_PFJET_ELECTRON_ENERGY[200], RECO_PFJET_PTD[200];
+  float RECO_PFJET_MUON_ENERGY[200], RECO_PFJET_HF_HADRON_ENERGY[200], RECO_PFJET_HF_EM_ENERGY[200], RECO_PFJET_CHARGED_EM_ENERGY[200], RECO_PFJET_CHARGED_MU_ENERGY[200];
+  float RECO_PFJET_NEUTRAL_EM_ENERGY[200], RECO_PFJET_COMPONENT_PT[200][100], RECO_PFJET_COMPONENT_ETA[200][100], RECO_PFJET_COMPONENT_PHI[200][100], RECO_PFJET_COMPONENT_E[200][100], RECO_PFJET_COMPONENT_TRANSVERSE_MASS[200][100], RECO_PFJET_COMPONENT_CHARGE[200][100];
+  float RECO_PFJET_COMPONENT_XVERTEX[200][100], RECO_PFJET_COMPONENT_YVERTEX[200][100], RECO_PFJET_COMPONENT_ZVERTEX[200][100], RECO_PFJET_COMPONENT_VERTEX_CHI2[200][100];
 
   // GenJET
   float MC_GENJET_PT[100], MC_GENJET_ETA[100], MC_GENJET_PHI[100];
@@ -5653,7 +6349,9 @@ void fillTracks(const edm::Event& iEvent){
   float genmet;
   float calomet;
     //calometopt,calometoptnohf,calometoptnohfho,calometoptho,calometnohf,calometnohfho,calometho;       
-  float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta;
+  float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr;
+  float pfmet_JetEnUp, pfmet_JetEnDn, pfmet_ElectronEnUp, pfmet_ElectronEnDn, pfmet_MuonEnUp, pfmet_MuonEnDn;
+  float pfmet_JetResUp, pfmet_JetResDn, pfmet_UnclusteredEnUp, pfmet_UnclusteredEnDn, pfmet_PhotonEnUp, pfmet_PhotonEnDn,pfmet_TauEnUp,pfmet_TauEnDown;
 
     //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;        
     float tcmet;

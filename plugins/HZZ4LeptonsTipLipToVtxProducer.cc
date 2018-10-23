@@ -497,26 +497,44 @@ void HZZ4LeptonsTipLipToVtxProducer::produce(edm::Event& iEvent, const edm::Even
   //  
   //
   if (decaychannel=="2e2mu" || decaychannel=="4e"){ 
-    iEvent.put( twodTipEleMap, "TipEleMap");
-    iEvent.put( twodLipEleMap, "LipEleMap");
+    // iEvent.put( twodTipEleMap, "TipEleMap");
+    // iEvent.put( twodLipEleMap, "LipEleMap");
 
-    iEvent.put( twodTipValueEleMap, "TipValueEleMap");
-    iEvent.put( twodLipValueEleMap, "LipValueEleMap");
+    // iEvent.put( twodTipValueEleMap, "TipValueEleMap");
+    // iEvent.put( twodLipValueEleMap, "LipValueEleMap");
     
-    iEvent.put( twodTipErrorEleMap, "TipErrorEleMap");
-    iEvent.put( twodLipErrorEleMap, "LipErrorEleMap");
+    // iEvent.put( twodTipErrorEleMap, "TipErrorEleMap");
+    // iEvent.put( twodLipErrorEleMap, "LipErrorEleMap");
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipEleMap), "TipEleMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipEleMap), "LipEleMap");
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipValueEleMap), "TipValueEleMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipValueEleMap), "LipValueEleMap");
+    
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipErrorEleMap), "TipErrorEleMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipErrorEleMap), "LipErrorEleMap");
 
   }
   //
   if (decaychannel=="2e2mu" || decaychannel=="4mu"){
-    iEvent.put( twodTipMuMap, "TipMuMap");
-    iEvent.put( twodLipMuMap, "LipMuMap");
+    // iEvent.put( twodTipMuMap, "TipMuMap");
+    // iEvent.put( twodLipMuMap, "LipMuMap");
 
-    iEvent.put( twodTipValueMuMap, "TipValueMuMap");
-    iEvent.put( twodLipValueMuMap, "LipValueMuMap");
+    // iEvent.put( twodTipValueMuMap, "TipValueMuMap");
+    // iEvent.put( twodLipValueMuMap, "LipValueMuMap");
     
-    iEvent.put( twodTipErrorMuMap, "TipErrorMuMap");
-    iEvent.put( twodLipErrorMuMap, "LipErrorMuMap");
+    // iEvent.put( twodTipErrorMuMap, "TipErrorMuMap");
+    // iEvent.put( twodLipErrorMuMap, "LipErrorMuMap");
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipMuMap), "TipMuMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipMuMap), "LipMuMap");
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipValueMuMap), "TipValueMuMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipValueMuMap), "LipValueMuMap");
+    
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodTipErrorMuMap), "TipErrorMuMap");
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*twodLipErrorMuMap), "LipErrorMuMap");
   }
   //
   delete theGeomPropBw;

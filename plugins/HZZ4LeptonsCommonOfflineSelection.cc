@@ -265,15 +265,18 @@ void HZZ4LeptonsCommonOfflineSelection::produce(edm::Event& iEvent, const edm::E
   //  2e2mu, 4e and 4mu channels
   if (decaychannel=="2e2mu" || decaychannel=="4e"){
     if (nTightCombIsolEle >=1) *TightCombIsoEle = true;
-    iEvent.put(TightCombIsoEle,    decaychannel + "OffselTightCombIsolEle");
+    //iEvent.put(TightCombIsoEle,    decaychannel + "OffselTightCombIsolEle");
+    iEvent.put(std::make_unique<bool>(*TightCombIsoEle),    decaychannel + "OffselTightCombIsolEle");
   }
   if (decaychannel=="2e2mu" || decaychannel=="4mu"){
     if (nTightCombIsolMu  >=1) *TightCombIsoMu  = true;
-    iEvent.put(TightCombIsoMu,  decaychannel + "OffselTightCombIsolMu" );
+    //iEvent.put(TightCombIsoMu,  decaychannel + "OffselTightCombIsolMu" );
+    iEvent.put(std::make_unique<bool>(*TightCombIsoMu),  decaychannel + "OffselTightCombIsolMu" );
   }
   
   if (nVertComb>=1) *VertComb=true; 
-  iEvent.put(VertComb,    decaychannel + "OffselVertComb");
+  //iEvent.put(VertComb,    decaychannel + "OffselVertComb");
+  iEvent.put(std::make_unique<bool>(*VertComb),    decaychannel + "OffselVertComb");
 
   if      (decaychannel=="2e2mu"){
     if ( nTightCombIsolEle>=1 && nTightCombIsolMu>=1 && nVertComb>=1 ) *boolOffsel=true;
@@ -285,7 +288,8 @@ void HZZ4LeptonsCommonOfflineSelection::produce(edm::Event& iEvent, const edm::E
     if ( nTightCombIsolMu>=1 && nVertComb >=1 )  *boolOffsel=true;
   }
   
-  iEvent.put(boolOffsel, decaychannel + "Offsel");
+  //iEvent.put(boolOffsel, decaychannel + "Offsel");
+  iEvent.put(std::make_unique<bool>(*boolOffsel), decaychannel + "Offsel");
   
 }
 

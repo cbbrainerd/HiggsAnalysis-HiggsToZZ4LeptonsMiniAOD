@@ -12,7 +12,9 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     PileupSrc  = cms.InputTag("slimmedAddPileupInfo"),
       
     # Generator
-    Generator  = cms.InputTag("generator"),                                           
+    Generator  = cms.InputTag("generator"),
+    #/@ 
+   # LHEProduct = cms.InputTag("externalLHEProducer"), #moved to HiggsToZZ__MiniAOD_mc.py as it dependend on input mc sample                
 
     # HLT
     fillHLTinfo  = cms.untracked.bool(False),
@@ -20,9 +22,10 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     HLTAnalysisinst = cms.string('hTozzTo4leptonsHLTAnalysis'),
     flagHLTnames=cms.VInputTag(cms.InputTag("flagHLTIsoMu11"), cms.InputTag("flagHLTMu15"),cms.InputTag("flagHLTDoubleMu3"),cms.InputTag("flagHLTIsoEle15L1I"),cms.InputTag("flagHLTIsoEle18L1R"),cms.InputTag("flagHLTDoubleIsoEle10L1I"), cms.InputTag("flagHLTDoubleIsoEle12L1R"), cms.InputTag("flagHLTaccept")),
 
+
     # Trigger matching                                           
     triggerEvent  = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    triggerobjects = cms.InputTag("selectedPatTrigger"),
+    triggerobjects = cms.InputTag("slimmedPatTrigger"),
 
     triggerbits = cms.InputTag("TriggerResults","","HLT"),
 
@@ -99,6 +102,9 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
 
 #    MuonsLabel               = cms.InputTag("hTozzTo4leptonsMuonIsolationProducer"),
     MuonsCorrPtErrorMapLabel = cms.InputTag("hTozzTo4leptonsMuonCalibrator:CorrPtError"),
+    # /@ for Muon calibrator to get error in muon pT
+    SlimmedMuonsLabel = cms.InputTag("slimmedMuons"),
+
 
     # PF muons
    PFMuonsLabel             = cms.InputTag("slimmedMuons"),                                           
@@ -193,7 +199,13 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     mvaElectronTag            = cms.InputTag("hTozzTo4leptonsElectronOrdering"),
     mvaTrigV0MapTag           = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values"),
 #    mvaNonTrigV0MapTag        = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"),
-    mvaNonTrigV0MapTag        = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16V1Values"),
+#    mvaNonTrigV0MapTag        = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16V1Values"),
+    mvaNonTrigV0MapTag        = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
+
+    jetQGMapTag        = cms.InputTag("QGTaggerDATA:qgLikelihood"), #REHAM
+    jetQGMapTag_axis2        = cms.InputTag("QGTaggerDATA:axis2"), #REHAM
+    jetQGMapTag_ptd        = cms.InputTag("QGTaggerDATA:ptD"), #REHAM
+    jetQGMapTag_mult        = cms.InputTag("QGTaggerDATA:mult"), #REHAM
                                         
     # GD                                          
     ftsigmaVert               = cms.InputTag("hTozzTo4leptonsGeomDiscrimProducer:ftsigma"),
@@ -284,7 +296,8 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
 #    CaloMET_NoHFHOLabel    = cms.InputTag("metNoHFHO"),
  
     # PF MET
-    PfMETLabel             = cms.InputTag("slimmedMETs"), 
+  # PfMETLabel             = cms.InputTag("slimmedMETs::MonoHiggs"), #reham comment to check "to use the updated MET"
+   PfMETLabel             = cms.InputTag("slimmedMETs"), #reham comment to check
     # HT MET                                          
 #    HtMET_IC5Label         = cms.InputTag("htMetIC5"), 
 #    HtMET_KT4Label         = cms.InputTag("htMetKT4"),
@@ -309,7 +322,9 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     jBP_bTagLabel        = cms.string("pfjetBProbabilityBJetTags"),
     sSVHighEff_bTagLabel = cms.string("pfSimpleSecondaryVertexHighEffBJetTags"),
     sSVHighPur_bTagLabel = cms.string("pfSimpleSecondaryVertexHighPurBJetTags"),
-    cSV_bTagLabel        = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+    #cSV_bTagLabel        = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),#2016
+    cSV_bTagLabel1        = cms.string("pfDeepCSVJetTags:probb"),#2017
+    cSV_bTagLabel2        = cms.string("pfDeepCSVJetTags:probbb"),#2017
     cSVMVA_bTagLabel     = cms.string("pfCombinedSecondaryVertexMVABJetTags"),
     sEByIP3d_bTagLabel   = cms.InputTag("softElectronByIP3dBJetTags"),
     sEByPt_bTagLabel     = cms.InputTag("softPFElectronByPtBJetTags"),
@@ -324,8 +339,8 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     # Matching
     goodElectronMCMatch  = cms.InputTag("goodElectronMCMatch"),
     myElectrons          = cms.InputTag("myElectrons"),
-    goodMuonMCMatch      = cms.InputTag("goodMuonMCMatch"),
-    myMuons              = cms.InputTag("myMuons"),
+    goodMuonMCMatch      = cms.InputTag("goodMuonMCMatch"), 
+    myMuons              = cms.InputTag("myMuons"), 
     goodGammaMCMatch      = cms.InputTag("goodGammaMCMatch"),
     myGammas              = cms.InputTag("myGammas"),
 

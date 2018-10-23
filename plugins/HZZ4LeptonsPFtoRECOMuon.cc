@@ -59,8 +59,9 @@ void HZZ4LeptonsPFtoRECOMuon::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 
   
-  const string iName = "";
-  iEvent.put( muon, iName );
+  // const string iName = "";
+  iEvent.put(std::make_unique<reco::MuonCollection>(*muon));
+ 
 
 }
 

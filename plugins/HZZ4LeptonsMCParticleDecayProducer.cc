@@ -147,20 +147,24 @@ void HZZ4LeptonsMCParticleDecayProducer::produce(edm::Event& iEvent, const edm::
     }    
   }
 
-  iEvent.put(mothercands_, decayChain_ + "Mother");
-  iEvent.put(motherCompositecands_, decayChain_ + "CompositeMother");
-
+  // iEvent.put(mothercands_, decayChain_ + "Mother");
+  // iEvent.put(motherCompositecands_, decayChain_ + "CompositeMother");
+  iEvent.put(std::make_unique<reco::CandidateCollection>(*mothercands_), decayChain_ + "Mother");
+  iEvent.put(std::make_unique<reco::CompositeCandidateCollection>(*motherCompositecands_), decayChain_ + "CompositeMother");
+  
   for (unsigned int row = 0; row < firstdaughtersize; ++ row ){
     auto_ptr<CandidateCollection> bosonscands_(new CandidateCollection);
     if (! firstdaughterscands_->empty()) bosonscands_->push_back((firstdaughterscands_->begin()+row)->clone());
-    iEvent.put(bosonscands_, valiasbosons.at(row));
+    //iEvent.put(bosonscands_, valiasbosons.at(row));
+    iEvent.put(std::make_unique<reco::CandidateCollection>(*bosonscands_), valiasbosons.at(row));
   }
 
   // daughterscands_->sort(SortCandByDecreasingPt());
   for (unsigned int row = 0; row < daughtersize; ++ row ){
     auto_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
     if (! daughterscands_->empty()) leptonscands_->push_back((daughterscands_->begin()+row)->clone());
-    iEvent.put(leptonscands_, valiasleptons.at(row));
+    //iEvent.put(leptonscands_, valiasleptons.at(row));
+    iEvent.put(std::make_unique<reco::CandidateCollection>(*leptonscands_), valiasleptons.at(row));
   }
 
 }

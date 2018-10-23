@@ -212,11 +212,13 @@ void HZZ4LeptonsHLTAnalysis::produce(edm::Event& iEvent, const edm::EventSetup& 
      for  (unsigned int j = 0; j < n_; ++ j ){
        auto_ptr<bool> flag ( new bool );
        *flag=boolflag[j];
-       iEvent.put(flag,valias.at(j));
+       // iEvent.put(flag,valias.at(j));
+       iEvent.put(std::make_unique<bool>(*flag),valias.at(j));
      }
      auto_ptr<bool> flagaccept ( new bool );
      *flagaccept=accept;
-     iEvent.put(flagaccept,aliasaccept);
+     //iEvent.put(flagaccept,aliasaccept);
+     iEvent.put(std::make_unique<bool>(*flagaccept),aliasaccept);
    }
    
 }

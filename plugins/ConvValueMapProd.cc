@@ -57,8 +57,10 @@ void ConvValueMapProd::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     distsF.fill();
     dcotsF.fill();
-    iEvent.put(distsM,"dist");
-    iEvent.put(dcotsM,"dcot");
+    // iEvent.put(distsM,"dist");
+    // iEvent.put(dcotsM,"dcot");
+    iEvent.put(std::make_unique<edm::ValueMap<float> >(*distsM),"dist");
+    iEvent.put(std::make_unique<edm::ValueMap<float> >(*dcotsM),"dcot");
 
 
 }

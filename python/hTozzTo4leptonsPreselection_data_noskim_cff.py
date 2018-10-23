@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 # Generic MC Truth analysis
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsGenSequence_cff import *
 
@@ -131,7 +130,7 @@ if useSkimEarlyData == 'true':
                                      cut = cms.string(MUON_BASE_CUT),
                                      )    
 else:
-
+    
     # Electron Preselector
     from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsElectronSequences_cff import *
     hTozzTo4leptonsElectronPreSelector=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsElectronSelector_cfi.hTozzTo4leptonsElectronSelector.clone()
@@ -139,22 +138,52 @@ else:
     hTozzTo4leptonsElectronPreSelector.electronEtaMax=cms.double(2.5)
     hTozzTo4leptonsElectronPreSelector.electronPtMin=cms.double(5.)
     hTozzTo4leptonsElectronPreSelector.useEleID=cms.bool(False)
-
+    
     # Electron ordering in pT
     hTozzTo4leptonsElectronOrdering = cms.EDProducer("HZZ4LeptonsElectronOrdering",
-     electronCollection = cms.InputTag("hTozzTo4leptonsElectronPreSelector"),
-    )
-
-    # Electron scale calibration
-    from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import *
-    calibratedPatElectrons.electrons = cms.InputTag('hTozzTo4leptonsElectronOrdering')
-    calibratedPatElectrons.correctionFile = cms.string(files["80Xapproval"])
-    calibratedPatElectrons.isMC = cms.bool(True)
-
+                                                     electronCollection = cms.InputTag("hTozzTo4leptonsElectronPreSelector"),
+                                                     )
+    
+#@#    # Electron scale calibration
+#@#    # from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import *
+    
+#@#    from EgammaAnalysis.ElectronTools.calibrationTablesRun2 import correctionType
+#@#    from EgammaAnalysis.ElectronTools.calibrationTablesRun2 import files
+    
+#@#    calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducerRun2",
+#@#                                            
+#@#                                            # input collections
+#@#                                            electrons = cms.InputTag('slimmedElectrons'),
+#@#                                            gbrForestName = cms.vstring('electron_eb_ECALTRK_lowpt', 'electron_eb_ECALTRK',
+#@#                                                                        'electron_ee_ECALTRK_lowpt', 'electron_ee_ECALTRK',
+#@#                                                                        'electron_eb_ECALTRK_lowpt_var', 'electron_eb_ECALTRK_var',
+#@#                                                                        'electron_ee_ECALTRK_lowpt_var', 'electron_ee_ECALTRK_var'),
+#@#                                            
+#@#                                            # data or MC corrections
+#@#                                            # if isMC is false, data corrections are applied
+#@#                                            isMC = cms.bool(False),
+#@#                                            autoDataType = cms.bool(True),
+#@#                                            
+#@#                                            # set to True to get special "fake" smearing for synchronization. Use JUST in case of synchronization
+#@#                                            isSynchronization = cms.bool(False),
+#@#                                            
+#@#                                            correctionFile = cms.string(files[correctionType]),
+#@#                                            recHitCollectionEB = cms.InputTag('reducedEgamma:reducedEBRecHits'),
+#@#                                            recHitCollectionEE = cms.InputTag('reducedEgamma:reducedEERecHits')
+#@#                                            
+#@#                                            )
+#@#
+#@#    
+#@#    
+#@#    calibratedPatElectrons.electrons = cms.InputTag('hTozzTo4leptonsElectronOrdering')
+#@#    calibratedPatElectrons.correctionFile = cms.string(files["Run2017_17Nov2017_v1"]) # reham run2 2017
+#@#    calibratedPatElectrons.isMC = cms.bool(True)
+    
     # Electron relaxed selection
     from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsElectronSequences_cff import *
     hTozzTo4leptonsElectronSelector=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsElectronSelector_cfi.hTozzTo4leptonsElectronSelector.clone()
-    hTozzTo4leptonsElectronSelector.electronCollection=cms.InputTag("calibratedPatElectrons")
+   # hTozzTo4leptonsElectronSelector.electronCollection=cms.InputTag("calibratedPatElectrons")
+    hTozzTo4leptonsElectronSelector.electronCollection=cms.InputTag("slimmedElectrons::MonoHiggs")# this updated after new 2017 smearing instructions
     hTozzTo4leptonsElectronSelector.electronEtaMax=cms.double(2.5)
     hTozzTo4leptonsElectronSelector.electronPtMin=cms.double(7.)
     hTozzTo4leptonsElectronSelector.useEleID=cms.bool(False)
@@ -162,7 +191,8 @@ else:
     hTozzTo4leptonsElectronSequence=cms.Sequence(hTozzTo4leptonsElectronSelector)
     
     # Muon Calibration
-    from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonCalibrator_cfi import *
+    #Kalman calibrator
+    #from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonCalibrator_cfi import *
     #hTozzTo4leptonsMuonCalibrator = cms.EDProducer("KalmanPATMuonCorrector",
     #                                     src = cms.InputTag("slimmedMuons"),
     #                                     identifier = cms.string(""),
@@ -170,20 +200,43 @@ else:
     #                                     isSynchronization = cms.bool(False),
     #                                     )
 
+    #Rochester calibrator
+
+    myMuonsCalib = cms.EDFilter("CandViewShallowCloneProducer",
+                               src = cms.InputTag("slimmedMuons"),
+                                cut = cms.string('')
+                                )
+
+    goodMuonMCMatchCalib = cms.EDProducer ("MCMatcher",
+                            src     = cms.InputTag("myMuonsCalib"),      # RECO objects to match
+                            matched = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
+                            mcPdgId     = cms.vint32(13),           # one or more PDG ID (13 = muon); absolute values (see below)
+                            checkCharge = cms.bool(True),           # True = require RECO and MC objects to have the same charge
+                            mcStatus = cms.vint32(1),               # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
+                            maxDeltaR = cms.double(0.15),           # MAX deltaR for the match
+                            maxDPtRel = cms.double(0.5),            # MAX deltaPt/Pt for the match
+                            resolveAmbiguities = cms.bool(True),    # Forbid two RECO objects to match to the same GEN object
+                            resolveByMatchQuality = cms.bool(True)  # False = just match input in order; True = pick lowest deltaR pair first
+                                  )
+
+    from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonRochesterCalibrator_cfi import * #Reham to add Rochester calibrator 
+
     # Muon ghost cleaning
     from HiggsAnalysis.HiggsToZZ4Leptons.muonCleanerBySegments_cfi import *
-    cleanPatMuonsBySegments.src = cms.InputTag("hTozzTo4leptonsMuonCalibrator")
+    #cleanPatMuonsBySegments.src = cms.InputTag("hTozzTo4leptonsMuonCalibrator") # Reham to add new calibrator
+    cleanPatMuonsBySegments.src = cms.InputTag("hTozzTo4leptonsMuonRochesterCalibrator") #Reham Rochester calibrator for 2017 data
 
     # Muon relaxed selection
     from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonSelector_cfi import *
     hTozzTo4leptonsMuonSelector=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonSelector_cfi.hTozzTo4leptonsMuonSelector.clone()
     # hTozzTo4leptonsMuonSelector.muonCollection = cms.InputTag("cleanPatMuonsBySegments")
-    hTozzTo4leptonsMuonSelector.muonCollection = cms.InputTag("hTozzTo4leptonsMuonCalibrator")
-    hTozzTo4leptonsMuonSelector.isGlobalMuon=cms.bool(False)
-    hTozzTo4leptonsMuonSelector.isTrackerMuon=cms.bool(True)
-    hTozzTo4leptonsMuonSelector.muonPtMin=cms.double(5.)
-    hTozzTo4leptonsMuonSelector.muonEtaMax=cms.double(2.4)
-    hTozzTo4leptonsMuonSequence=cms.Sequence(hTozzTo4leptonsMuonSelector)
+    #hTozzTo4leptonsMuonSelector.muonCollection = cms.InputTag("hTozzTo4leptonsMuonCalibrator") #Reham to add new calibrator
+    hTozzTo4leptonsMuonSelector.muonCollection = cms.InputTag("hTozzTo4leptonsMuonRochesterCalibrator")
+    hTozzTo4leptonsMuonSelector.isGlobalMuon=cms.bool(True) 
+    hTozzTo4leptonsMuonSelector.isTrackerMuon=cms.bool(True)  
+    hTozzTo4leptonsMuonSelector.muonPtMin=cms.double(5. ) 
+    hTozzTo4leptonsMuonSelector.muonEtaMax=cms.double(2.4) 
+    hTozzTo4leptonsMuonSequence=cms.Sequence(hTozzTo4leptonsMuonSelector) 
     
 
 #*******************
@@ -362,11 +415,12 @@ electronMVAValueMapProducer.src = cms.InputTag("hTozzTo4leptonsElectronOrdering"
 # MVA Electron ID 80X
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import *
-from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_V1_cff import *
-
+#from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_V1_cff import *
+#from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff import *
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff import * # reham new ele ID for 2017
 
 # MVA Photon ID 80X
-from RecoEgamma.PhotonIdentification.Identification.mvaTLEID_Fall15_V1_cff import *
+#from RecoEgamma.PhotonIdentification.Identification.mvaTLEID_Fall15_V1_cff import * #reham commented 
 
 
 ## Electron Regression
@@ -378,7 +432,7 @@ from RecoEgamma.PhotonIdentification.Identification.mvaTLEID_Fall15_V1_cff impor
 #need to change CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi
 
 # Electron PF isolation
-from CommonTools.ParticleFlow.PFBRECO_cff import *
+#@#from CommonTools.ParticleFlow.PFBRECO_cff import *
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolationPFBRECO_cff import *
 elPFIsoDepositChargedPFBRECO.src    = cms.InputTag("hTozzTo4leptonsElectronSelector")
 elPFIsoDepositChargedAllPFBRECO.src = cms.InputTag("hTozzTo4leptonsElectronSelector")
@@ -584,15 +638,15 @@ hTozzTo4leptonsIpToVtxProducer.VertexLabel = cms.InputTag("offlineSlimmedPrimary
 #hTozzTo4leptonsIpToVtxProducerKinEEEE=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsIpToVtxProducer_cfi.hTozzTo4leptonsIpToVtxProducer.clone()
 #hTozzTo4leptonsIpToVtxProducerKinEEEE.VertexLabel = cms.InputTag("hTozzTo4leptonsConstraintFitProducerEEEE:KinematicFitVertex")
 
-# Matching sequence
-#from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMatchingSequence_cff  import *
+# Matching sequence # for matching information Reham 
+from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMatchingSequence_cff  import *
 
 
 # COMMON ROOT TREE
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsCommonRootTree_cfi  import *
 hTozzTo4leptonsCommonRootTreePresel=HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsCommonRootTree_cfi.hTozzTo4leptonsCommonRootTree.clone()
 hTozzTo4leptonsCommonRootTreePresel.decaychannel = cms.string('2e2mu')
-hTozzTo4leptonsCommonRootTreePresel.rootFileName = cms.untracked.string('roottree_leptons.root')
+hTozzTo4leptonsCommonRootTreePresel.rootFileName = cms.untracked.string('roottree_leptons_mc_synch_2017.root')
 # hlt
 hTozzTo4leptonsCommonRootTreePresel.fillHLTinfo = cms.untracked.bool(False)                                           
 hTozzTo4leptonsCommonRootTreePresel.HLTAnalysisinst = cms.string('hTozzTo4leptonsHLTAnalysisData')
@@ -616,14 +670,13 @@ hTozzTo4leptonsCommonRootTreePresel.flagSkimEarlyDatanames=cms.VInputTag(cms.Inp
 hTozzTo4leptonsCommonRootTreePresel.flaginst = cms.string('hTozzTo4leptonsCommonPreselection')
 hTozzTo4leptonsCommonRootTreePresel.flagtags = cms.vstring('PreselAtleast2Ele','PreselAtleast2Mu','PreselAtleast1ZEE','PreselAtleast1ZMuMu','PreselAtleast1H','PreselLoose2IsolEle','PreselLoose2IsolMu')
 # MC truth
-hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(False)
+hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(True) # Reham change to true to add gen match informations
 hTozzTo4leptonsCommonRootTreePresel.MCcollName = cms.InputTag("hTozzTo4leptonsMCDumper")
 hTozzTo4leptonsCommonRootTreePresel.RECOcollNameBest2e2mu= cms.VInputTag(cms.InputTag("hTozzTo4leptonsBestCandidateProducer:hToZZTo4LeptonsBestCandidateMother"), cms.InputTag("hTozzTo4leptonsBestCandidateProducer:hToZZTo4LeptonsBestCandidateBoson0"), cms.InputTag("hTozzTo4leptonsBestCandidateProducer:hToZZTo4LeptonsBestCandidateBoson1"))
 #hTozzTo4leptonsCommonRootTreePresel.RECOcollName=cms.VInputTag(cms.InputTag("hTozzTo4leptonsLooseIsol"),cms.InputTag("zToMuMuLooseIsol"), cms.InputTag("zToEELooseIsol"))
 hTozzTo4leptonsCommonRootTreePresel.RECOcollNameBest4mu= cms.VInputTag(cms.InputTag("hTozzTo4leptonsBestCandidateProducerMMMM:hToZZTo4LeptonsBestCandidateMother"), cms.InputTag("hTozzTo4leptonsBestCandidateProducerMMMM:hToZZTo4LeptonsBestCandidateBoson0"), cms.InputTag("hTozzTo4leptonsBestCandidateProducerMMMM:hToZZTo4LeptonsBestCandidateBoson1"))
 hTozzTo4leptonsCommonRootTreePresel.RECOcollNameBest4e= cms.VInputTag(cms.InputTag("hTozzTo4leptonsBestCandidateProducerEEEE:hToZZTo4LeptonsBestCandidateMother"), cms.InputTag("hTozzTo4leptonsBestCandidateProducerEEEE:hToZZTo4LeptonsBestCandidateBoson0"), cms.InputTag("hTozzTo4leptonsBestCandidateProducerEEEE:hToZZTo4LeptonsBestCandidateBoson1"))
 #hTozzTo4leptonsCommonRootTreePresel.useAdditionalRECO  = cms.untracked.bool(False)
-
 
 
 hTozzTo4leptonsCommonRootTreePresel.MuonsLabel     = cms.InputTag("hTozzTo4leptonsMuonSelector")
@@ -701,33 +754,40 @@ from HiggsAnalysis.HiggsToZZ4Leptons.ConvValueMapProd_cfi  import *
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsPFJetSelector_cfi import *
 #hTozzTo4leptonsPFJetSelector.PFJetCollection = cms.InputTag("ak4PFJetsCHS")
 
-#PFJet Energy Corrections
-from JetMETCorrections.Configuration.CorrectedJetProducersDefault_cff import *
-from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
-from JetMETCorrections.Configuration.CorrectedJetProducersAllAlgos_cff import *
+#//////////////////////////////////////////////////////////////////////
+#Reham comment to test MET update
 
-ak4PFJetsCorrection   = cms.EDProducer('CorrectedPFJetProducer',
-    src         = cms.InputTag('hTozzTo4leptonsPFJetSelector'),    
-    correctors  = cms.VInputTag('ak4PFCHSL1FastL2L3Corrector')    
-)
+##PFJet Energy Corrections
+#from JetMETCorrections.Configuration.CorrectedJetProducersDefault_cff import *
+#from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
+#from JetMETCorrections.Configuration.CorrectedJetProducersAllAlgos_cff import *
+
+#ak4PFJetsCorrection   = cms.EDProducer('CorrectedPFJetProducer',
+#    src         = cms.InputTag('hTozzTo4leptonsPFJetSelector'),    
+#    correctors  = cms.VInputTag('ak4PFCHSL1FastL2L3Corrector')    
+#)
 
 
-ak4PFJetsCorrectionData   = cms.EDProducer('CorrectedPFJetProducer',
-    src         = cms.InputTag('hTozzTo4leptonsPFJetSelector'),
-    correctors  = cms.VInputTag('ak4PFCHSL1FastL2L3ResidualCorrector')
-)
+#ak4PFJetsCorrectionData   = cms.EDProducer('CorrectedPFJetProducer',
+#    src         = cms.InputTag('hTozzTo4leptonsPFJetSelector'), 
+#    correctors  = cms.VInputTag('ak4PFCHSL1FastL2L3ResidualCorrector') 
+#)
+
+#//////////////////////////////////////////////////
 
 from RecoJets.JetProducers.QGTagger_cfi import *
 QGTaggerMC=QGTagger.clone()
-#QGTaggerMC.srcJets = cms.InputTag('ak4PFJetsCorrection')
-QGTaggerMC.srcJets = cms.InputTag('hTozzTo4leptonsPFJetSelector')      
+QGTaggerMC.srcJets = cms.InputTag('ak4PFJetsCorrection')
+QGTaggerMC.srcJets = cms.InputTag('hTozzTo4leptonsPFJetSelector')     
 QGTaggerMC.jetsLabel = cms.string('QGL_AK4PFchs')
 
 
 QGTaggerDATA=QGTagger.clone()
-#QGTaggerDATA.srcJets = cms.InputTag('ak4PFJetsCorrectionData')
-QGTaggerDATA.srcJets = cms.InputTag('hTozzTo4leptonsPFJetSelector')
+QGTaggerDATA.srcJets = cms.InputTag('ak4PFJetsCorrectionData')  
+QGTaggerDATA.srcJets = cms.InputTag('hTozzTo4leptonsPFJetSelector')  
 QGTaggerDATA.jetsLabel = cms.string('QGL_AK4PFchs')
+
+#/////////////////////////////////////
 
 # MET correction 
 #from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import *
@@ -740,39 +800,42 @@ QGTaggerDATA.jetsLabel = cms.string('QGL_AK4PFchs')
 #corrPfMetShiftXY.parameter = pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
 #from JetMETCorrections.Type1MET.correctedMet_cff import *
 
+#///////////////////////////////////////////////////////
+#REham comment to test MET update
 
-from RecoJets.JetProducers.PileupJetIDParams_cfi import full_5x_chs
+#from RecoJets.JetProducers.PileupJetIDParams_cfi import full_5x_chs
 
-recoPuJetIdMvaMC = cms.EDProducer('PileupJetIdProducer',
-     produceJetIds = cms.bool(True),
-     jetids = cms.InputTag(""),
-     runMvas = cms.bool(True),
-     jets = cms.InputTag("hTozzTo4leptonsPFJetSelector"),
-     vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
-     algos = cms.VPSet(full_5x_chs),
-     rho     = cms.InputTag("fixedGridRhoFastjetAll"),
-     jec     = cms.string("AK4PFchs"),
-     applyJec = cms.bool(True),
-     inputIsCorrected = cms.bool(False),
-     residualsFromTxt = cms.bool(False),
-     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
-)
+#recoPuJetIdMvaMC = cms.EDProducer('PileupJetIdProducer',
+#     produceJetIds = cms.bool(True),
+#     jetids = cms.InputTag(""),
+#     runMvas = cms.bool(True),
+#     jets = cms.InputTag("hTozzTo4leptonsPFJetSelector"),
+#     vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#     algos = cms.VPSet(full_5x_chs),
+#     rho     = cms.InputTag("fixedGridRhoFastjetAll"),
+#     jec     = cms.string("AK4PFchs"),
+#     applyJec = cms.bool(True),
+#     inputIsCorrected = cms.bool(False),
+#     residualsFromTxt = cms.bool(False),
+#     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
+#)
 
-recoPuJetIdMvaData = cms.EDProducer('PileupJetIdProducer',
-     produceJetIds = cms.bool(True),
-     jetids = cms.InputTag(""),
-     runMvas = cms.bool(True),
-     jets = cms.InputTag("hTozzTo4leptonsPFJetSelector"),
-     vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
-     algos = cms.VPSet(full_5x_chs),
-     rho     = cms.InputTag("fixedGridRhoFastjetAll"),
-     jec     = cms.string("AK4PFchs"),
-     applyJec = cms.bool(True),
-     inputIsCorrected = cms.bool(False),
-     residualsFromTxt = cms.bool(False),
-     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file                                                                                      
-)
+#recoPuJetIdMvaData = cms.EDProducer('PileupJetIdProducer',
+#     produceJetIds = cms.bool(True),
+#     jetids = cms.InputTag(""),
+#     runMvas = cms.bool(True),
+#     jets = cms.InputTag("hTozzTo4leptonsPFJetSelector"),
+#     vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
+#     algos = cms.VPSet(full_5x_chs),
+#    rho     = cms.InputTag("fixedGridRhoFastjetAll"),
+#     jec     = cms.string("AK4PFchs"),
+#     applyJec = cms.bool(True),
+#     inputIsCorrected = cms.bool(False),
+#     residualsFromTxt = cms.bool(False),
+#     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
+#)                                                                                      
 
+#///////////////////////////////////////////////////
 
 # Constrained fit: input 2l
 #from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsConstraintFitProducerLeptons_cfi import *
@@ -819,12 +882,15 @@ hTozzTo4leptonsSelectionSequenceData = cms.Sequence(
         hTozzTo4leptonsHLTAnalysisFilter            +
         hTozzTo4leptonsElectronPreSelector          +
         hTozzTo4leptonsElectronOrdering             +
-        calibratedPatElectrons                      +
+      #  calibratedPatElectrons                      +
         hTozzTo4leptonsElectronSelector             +
-        electronMVAValueMapProducer                 +                             
-        hTozzTo4leptonsMuonCalibrator               +
-        cleanPatMuonsBySegments                     +
-        hTozzTo4leptonsMuonSelector                 +
+        electronMVAValueMapProducer                 + #Reham stop sequence here to get the output root file from MVA module and see the map name    
+#@#        hTozzTo4leptonsMuonCalibrator               + #coment kalman calibrator and add Rochester
+        myMuonsCalib +
+        goodMuonMCMatchCalib +
+        hTozzTo4leptonsMuonRochesterCalibrator      +
+        cleanPatMuonsBySegments                     + 
+        hTozzTo4leptonsMuonSelector                 + 
         #zToEE                                       +
         #zToMuMu                                     +
         #hTozzTo4leptons                             +
@@ -853,14 +919,18 @@ hTozzTo4leptonsSelectionSequenceData = cms.Sequence(
         hTozzTo4leptonsIpToVtxProducer              +
         #hTozzTo4leptonsIpToVtxProducerKF            +
         #hTozzTo4leptonsTipLipToVtxProducer          +
+#        ak4PFCHSL1FastL2L3ResidualCorrectorChain     + 
         hTozzTo4leptonsPFJetSelector                 +  
-##test        ak4PFCHSL1FastL2L3CorrectorChain            +
-##test        ak4PFCHSL1FastL2L3ResidualCorrectorChain    +
-##test        ak4PFJetsCorrection                         +
-##test        ak4PFJetsCorrectionData                     +
-        QGTaggerMC                                 +
-       QGTaggerDATA                               
-##test        recoPuJetIdMvaMC                            +
+#        ak4PFCHSL1FastL2L3CorrectorChain            +
+#        ak4PFCHSL1FastL2L3ResidualCorrectorChain    +
+#        ak4PFJetsCorrection                         +
+#        ak4PFJetsCorrectionData                     + 
+#        ak4PFCHSL1FastL2L3ResidualCorrectorChain      +  
+#        ak4PFCHSL2RelativeCorrector                       + 
+#        ak4PFCHSJetsL2                                    +                                
+        QGTaggerMC                                 + 
+        QGTaggerDATA                               
+##test        recoPuJetIdMvaMC                            #+
 ##test        recoPuJetIdMvaData                          +
 ##test        ConvValueMapProd                            
 ##        eleRegressionEnergy                         +

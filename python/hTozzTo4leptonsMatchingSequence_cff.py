@@ -130,10 +130,10 @@ hTozzTo4leptonsMatchingSequence = cms.Sequence(
     myElectrons         +
     goodElectronMCMatch +
     myGammas            +
-    goodGammaMCMatch    +
-    goodZtoMuMuMCMatch  +
-    goodZtoEEMCMatch    +
-    goodHiggsTozzToEEMMMCMatch +
-    goodHiggsTozzToMMMMMCMatch +
-    goodHiggsTozzToEEEEMCMatch 
+    goodGammaMCMatch    
+   # goodZtoMuMuMCMatch  +
+   # goodZtoEEMCMatch    +
+   # goodHiggsTozzToEEMMMCMatch +
+   # goodHiggsTozzToMMMMMCMatch +
+   # goodHiggsTozzToEEEEMCMatch 
     )

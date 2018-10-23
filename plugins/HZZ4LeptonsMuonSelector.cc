@@ -73,6 +73,7 @@ void HZZ4LeptonsMuonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     bool matchglb=false, matchtrk=false;
     
     cout << "Reading a muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
+    cout<<"Muon Global = "<<  mIter->isGlobalMuon()<<", Muon Tracker = "<< mIter->isTrackerMuon()<<endl;
 
     if(isGlobalMuon==true && mIter->isGlobalMuon()){
       matchglb=true;
@@ -96,11 +97,13 @@ void HZZ4LeptonsMuonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     }
 
     cout << "Selected a muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
+    cout<<"matchglb = "<<matchglb<<"matchtrk = "<<matchtrk<<endl;
   }
 
   
   const string iName = "";
-  iEvent.put( Gmuon, iName );
+  //iEvent.put( Gmuon, iName );
+  iEvent.put( std::make_unique<pat::MuonCollection>(*Gmuon), iName );
 
 }
 

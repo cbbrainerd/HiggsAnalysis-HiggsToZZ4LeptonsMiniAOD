@@ -355,9 +355,13 @@ HZZ4LeptonsConstraintFitProducer::produce(edm::Event& iEvent, const edm::EventSe
   fillerMass.insert(Candidates, refittedmass.begin(), refittedmass.end());
   fillerMass.fill();
   
-  iEvent.put( KinFitVtx, "KinematicFitVertex" );
-  iEvent.put( StdFitVtx, "StandardFitVertex" );
-  iEvent.put( RefittedMassMap, "RefittedMass");
- 
+  // iEvent.put( KinFitVtx, "KinematicFitVertex" );
+  // iEvent.put( StdFitVtx, "StandardFitVertex" );
+  // iEvent.put( RefittedMassMap, "RefittedMass");
+
+  iEvent.put(std::make_unique<reco::VertexCollection>(*KinFitVtx), "KinematicFitVertex" );
+  iEvent.put(std::make_unique<reco::VertexCollection>(*StdFitVtx), "StandardFitVertex" );
+  iEvent.put(std::make_unique<edm::ValueMap<float> >(*RefittedMassMap), "RefittedMass");
+  
 }
 

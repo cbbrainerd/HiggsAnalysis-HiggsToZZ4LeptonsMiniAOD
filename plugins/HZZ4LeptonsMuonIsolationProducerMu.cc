@@ -84,7 +84,10 @@ void HZZ4LeptonsMuonIsolationProducerMu::produce(edm::Event& iEvent, const edm::
          }
     }
     
-    iEvent.put(isolatedMuons);
-    iEvent.put(isolatedMuonRefs);
+    // iEvent.put(isolatedMuons);
+    // iEvent.put(isolatedMuonRefs);
+
+    iEvent.put(std::make_unique<reco::MuonCollection>(*isolatedMuons));
+    iEvent.put(std::make_unique<reco::MuonRefVector>(*isolatedMuonRefs));
 }
 

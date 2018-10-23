@@ -1733,13 +1733,14 @@ void HZZ4LeptonsRootTree::triggermatching(const edm::Event& iEvent)
 {
   RECOMU_PT_MuHLTMatch.clear();
   RECOELE_PT_EleHLTMatch.clear();
-  cout << "Start Trigger matching for muon" << endl;
+  cout << "Start Trigger matching for muonnn" << endl;
   // check HLTrigger/Configuration/python/HLT_GRun_cff.py
   
   edm::Handle<trigger::TriggerEvent> handleTriggerEvent;
+  
   iEvent.getByToken(triggerEvent, handleTriggerEvent );
   const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());
- 
+
   size_t nMuHLT=0, nEleHLT=0;
   std::vector<reco::Particle>  HLTMuMatched, HLTEleMatched;
   std::vector<string> HLTMuMatchedNames,HLTEleMatchedNames;
@@ -1756,7 +1757,8 @@ void HZZ4LeptonsRootTree::triggermatching(const edm::Event& iEvent)
       name = fullname;
     }
     //std::cout<< "name::== " << name<< std::endl;
-    if ( &toc !=0 ) {
+    //  if ( &toc !=0 ) {
+    if ( toc.size()>0  ) {      
       const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
       for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
 	// looking at all the single muon l3 trigger present, for example hltSingleMu15L3Filtered15.....
@@ -3199,7 +3201,8 @@ void HZZ4LeptonsRootTree::fillElectrons(const edm::Event& iEvent, const edm::Eve
     //Conversion variables
     RECOELE_gsftrack_losthits.push_back(cand->gsfTrack()->numberOfLostHits());
     RECOELE_gsftrack_validhits.push_back(cand->gsfTrack()->numberOfValidHits());
-    RECOELE_gsftrack_expected_inner_hits.push_back(cand->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
+    // RECOELE_gsftrack_expected_inner_hits.push_back(cand->gsfTrack()->hitPattern().numberOfHits(HitPattern::MISSING_INNER_HITS));
+    RECOELE_gsftrack_expected_inner_hits.push_back(cand->gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS));
     /*std::cout << "--gfstrack properties: " 
       << "  nPixhits=" << RECOELE_gsftrack_NPixHits[index]
       << "  nStriphits=" << RECOELE_gsftrack_NStripHits[index]

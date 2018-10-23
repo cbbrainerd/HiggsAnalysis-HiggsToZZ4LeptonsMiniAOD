@@ -207,11 +207,16 @@ void HZZ4LeptonsBestCandidate::produce(edm::Event& iEvent, const edm::EventSetup
     }
   }
   
-  iEvent.put(mothercands_, decayChain_ + "Mother");
-  iEvent.put(daughterscands_Z, valiasbosons.at(0));
-  iEvent.put(daughterscands_Zstar, valiasbosons.at(1));
-  iEvent.put(bestleptonscands_, decayChain_ + "Leptons");
+  // iEvent.put(mothercands_, decayChain_ + "Mother");
+  // iEvent.put(daughterscands_Z, valiasbosons.at(0));
+  // iEvent.put(daughterscands_Zstar, valiasbosons.at(1));
+  // iEvent.put(bestleptonscands_, decayChain_ + "Leptons");
 
+  iEvent.put(std::make_unique<CandidateCollection>(*mothercands_), decayChain_ + "Mother");
+  iEvent.put(std::make_unique<CandidateCollection>(*daughterscands_Z), valiasbosons.at(0));
+  iEvent.put(std::make_unique<CandidateCollection>(*daughterscands_Zstar), valiasbosons.at(1));
+  iEvent.put(std::make_unique<CandidateCollection>(*bestleptonscands_), decayChain_ + "Leptons");
+  
 }
 
 

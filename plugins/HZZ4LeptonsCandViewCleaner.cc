@@ -79,7 +79,8 @@ void HZZ4LeptonsCandViewCleaner::produce(edm::Event& iEvent,const edm::EventSetu
   nCandidatesClean_+=cleanCandidates->size();
 
   delete [] isClean;  
-  iEvent.put(cleanCandidates);
+  //iEvent.put(cleanCandidates);
+  iEvent.put(std::make_unique<edm::RefToBaseVector<reco::Candidate>>(*cleanCandidates));
 }
 
 

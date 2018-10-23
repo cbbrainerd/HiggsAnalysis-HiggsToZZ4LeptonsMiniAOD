@@ -10,6 +10,7 @@
 // system include files
 #include <memory>
 
+
 // Candidate handling
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -209,15 +210,16 @@ void HZZ4LeptonsCP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  
 	}
 
-	iEvent.put(cosTheta1, decayChain_ + "cosTheta1");
-	iEvent.put(cosTheta2, decayChain_ + "cosTheta2");
-	iEvent.put(cosThetaStar, decayChain_ + "cosThetaStar");
-	iEvent.put(Phi, decayChain_ + "Phi");
-	iEvent.put(Phi1, decayChain_ + "Phi1");
-	iEvent.put(Phi2, decayChain_ + "Phi2");
-	iEvent.put(phi1RF, decayChain_ + "phi1RF");
-	iEvent.put(phi2RF, decayChain_ + "phi2RF");
-	iEvent.put(MELA, decayChain_ + "MELA");
+	
+	iEvent.put(std::make_unique<vector<double> >(*cosTheta1), decayChain_ + "cosTheta1");
+	iEvent.put(std::make_unique<vector<double> >(*cosTheta2), decayChain_ + "cosTheta2");	
+	iEvent.put(std::make_unique<vector<double> >(*cosThetaStar), decayChain_ + "cosThetaStar");
+	iEvent.put(std::make_unique<vector<double> >(*Phi), decayChain_ + "Phi");
+	iEvent.put(std::make_unique<vector<double> >(*Phi1), decayChain_ + "Phi1");
+	iEvent.put(std::make_unique<vector<double> >(*Phi2), decayChain_ + "Phi2");
+	iEvent.put(std::make_unique<vector<double> >(*phi1RF), decayChain_ + "phi1RF");
+	iEvent.put(std::make_unique<vector<double> >(*phi2RF), decayChain_ + "phi2RF");
+	iEvent.put(std::make_unique<vector<double> >(*MELA), decayChain_ + "MELA");
 	
 	
 }

@@ -361,14 +361,23 @@ void HZZ4LeptonsIpToVtxProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
 
   if (decaychannel=="2e2mu" || decaychannel=="4mu"){
-    iEvent.put( VertexMuMap, "VertexMuMap" );
-    iEvent.put( VertexValueMuMap, "VertexValueMuMap" );
-    iEvent.put( VertexErrorMuMap, "VertexErrorMuMap" );
+    // iEvent.put( VertexMuMap, "VertexMuMap" );
+    // iEvent.put( VertexValueMuMap, "VertexValueMuMap" );
+    // iEvent.put( VertexErrorMuMap, "VertexErrorMuMap" );
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexMuMap), "VertexMuMap" );
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexValueMuMap), "VertexValueMuMap" );
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexErrorMuMap), "VertexErrorMuMap" );
+
   }
   if (decaychannel=="2e2mu" || decaychannel=="4e"){
-    iEvent.put( VertexEleMap, "VertexEleMap" );
-    iEvent.put( VertexValueEleMap, "VertexValueEleMap" );
-    iEvent.put( VertexErrorEleMap, "VertexErrorEleMap" );
+    // iEvent.put( VertexEleMap, "VertexEleMap" );
+    // iEvent.put( VertexValueEleMap, "VertexValueEleMap" );
+    // iEvent.put( VertexErrorEleMap, "VertexErrorEleMap" );
+
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexEleMap), "VertexEleMap" );
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexValueEleMap), "VertexValueEleMap" );
+    iEvent.put(std::make_unique<edm::ValueMap<float>>(*VertexErrorEleMap), "VertexErrorEleMap" );
   }
   
   //
