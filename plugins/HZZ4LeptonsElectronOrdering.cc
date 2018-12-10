@@ -78,7 +78,8 @@ void HZZ4LeptonsElectronOrdering::produce(edm::Event& iEvent, const edm::EventSe
   
 
   const string iName = "";
-  iEvent.put( Gelec, iName );
+  //iEvent.put( Gelec, iName );
+  iEvent.put(std::make_unique<pat::ElectronCollection>(*Gelec), iName );
 
 }
 

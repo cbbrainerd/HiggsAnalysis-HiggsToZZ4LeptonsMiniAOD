@@ -100,7 +100,8 @@ void HZZ4LeptonsHLTInfo::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      
    }
 
-   iEvent.put(HLTPathsFired);     
+   //iEvent.put(HLTPathsFired);
+   iEvent.put(std::make_unique<vector<std::string>>(*HLTPathsFired));      
    
    
 }

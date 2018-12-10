@@ -298,14 +298,23 @@ void HZZ4LeptonsCommonPreselection::produce(edm::Event& iEvent, const edm::Event
     if (nZMuMu    >= numberOfmumuCombs_cut ) *atleast1ZMuMu   = true;
     if (nLooseIsolEle >= nlooseEle_cut )        *Loose2IsoEle = true;
     if (nLooseIsolMu  >= nlooseMu_cut)          *Loose2IsoMu  = true;
-  
-    iEvent.put(atleast2Ele,   decaychannel + "PreselAtleast2Ele");
-    iEvent.put(atleast2Mu,    decaychannel + "PreselAtleast2Mu"); 
-    iEvent.put(atleast1ZEE,   decaychannel + "PreselAtleast1ZEE");
-    iEvent.put(atleast1ZMuMu, decaychannel + "PreselAtleast1ZMuMu");
-    iEvent.put(Loose2IsoEle,  decaychannel + "PreselLoose2IsolEle");
-    iEvent.put(Loose2IsoMu,   decaychannel + "PreselLoose2IsolMu");   
-
+    
+    // iEvent.put(atleast2Ele,   decaychannel + "PreselAtleast2Ele");
+    // iEvent.put(atleast2Mu,    decaychannel + "PreselAtleast2Mu"); 
+    // iEvent.put(atleast1ZEE,   decaychannel + "PreselAtleast1ZEE");
+    // iEvent.put(atleast1ZMuMu, decaychannel + "PreselAtleast1ZMuMu");
+    // iEvent.put(Loose2IsoEle,  decaychannel + "PreselLoose2IsolEle");
+    // iEvent.put(Loose2IsoMu,   decaychannel + "PreselLoose2IsolMu"); 
+    
+    
+    iEvent.put(std::make_unique<bool>(*atleast2Ele),   decaychannel + "PreselAtleast2Ele");
+    iEvent.put(std::make_unique<bool>(*atleast2Mu),    decaychannel + "PreselAtleast2Mu"); 
+    iEvent.put(std::make_unique<bool>(*atleast1ZEE),   decaychannel + "PreselAtleast1ZEE");
+    iEvent.put(std::make_unique<bool>(*atleast1ZMuMu), decaychannel + "PreselAtleast1ZMuMu");
+    iEvent.put(std::make_unique<bool>(*Loose2IsoEle),  decaychannel + "PreselLoose2IsolEle");
+    iEvent.put(std::make_unique<bool>(*Loose2IsoMu),   decaychannel + "PreselLoose2IsolMu"); 
+    
+    
     if ( (nElectron >= nEle_cut)  && (nMuon >= nMu_cut) &&
          (nZEE >= numberOfeeCombs_cut) && (nZMuMu >= numberOfmumuCombs_cut) && (nHiggs >= numberOf4lCombs_cut ) &&
          (nLooseIsolEle >= nlooseEle_cut) && (nLooseIsolMu >= nlooseMu_cut) ) *boolPresel=true;
@@ -314,11 +323,15 @@ void HZZ4LeptonsCommonPreselection::produce(edm::Event& iEvent, const edm::Event
     if (nElectron >= nEle_cut )  *atleast4Ele    = true;
     if (nZEE >= numberOfeeCombs_cut)        *atleast2ZEE    = true;
     if (nLooseIsolEle >= nlooseEle_cut)     *Loose4IsoEle   = true;
- 
-    iEvent.put(atleast4Ele,   decaychannel + "PreselAtleast4Ele");
-    iEvent.put(atleast2ZEE,   decaychannel + "PreselAtleast2ZEE");
-    iEvent.put(Loose4IsoEle,  decaychannel + "PreselLoose4IsolEle");
-     
+    
+    // iEvent.put(atleast4Ele,   decaychannel + "PreselAtleast4Ele");
+    // iEvent.put(atleast2ZEE,   decaychannel + "PreselAtleast2ZEE");
+    // iEvent.put(Loose4IsoEle,  decaychannel + "PreselLoose4IsolEle");
+    
+    iEvent.put(std::make_unique<bool>(*atleast4Ele),   decaychannel + "PreselAtleast4Ele");
+    iEvent.put(std::make_unique<bool>(*atleast2ZEE),   decaychannel + "PreselAtleast2ZEE");
+    iEvent.put(std::make_unique<bool>(*Loose4IsoEle),  decaychannel + "PreselLoose4IsolEle");
+    
     if ( (nElectron >= nEle_cut) && (nZEE >= numberOfeeCombs_cut) && (nHiggs >= numberOf4lCombs_cut) &&
          (nLooseIsolEle >= nlooseEle_cut) ) *boolPresel=true;
   }
@@ -326,19 +339,28 @@ void HZZ4LeptonsCommonPreselection::produce(edm::Event& iEvent, const edm::Event
     if (nMuon >= nMu_cut)      *atleast4Mu     = true;
     if (nZMuMu >= numberOfmumuCombs_cut )   *atleast2ZMuMu = true;
     if (nLooseIsolMu >= nlooseMu_cut )      *Loose4IsoMu   = true;
-    iEvent.put(atleast4Mu,    decaychannel + "PreselAtleast4Mu");   
-    iEvent.put(atleast2ZMuMu, decaychannel + "PreselAtleast2ZMuMu");
-    iEvent.put(Loose4IsoMu,   decaychannel + "PreselLoose4IsolMu");   
-    if ( (nMuon >= nMu_cut) && (nZMuMu >= numberOfmumuCombs_cut) && (nHiggs >= numberOf4lCombs_cut) &&
-         (nLooseIsolMu >= nlooseMu_cut)) *boolPresel=true;
+    
+    // iEvent.put(atleast4Mu,    decaychannel + "PreselAtleast4Mu");   
+    // iEvent.put(atleast2ZMuMu, decaychannel + "PreselAtleast2ZMuMu");
+    // iEvent.put(Loose4IsoMu,   decaychannel + "PreselLoose4IsolMu"); 
+    
+    iEvent.put(std::make_unique<bool>(*atleast4Mu),    decaychannel + "PreselAtleast4Mu");   
+    iEvent.put(std::make_unique<bool>(*atleast2ZMuMu), decaychannel + "PreselAtleast2ZMuMu");
+     iEvent.put(std::make_unique<bool>(*Loose4IsoMu),   decaychannel + "PreselLoose4IsolMu");
+     
+     if ( (nMuon >= nMu_cut) && (nZMuMu >= numberOfmumuCombs_cut) && (nHiggs >= numberOf4lCombs_cut) &&
+	  (nLooseIsolMu >= nlooseMu_cut)) *boolPresel=true;
   }
          
   if (nHiggs >= numberOf4lCombs_cut)      *atleast1H         = true;
-  iEvent.put(atleast1H,  decaychannel + "PreselAtleast1H");
-    
-  iEvent.put(boolPresel, decaychannel + "Presel");
-
-
+  
+  // iEvent.put(atleast1H,  decaychannel + "PreselAtleast1H"); 
+  //iEvent.put(boolPresel, decaychannel + "Presel");
+  
+  iEvent.put(std::make_unique<bool>(*atleast1H),  decaychannel + "PreselAtleast1H");
+  iEvent.put(std::make_unique<bool>(*boolPresel), decaychannel + "Presel");
+  
+  
 }
 
 void HZZ4LeptonsCommonPreselection::beginJob() {

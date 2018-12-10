@@ -86,7 +86,7 @@ void HZZ4LeptonsMuonCalibrator::produce(edm::Event& iEvent, const edm::EventSetu
     smearedPt=mIter->pt();
     smearedPtError=mIter->muonBestTrack()->ptError();
 
-    if (mIter->muonBestTrackType() == 1 && mIter->pt()<=200.){
+    /*   if (mIter->muonBestTrackType() == 1 && mIter->pt()<=200.){
 
       if (isData){
 	if (mIter->pt()>2.0 && fabs(mIter->eta())<2.4){
@@ -107,10 +107,10 @@ void HZZ4LeptonsMuonCalibrator::produce(edm::Event& iEvent, const edm::EventSetu
 	//smearedPt * calibrator.getCorrectedErrorAfterSmearing(smearedPt, mIter->eta(), corrPtError /smearedPt );
       }
       
-    }
+      }*/
 
     pterror.push_back(smearedPtError);
-    cout << "Muon pT= " << calibmu->pt() << " Corrected Muon pT= " << smearedPt << " and pT error= " << smearedPtError << " GlobalMuon = " << calibmu->isGlobalMuon() <<" number of matches= " << calibmu->numberOfMatches(reco::Muon::SegmentArbitration) << "Tracknonnull= " << calibmu->reco::Muon::innerTrack().isNonnull() << endl;
+    // cout << "Muon pT= " << calibmu->pt() << " Corrected Muon pT= " << smearedPt << " and pT error= " << smearedPtError << " GlobalMuon = " << calibmu->isGlobalMuon() <<" number of matches= " << calibmu->numberOfMatches(reco::Muon::SegmentArbitration) << "Tracknonnull= " << calibmu->reco::Muon::innerTrack().isNonnull() << endl;
 
     p4.SetPtEtaPhiM(smearedPt, mIter->eta(), mIter->phi(), mIter->mass());
     calibmu->setP4(reco::Particle::PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), mIter->mass()));
@@ -126,8 +126,11 @@ void HZZ4LeptonsMuonCalibrator::produce(edm::Event& iEvent, const edm::EventSetu
   fillerCorrPtError.fill();
   
   const string iName = "";
-  iEvent.put( Gmuon, iName );
-  iEvent.put( CorrPtErrorMap, "CorrPtError");
-
+  // iEvent.put( Gmuon, iName );
+  // iEvent.put( CorrPtErrorMap, "CorrPtError");
+  
+  iEvent.put(std::make_unique<pat::MuonCollection>(*Gmuon), iName );
+  iEvent.put(std::make_unique<edm::ValueMap<float>>(*CorrPtErrorMap), "CorrPtError");
+  
 }
 

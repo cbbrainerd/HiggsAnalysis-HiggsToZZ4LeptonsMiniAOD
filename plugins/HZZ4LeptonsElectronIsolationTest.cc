@@ -101,7 +101,8 @@ void HZZ4LeptonsElectronIsolationTest::produce(edm::Event& iEvent, const edm::Ev
   }
 
   const string iName = "";
-  iEvent.put( Gelec, iName );
+  //iEvent.put( Gelec, iName );
+  iEvent.put(std::make_unique<reco::GsfElectronCollection>(*Gelec), iName );
 
 }
 

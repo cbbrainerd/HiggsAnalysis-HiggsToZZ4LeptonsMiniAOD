@@ -157,7 +157,8 @@ bool ElectronIdMVAProducerCSA14::filter(edm::Event& iEvent, const edm::EventSetu
     filler.insert(egCollection, values.begin(), values.end() );
 	filler.fill();
     
-	iEvent.put(out);
+	//iEvent.put(out);
+	iEvent.put(std::make_unique<edm::ValueMap<float>>(*out));
     
 	return true;
 }

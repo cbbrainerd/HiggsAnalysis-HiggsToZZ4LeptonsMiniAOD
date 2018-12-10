@@ -71,7 +71,7 @@ HZZ4LeptonsCommonRootTree::~HZZ4LeptonsCommonRootTree() {
 
   cout << "Number of events analysed for the ROOT tree= " << nevt << std::endl;
 
-}
+  }
 
 
 void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -177,7 +177,8 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   ievt=iEvent.id().event();
   ils=iEvent.luminosityBlock();
 
-  cout << "Dumping the information of run=" << irun << "  event=" << ievt << "  lumisection=" << ils << std::endl;
+  // cout << "Dumping the information of run=" << irun << "  event=" << ievt << "  lumisection=" << ils << std::endl;
+  cout << "Dumping_the_information_of_run:" << irun << ":" << ievt << ":" << ils << std::endl;
 
   edm::Handle<LumiSummary> l;
   iEvent.getLuminosityBlock().getByLabel("lumiProducer", l); 
@@ -242,7 +243,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   // Fill RECO block in the rootple
   // PF Jets
   cout << "fill jet test" << endl;
-  filljets(iEvent);
+  filljets(iEvent,iSetup);
   cout << "fill jet test end" << endl;
 
 //  if (useAdditionalRECO==true) {

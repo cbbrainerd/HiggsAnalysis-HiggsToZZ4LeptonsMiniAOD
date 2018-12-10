@@ -9,7 +9,7 @@ myMuons = cms.EDFilter("CandViewShallowCloneProducer",
                                 )
 
 myElectrons = cms.EDFilter("CandViewShallowCloneProducer",
-                                   src = cms.InputTag("hTozzTo4leptonsElectronSelector"),
+                                   src = cms.InputTag("slimmedElectrons"),
                                    cut = cms.string('')
                                 )
 
@@ -130,10 +130,10 @@ hTozzTo4leptonsMatchingSequence = cms.Sequence(
     myElectrons         +
     goodElectronMCMatch +
     myGammas            +
-    goodGammaMCMatch    +
-    goodZtoMuMuMCMatch  +
-    goodZtoEEMCMatch    +
-    goodHiggsTozzToEEMMMCMatch +
-    goodHiggsTozzToMMMMMCMatch +
-    goodHiggsTozzToEEEEMCMatch 
+    goodGammaMCMatch    
+   # goodZtoMuMuMCMatch  +
+   # goodZtoEEMCMatch    +
+   # goodHiggsTozzToEEMMMCMatch +
+   # goodHiggsTozzToMMMMMCMatch +
+   # goodHiggsTozzToEEEEMCMatch 
     )

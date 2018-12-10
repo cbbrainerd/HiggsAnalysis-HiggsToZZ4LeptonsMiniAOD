@@ -86,7 +86,9 @@ void HZZ4LeptonsElectronIsolationProducerEgamma::produce(edm::Event& iEvent, con
          }
     }
     
-    iEvent.put(isolatedElectrons);
-    iEvent.put(isolatedElectronRefs);
+    // iEvent.put(isolatedElectrons);
+    // iEvent.put(isolatedElectronRefs);
+    iEvent.put(std::make_unique<pat::ElectronCollection>(*isolatedElectrons));
+    iEvent.put(std::make_unique<pat::ElectronRefVector>(*isolatedElectronRefs));
 }
 

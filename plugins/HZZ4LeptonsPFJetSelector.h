@@ -35,6 +35,9 @@ class HZZ4LeptonsPFJetSelector : public edm::EDProducer {
   bool isLoosePFJetID,isMediumPFJetID,isTightPFJetID;
   edm::EDGetTokenT<edm::View<pat::Jet> > pfjetsLabel;
 
+  ////JEC
+  //edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
+
 };
 
 #endif

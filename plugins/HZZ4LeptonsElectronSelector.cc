@@ -61,7 +61,7 @@ void HZZ4LeptonsElectronSelector::produce(edm::Event& iEvent, const edm::EventSe
     // Loop over slimmedElectrons
     for (unsigned int i = 0; i < electrons->size(); ++i) {
       Ref<edm::View<pat::Electron> > electronRef(electrons,i);
-      cout << "Electron selector found with pT= " << electronRef->pt() << endl;
+      cout << "Electron selector found with pT= " << electronRef->pt() << "and eta = "<< electronRef->eta()<<endl;
       if (electronRef->pt() >= elecPtMin && fabs(electronRef->eta()) < elecEtaMax){
 	Gelec->push_back( *electronRef );
 	++counterelectron;
@@ -69,7 +69,8 @@ void HZZ4LeptonsElectronSelector::produce(edm::Event& iEvent, const edm::EventSe
     } 
 
   const string iName = "";
-  iEvent.put( Gelec, iName );
+  //iEvent.put( Gelec, iName );
+  iEvent.put(std::make_unique<pat::ElectronCollection>(*Gelec), iName );
 
 }
 

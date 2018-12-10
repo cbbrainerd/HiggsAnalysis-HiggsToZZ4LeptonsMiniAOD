@@ -72,7 +72,8 @@ void BunchSpacingProducerMiniAOD::produce(edm::Event& e, const edm::EventSetup& 
   if ( overRide_ ) {
     std::auto_ptr<unsigned int> pOut1(new unsigned int);
     *pOut1=bunchSpacingOverride_;
-    e.put(pOut1);
+    //e.put(pOut1);
+    e.put(std::make_unique<unsigned int>(*pOut1));
     return;
   }
 
@@ -104,7 +105,8 @@ void BunchSpacingProducerMiniAOD::produce(edm::Event& e, const edm::EventSetup& 
 
   std::auto_ptr<unsigned int> pOut1(new unsigned int);
   *pOut1=bunchSpacing;
-  e.put(pOut1);
+  //e.put(pOut1);
+  e.put(std::make_unique<unsigned int>(*pOut1));
   return;
 }
 

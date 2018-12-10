@@ -815,44 +815,82 @@ void HZZ4LeptonsVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   //
   if (decaychannel=="2e2mu" || decaychannel=="4mu")
     {
-      iEvent.put( sip3DPVMuMap, "Sip3DPVMuMap" );              // mu sip-3d-iptools w.r.t. PV
-      iEvent.put( sip3DPVCheckMuMap, "Sip3DPVCheckMuMap" );    // mu sip-3d-iptools-check-method w.r.t. PV
-      iEvent.put( sip3DPVwbsMuMap, "Sip3DPVwbsMuMap" );        // mu sip-3d-iptools w.r.t. PV with BS constraint
-      iEvent.put( sip3DBSMuMap, "Sip3DBSMuMap" );              // mu sip-3d-iptools w.r.t. BS
-      iEvent.put( sip3DcloPVMuMap, "Sip3DcloPVMuMap" );        // mu sip-3d-iptools w.r.t. closest-in-Z PV
-      iEvent.put( sip3DcloPVwbsMuMap, "Sip3DcloPVwbsMuMap" );  // mu sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // iEvent.put( sip3DPVMuMap, "Sip3DPVMuMap" );              // mu sip-3d-iptools w.r.t. PV
+      // iEvent.put( sip3DPVCheckMuMap, "Sip3DPVCheckMuMap" );    // mu sip-3d-iptools-check-method w.r.t. PV
+      // iEvent.put( sip3DPVwbsMuMap, "Sip3DPVwbsMuMap" );        // mu sip-3d-iptools w.r.t. PV with BS constraint
+      // iEvent.put( sip3DBSMuMap, "Sip3DBSMuMap" );              // mu sip-3d-iptools w.r.t. BS
+      // iEvent.put( sip3DcloPVMuMap, "Sip3DcloPVMuMap" );        // mu sip-3d-iptools w.r.t. closest-in-Z PV
+      // iEvent.put( sip3DcloPVwbsMuMap, "Sip3DcloPVwbsMuMap" );  // mu sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // //
+      // iEvent.put( sip2DPVMuMap, "Sip2DPVMuMap" );              // mu sip-2d-iptools w.r.t. PV
+      // iEvent.put( sip2DPVwbsMuMap, "Sip2DPVwbsMuMap" );        // mu sip-2d-iptools w.r.t. PV with BS constraint
+      // iEvent.put( sip2DBSMuMap, "Sip2DBSMuMap" );              // mu sip-2d-iptools w.r.t. BS
+      // iEvent.put( sip2DcloPVMuMap, "Sip2DcloPVMuMap" );        // mu sip-2d-iptools w.r.t. closest-in-Z PV
+      // iEvent.put( sip2DcloPVwbsMuMap, "Sip2DcloPVwbsMuMap" );  // mu sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // //
+      // iEvent.put( sipXYPVCheckNoIPToolsMuMap, "SipXYPVCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. PV
+      // iEvent.put( sipXYBSCheckNoIPToolsMuMap, "SipXYBSCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. BS
+      // iEvent.put( sipZPVCheckNoIPToolsMuMap, "SipZPVCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. PV
+      // iEvent.put( sipZBSCheckNoIPToolsMuMap, "SipZBSCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. BS
+      // //
+
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVMuMap), "Sip3DPVMuMap" );              // mu sip-3d-iptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVCheckMuMap), "Sip3DPVCheckMuMap" );    // mu sip-3d-iptools-check-method w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVwbsMuMap), "Sip3DPVwbsMuMap" );        // mu sip-3d-iptools w.r.t. PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DBSMuMap), "Sip3DBSMuMap" );              // mu sip-3d-iptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DcloPVMuMap), "Sip3DcloPVMuMap" );        // mu sip-3d-iptools w.r.t. closest-in-Z PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DcloPVwbsMuMap), "Sip3DcloPVwbsMuMap" );  // mu sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
       //
-      iEvent.put( sip2DPVMuMap, "Sip2DPVMuMap" );              // mu sip-2d-iptools w.r.t. PV
-      iEvent.put( sip2DPVwbsMuMap, "Sip2DPVwbsMuMap" );        // mu sip-2d-iptools w.r.t. PV with BS constraint
-      iEvent.put( sip2DBSMuMap, "Sip2DBSMuMap" );              // mu sip-2d-iptools w.r.t. BS
-      iEvent.put( sip2DcloPVMuMap, "Sip2DcloPVMuMap" );        // mu sip-2d-iptools w.r.t. closest-in-Z PV
-      iEvent.put( sip2DcloPVwbsMuMap, "Sip2DcloPVwbsMuMap" );  // mu sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DPVMuMap), "Sip2DPVMuMap" );              // mu sip-2d-iptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DPVwbsMuMap), "Sip2DPVwbsMuMap" );        // mu sip-2d-iptools w.r.t. PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DBSMuMap), "Sip2DBSMuMap" );              // mu sip-2d-iptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DcloPVMuMap), "Sip2DcloPVMuMap" );        // mu sip-2d-iptools w.r.t. closest-in-Z PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DcloPVwbsMuMap), "Sip2DcloPVwbsMuMap" );  // mu sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
       //
-      iEvent.put( sipXYPVCheckNoIPToolsMuMap, "SipXYPVCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. PV
-      iEvent.put( sipXYBSCheckNoIPToolsMuMap, "SipXYBSCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. BS
-      iEvent.put( sipZPVCheckNoIPToolsMuMap, "SipZPVCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. PV
-      iEvent.put( sipZBSCheckNoIPToolsMuMap, "SipZBSCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipXYPVCheckNoIPToolsMuMap), "SipXYPVCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipXYBSCheckNoIPToolsMuMap), "SipXYBSCheckNoIPToolsMuMap" );  // mu sip-XY-NOiptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipZPVCheckNoIPToolsMuMap), "SipZPVCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipZBSCheckNoIPToolsMuMap), "SipZBSCheckNoIPToolsMuMap" );    // mu sip-Z-NOiptools w.r.t. BS
       //
     }
   if (decaychannel=="2e2mu" || decaychannel=="4e")
     {
-      iEvent.put( sip3DPVEleMap, "Sip3DPVEleMap" );             // ele sip-3d-iptools w.r.t. PV
-      iEvent.put( sip3DPVCheckEleMap, "Sip3DPVCheckEleMap" );   // ele sip-3d-iptools-check-method w.r.t. PV
-      iEvent.put( sip3DPVwbsEleMap,"Sip3DPVwbsEleMap" );        // ele sip-3d-iptools w.r.t. PV with BS constraint
-      iEvent.put( sip3DBSEleMap, "Sip3DBSEleMap" );             // ele sip-3d-iptools w.r.t. BS
-      iEvent.put( sip3DcloPVEleMap, "Sip3DcloPVEleMap" );       // ele sip-3d-iptools w.r.t. closest-in-Z PV
-      iEvent.put( sip3DcloPVwbsEleMap, "Sip3DcloPVwbsEleMap" ); // ele sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // iEvent.put( sip3DPVEleMap, "Sip3DPVEleMap" );             // ele sip-3d-iptools w.r.t. PV
+      // iEvent.put( sip3DPVCheckEleMap, "Sip3DPVCheckEleMap" );   // ele sip-3d-iptools-check-method w.r.t. PV
+      // iEvent.put( sip3DPVwbsEleMap,"Sip3DPVwbsEleMap" );        // ele sip-3d-iptools w.r.t. PV with BS constraint
+      // iEvent.put( sip3DBSEleMap, "Sip3DBSEleMap" );             // ele sip-3d-iptools w.r.t. BS
+      // iEvent.put( sip3DcloPVEleMap, "Sip3DcloPVEleMap" );       // ele sip-3d-iptools w.r.t. closest-in-Z PV
+      // iEvent.put( sip3DcloPVwbsEleMap, "Sip3DcloPVwbsEleMap" ); // ele sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // //
+      // iEvent.put( sip2DPVEleMap, "Sip2DPVEleMap" );             // ele sip-2d-iptools w.r.t. PV
+      // iEvent.put( sip2DPVwbsEleMap, "Sip2DPVwbsEleMap" );       // ele sip-2d-iptools w.r.t. PV with BS constraint
+      // iEvent.put( sip2DBSEleMap, "Sip2DBSEleMap" );             // ele sip-2d-iptools w.r.t. BS
+      // iEvent.put( sip2DcloPVEleMap, "Sip2DcloPVEleMap" );       // ele sip-2d-iptools w.r.t. closest-in-Z PV
+      // iEvent.put( sip2DcloPVwbsEleMap, "Sip2DcloPVwbsEleMap" ); // ele sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
+      // //
+      // iEvent.put( sipXYPVCheckNoIPToolsEleMap, "SipXYPVCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. PV
+      // iEvent.put( sipXYBSCheckNoIPToolsEleMap, "SipXYBSCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. BS
+      // iEvent.put( sipZPVCheckNoIPToolsEleMap, "SipZPVCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. PV
+      // iEvent.put( sipZBSCheckNoIPToolsEleMap, "SipZBSCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. BS
+      // //
+
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVEleMap), "Sip3DPVEleMap" );             // ele sip-3d-iptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVCheckEleMap), "Sip3DPVCheckEleMap" );   // ele sip-3d-iptools-check-method w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DPVwbsEleMap),"Sip3DPVwbsEleMap" );        // ele sip-3d-iptools w.r.t. PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DBSEleMap), "Sip3DBSEleMap" );             // ele sip-3d-iptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DcloPVEleMap), "Sip3DcloPVEleMap" );       // ele sip-3d-iptools w.r.t. closest-in-Z PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip3DcloPVwbsEleMap), "Sip3DcloPVwbsEleMap" ); // ele sip-3d-iptools w.r.t. closest-in-Z PV with BS constraint
       //
-      iEvent.put( sip2DPVEleMap, "Sip2DPVEleMap" );             // ele sip-2d-iptools w.r.t. PV
-      iEvent.put( sip2DPVwbsEleMap, "Sip2DPVwbsEleMap" );       // ele sip-2d-iptools w.r.t. PV with BS constraint
-      iEvent.put( sip2DBSEleMap, "Sip2DBSEleMap" );             // ele sip-2d-iptools w.r.t. BS
-      iEvent.put( sip2DcloPVEleMap, "Sip2DcloPVEleMap" );       // ele sip-2d-iptools w.r.t. closest-in-Z PV
-      iEvent.put( sip2DcloPVwbsEleMap, "Sip2DcloPVwbsEleMap" ); // ele sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DPVEleMap), "Sip2DPVEleMap" );             // ele sip-2d-iptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DPVwbsEleMap), "Sip2DPVwbsEleMap" );       // ele sip-2d-iptools w.r.t. PV with BS constraint
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DBSEleMap), "Sip2DBSEleMap" );             // ele sip-2d-iptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DcloPVEleMap), "Sip2DcloPVEleMap" );       // ele sip-2d-iptools w.r.t. closest-in-Z PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sip2DcloPVwbsEleMap), "Sip2DcloPVwbsEleMap" ); // ele sip-2d-iptools w.r.t. closest-in-Z PV with BS constraint
       //
-      iEvent.put( sipXYPVCheckNoIPToolsEleMap, "SipXYPVCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. PV
-      iEvent.put( sipXYBSCheckNoIPToolsEleMap, "SipXYBSCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. BS
-      iEvent.put( sipZPVCheckNoIPToolsEleMap, "SipZPVCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. PV
-      iEvent.put( sipZBSCheckNoIPToolsEleMap, "SipZBSCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipXYPVCheckNoIPToolsEleMap), "SipXYPVCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipXYBSCheckNoIPToolsEleMap), "SipXYBSCheckNoIPToolsEleMap" ); // ele sip-XY-NOiptools w.r.t. BS
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipZPVCheckNoIPToolsEleMap), "SipZPVCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. PV
+      iEvent.put(std::make_unique<edm::ValueMap<float> >(*sipZBSCheckNoIPToolsEleMap), "SipZBSCheckNoIPToolsEleMap" );   // ele sip-Z-NOiptools w.r.t. BS
       //
     }
   //

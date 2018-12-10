@@ -98,7 +98,8 @@ void HZZ4LeptonsPFfsrPhoton::produce(edm::Event& iEvent, const edm::EventSetup& 
    // filling map
   
   const string iName = "";
-  iEvent.put( photon, iName );
+  //iEvent.put( photon, iName );
+  iEvent.put(std::make_unique<reco::PhotonCollection>(*photon), iName );
 
 }
 
