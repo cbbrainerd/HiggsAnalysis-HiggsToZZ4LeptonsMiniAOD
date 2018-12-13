@@ -29,6 +29,24 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
 
     triggerbits = cms.InputTag("TriggerResults","","HLT"),
 
+   #reham 
+   #Met Filters decision
+
+    #if (isData == True) : noiseFilterTag = cms.InputTag("TriggerResults","","RECO"),  # PAT for MC , RECO for Data                                       
+    #if (isData == False) : noiseFilterTag = cms.InputTag("TriggerResults","","PAT"),  # PAT for MC , RECO for Data
+
+    GoodVtxNoiseFilter_Selector_ =  cms.string('Flag_goodVertices'),
+    GlobalSuperTightHalo2016NoiseFilter_Selector_ = cms.string('Flag_globalSuperTightHalo2016Filter'),
+    HBHENoiseFilter_Selector_ = cms.string('Flag_HBHENoiseIsoFilter'), 
+    HBHENoiseIsoFilter_Selector_ = cms.string('Flag_HBHENoiseIsoFilter'),
+    EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_ = cms.string('Flag_EcalDeadCellTriggerPrimitiveFilter'),
+    BadPFMuonFilter_Selector_ = cms.string("Flag_BadPFMuonFilter"),
+    BadChargedCandidateFilter_Selector_ = cms.string("Flag_BadChargedCandidateFilter"),  
+    EEBadScNoiseFilter_Selector_ = cms.string('Flag_eeBadScFilter'),                        
+    EcalBadCalibFilter_Selector_ = cms.string("Flag_ecalBadCalibFilter"),
+
+    #####################
+
     triggerFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered40Q'),
     triggerMatchObject   =  cms.InputTag("muonTriggerMatchHLT"),
     triggerEleFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered40Q'),                                               
@@ -349,7 +367,7 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     goodElectronMCMatch  = cms.InputTag("goodElectronMCMatch"),
     myElectrons          = cms.InputTag("myElectrons"),
     goodMuonMCMatch      = cms.InputTag("goodMuonMCMatch"), 
-    myMuons              = cms.InputTag("myMuons"), 
+    myMuons              = cms.InputTag("myMuons"),  
     goodGammaMCMatch      = cms.InputTag("goodGammaMCMatch"),
     myGammas              = cms.InputTag("myGammas"),
 

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Matching sequence
 
 myMuons = cms.EDFilter("CandViewShallowCloneProducer",
-                               src = cms.InputTag("hTozzTo4leptonsMuonSelector"),
+                               src = cms.InputTag("hTozzTo4leptonsMuonSelector"),                            
                                cut = cms.string('')
                                 )
 
@@ -21,7 +21,7 @@ myGammas = cms.EDFilter("CandViewShallowCloneProducer",
 
 
 goodMuonMCMatch = cms.EDProducer ("MCMatcher",
-                                  src     = cms.InputTag("myMuons"),      # RECO objects to match
+                                  src     = cms.InputTag("slimmedMuons"),      # RECO objects to match
                                   matched = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
                                   mcPdgId     = cms.vint32(13),           # one or more PDG ID (13 = muon); absolute values (see below)
                                   checkCharge = cms.bool(True),           # True = require RECO and MC objects to have the same charge
@@ -33,7 +33,8 @@ goodMuonMCMatch = cms.EDProducer ("MCMatcher",
                                   )
 
 goodElectronMCMatch = cms.EDProducer ("MCMatcher",
-                                      src     = cms.InputTag("myElectrons"),  # RECO objects to match
+                                      #src     = cms.InputTag("myElectrons"),  # RECO objects to match  
+                                      src     = cms.InputTag("slimmedElectrons"),  # RECO objects to match                                  
                                       matched = cms.InputTag("prunedGenParticles"), # mc-truth particle collection
                                       mcPdgId     = cms.vint32(11),           # one or more PDG ID (13 = muon); absolute values (see below)
                                       checkCharge = cms.bool(True),           # True = require RECO and MC objects to have the same charge

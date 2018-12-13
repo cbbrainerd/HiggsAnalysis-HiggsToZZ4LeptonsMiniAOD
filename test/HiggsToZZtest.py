@@ -58,7 +58,7 @@ setupEgammaPostRecoSeq(process,
 ################
 
 #process.hTozzTo4leptonsPath = cms.Path(process.egammaPostRecoSeq * process.egmGsfElectronIDSequence  * process.printTree1)
-process.hTozzTo4leptonsPath = cms.Path(process.egammaPostRecoSeq *  process.printTree1)
+process.hTozzTo4leptonsPath = cms.Path( process.egammaPostRecoSeq *  process.printTree1)
 
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
@@ -82,3 +82,5 @@ process.source = cms.Source("PoolSource",
 
 # Endpath
 process.o = cms.EndPath ( process.output )
+
+

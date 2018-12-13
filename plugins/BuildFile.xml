@@ -58,7 +58,9 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
+<!--
 <use   name="KaMuCa/Calibration"/>
+-->
 <use   name="JetMETCorrections/Objects"/>
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="clhep"/>

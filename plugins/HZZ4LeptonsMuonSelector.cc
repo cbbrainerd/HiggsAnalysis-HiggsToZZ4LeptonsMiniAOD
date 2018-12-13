@@ -72,8 +72,8 @@ void HZZ4LeptonsMuonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
     bool matchglb=false, matchtrk=false;
     
-    cout << "Reading a muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
-    cout<<"Muon Global = "<<  mIter->isGlobalMuon()<<", Muon Tracker = "<< mIter->isTrackerMuon()<<endl;
+    cout << "Reading a calibrated muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
+    //cout<<"Muon Global = "<<  mIter->isGlobalMuon()<<", Muon Tracker = "<< mIter->isTrackerMuon()<<endl;
 
     if(isGlobalMuon==true && mIter->isGlobalMuon()){
       matchglb=true;
@@ -93,11 +93,13 @@ void HZZ4LeptonsMuonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     if (matchglb==true || matchtrk==true){
       
       if ( fabs( mIter->eta() ) > muonEtaMax ) continue;
-      if ( mIter->pt() > muonPtMin) Gmuon->push_back( *mIter );   
-    }
+      if ( mIter->pt() > muonPtMin){ Gmuon->push_back( *mIter );  
 
-    cout << "Selected a muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
-    cout<<"matchglb = "<<matchglb<<"matchtrk = "<<matchtrk<<endl;
+	cout << "Selected acalibrated muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl; };
+    }
+   
+    // cout << "Selected a muon with pT= " << mIter->pt() << " and eta= " << mIter->eta() << endl;
+    // cout<<"matchglb = "<<matchglb<<"matchtrk = "<<matchtrk<<endl;
   }
 
   

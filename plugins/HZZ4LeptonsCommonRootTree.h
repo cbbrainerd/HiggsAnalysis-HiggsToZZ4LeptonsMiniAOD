@@ -35,7 +35,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 //To compute Pt calibration
-#include "KaMuCa/Calibration/interface/KalmanMuonCalibrator.h"
+//#include "KaMuCa/Calibration/interface/KalmanMuonCalibrator.h"
 
 // Data format
 #include "DataFormats/Common/interface/Handle.h" 
@@ -210,6 +210,18 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     triggerObjects_              = consumes<pat::TriggerObjectStandAloneCollection>(pset.getParameter<edm::InputTag>("triggerobjects"));
 
     triggerBits_              = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerbits"));
+
+    //Reham 
+    noiseFilterTag_          =consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("noiseFilterTag"));
+    HBHENoiseFilter_Selector_ = pset.getParameter<string>("HBHENoiseFilter_Selector_");
+    EEBadScNoiseFilter_Selector_ = pset.getParameter<string>("EEBadScNoiseFilter_Selector_");
+    GoodVtxNoiseFilter_Selector_ =  pset.getParameter<string>("GoodVtxNoiseFilter_Selector_");
+    GlobalSuperTightHalo2016NoiseFilter_Selector_  =  pset.getParameter<string>("GlobalSuperTightHalo2016NoiseFilter_Selector_");
+    HBHENoiseIsoFilter_Selector_ = pset.getParameter<string>("HBHENoiseIsoFilter_Selector_");
+    EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_ = pset.getParameter<string>("EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_");
+    BadPFMuonFilter_Selector_ = pset.getParameter<string>("BadPFMuonFilter_Selector_");
+    BadChargedCandidateFilter_Selector_ = pset.getParameter<string>("BadChargedCandidateFilter_Selector_");                          
+    EcalBadCalibFilter_Selector_ = pset.getParameter<string>("EcalBadCalibFilter_Selector_");
    
     triggerFilter             = pset.getParameter<std::string>("triggerFilter");
     triggerMatchObject        = consumes<edm::Association<std::vector<pat::TriggerObjectStandAlone> > >(pset.getParameter<edm::InputTag>("triggerMatchObject"));
@@ -259,64 +271,33 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     // electrons and muons tags
     use2011EA                 = pset.getUntrackedParameter<bool>("use2011EA");
-
- 
     muonTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("MuonsLabel"));
     muonCorrPtErrorMapTag_    = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsCorrPtErrorMapLabel"));
-
+    
     //@
-     isData                    = pset.getParameter<bool>("isData");
+    isData                    = pset.getParameter<bool>("isData");
      slimmedMuonsTag_          = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("SlimmedMuonsLabel"));
-    
-    muonPFTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("PFMuonsLabel"));
-/*
-    muonPFIsoValueChargedAllTag_= consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("MuonPFIsoValueChargedAll"));
-    muonPFIsoValueChargedTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("MuonPFIsoValueCharged"));
-    muonPFIsoValueNeutralTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("MuonPFIsoValueNeutral"));
-    muonPFIsoValueGammaTag_     = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("MuonPFIsoValueGamma"));
-    muonPFIsoValuePUTag_        = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("MuonPFIsoValuePU"));
- */   
-    
-    clusterCollectionTag_    = pset.getParameter<edm::InputTag>("SuperClustersLabel");
-    gsftrackCollection_      = pset.getParameter<edm::InputTag>("GsfTracksElectronsLabel");
-
-    
-    electronEgmTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("ElectronsEgmLabel"));
-    /*
-    electronEgmTkMapTag_     = pset.getParameter<edm::InputTag>("ElectronsEgmTkMapLabel");
-    electronEgmEcalMapTag_   = pset.getParameter<edm::InputTag>("ElectronsEgmEcalMapLabel");
-    electronEgmHcalMapTag_   = pset.getParameter<edm::InputTag>("ElectronsEgmHcalMapLabel");
-    */
-
-    mvaElectronTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("mvaElectronTag"));
+     
+     muonPFTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("PFMuonsLabel"));
+     
+     
+     clusterCollectionTag_    = pset.getParameter<edm::InputTag>("SuperClustersLabel");
+     gsftrackCollection_      = pset.getParameter<edm::InputTag>("GsfTracksElectronsLabel");
+     
+     
+     electronEgmTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("ElectronsEgmLabel"));
+     mvaElectronTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("mvaElectronTag"));
     ///@@@/// TEST Electron ID  REHAM
     //@//    mvaTrigV0MapTag_         = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaTrigV0MapTag"));
     //@// mvaNonTrigV0MapTag_      = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaNonTrigV0MapTag"));
     electronsMiniAODToken_    = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("electronsMiniAOD")); //REHAM
     eleIDToken_ = consumes<edm::ValueMap<bool>>(pset.getParameter<edm::InputTag>("elecID")); //REHAM 
     //   mvaValuesMapToken_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaValuesMap"));
-    //  mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));
-    
-    /*    
-    electronPFIsoValueChargedAllTag_= consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueChargedAll"));
-    electronPFIsoValueChargedTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueCharged"));
-    electronPFIsoValueNeutralTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueNeutral"));
-    electronPFIsoValueGammaTag_     = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValueGamma"));
-    electronPFIsoValuePUTag_        = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("ElectronPFIsoValuePU"));
-  */  
-//    eleRegressionEnergyErrorTag_= pset.getParameter<edm::InputTag>("eleRegressionEnergyErrorLabel");
-//    eleRegressionEnergyTag_     = pset.getParameter<edm::InputTag>("eleRegressionEnergyLabel");
-    
+    //  mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));   
     
     // PF photons
 //    pfphotonsTag_                 = consumes<edm::View<reco::PFCandidate>>(pset.getParameter<edm::InputTag>("PFPhotonsLabel"));
     pfTag_                 = consumes<edm::View<pat::PackedCandidate>>(pset.getParameter<edm::InputTag>("pfCands"));
-/*    photonPFIsoValueChargedAllTag_= consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("PhotonPFIsoValueChargedAll"));
-    photonPFIsoValueChargedTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("PhotonPFIsoValueCharged"));
-    photonPFIsoValueNeutralTag_   = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("PhotonPFIsoValueNeutral"));
-    photonPFIsoValueGammaTag_     = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("PhotonPFIsoValueGamma"));
-    photonPFIsoValuePUTag_        = consumes<edm::ValueMap<double> >(pset.getParameter<edm::InputTag>("PhotonPFIsoValuePU"));
-*/   
 
     // vertexing 
     // 3D w.r.t primary vertex DA
@@ -346,171 +327,47 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     muonSLIPMapTag_VertValue   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSLIPMapLabelVertValue"));
     muonSTIPMapTag_VertError   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSTIPMapLabelVertError"));
     muonSLIPMapTag_VertError   =consumes<edm::ValueMap<float> >( pset.getParameter<edm::InputTag>("MuonsSLIPMapLabelVertError"));
-    
-    /* // 3D w.r.t primary vertex DA */
-    /* electronTag_Vert          = pset.getParameter<edm::InputTag>("ElectronsLabelVert"); */
-    /* electronMapTag_Vert       = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVert")); */
-    /* electronMapTag_VertValue  = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVertValue")); */
-    /* electronMapTag_VertError  = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVertError")); */
-    /* // KF */
-    /* electronMapTag_VertKF       = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVertKF")); */
-    /* electronMapTag_VertValueKF  = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVertValueKF")); */
-    /* electronMapTag_VertErrorKF  = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsMapLabelVertErrorKF")); */
-    
-    
-    /* // GD, Std and Kin vertex */
-    /* electronMapTag_VertGD      = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertGD"); */
-    /* electronMapTag_VertGDEEEE  = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertGDEEEE"); */
-    /* electronMapTag_VertStd     = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertStd"); */
-    /* electronMapTag_VertStdEEEE = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertStdEEEE"); */
-    /* electronMapTag_VertKin     = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertKin"); */
-    /* electronMapTag_VertKinEEEE = pset.getParameter<edm::InputTag>("ElectronsMapLabelVertKinEEEE"); */
-    
-    /* // STIP SLIP */
-    /* electronSTIPMapTag_Vert   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSTIPMapLabelVert")); */
-    /* electronSLIPMapTag_Vert   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSLIPMapLabelVert")); */
-    
-    /* electronSTIPMapTag_VertValue   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSTIPMapLabelVertValue")); */
-    /* electronSLIPMapTag_VertValue   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSLIPMapLabelVertValue")); */
-    /* electronSTIPMapTag_VertError   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSTIPMapLabelVertError")); */
-    /* electronSLIPMapTag_VertError   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ElectronsSLIPMapLabelVertError")); */
-   
-
-    
-    // geom. discr.
-    /* ftsigma_Vert           = pset.getParameter<edm::InputTag>("ftsigmaVert"); */
-    /* ftsigmalag_Vert        = pset.getParameter<edm::InputTag>("ftsigmalagVert"); */
-    /* gdX_Vert               = pset.getParameter<edm::InputTag>("gdX_Vert"); */
-    /* gdY_Vert               = pset.getParameter<edm::InputTag>("gdY_Vert"); */
-    /* gdZ_Vert               = pset.getParameter<edm::InputTag>("gdZ_Vert"); */
-    /* gdlagX_Vert            = pset.getParameter<edm::InputTag>("gdlagX_Vert"); */
-    /* gdlagY_Vert            = pset.getParameter<edm::InputTag>("gdlagY_Vert"); */
-    /* gdlagZ_Vert            = pset.getParameter<edm::InputTag>("gdlagZ_Vert"); */
-    /* gdlagProb_Vert         = pset.getParameter<edm::InputTag>("gdlagProb_Vert"); */
-    /* gdlagNdof_Vert         = pset.getParameter<edm::InputTag>("gdlagNdof_Vert"); */
-
-    /* ftsigma_VertMMMM       = pset.getParameter<edm::InputTag>("ftsigmaVertMMMM"); */
-    /* ftsigmalag_VertMMMM    = pset.getParameter<edm::InputTag>("ftsigmalagVertMMMM"); */
-    /* gdX_VertMMMM           = pset.getParameter<edm::InputTag>("gdX_VertMMMM"); */
-    /* gdY_VertMMMM           = pset.getParameter<edm::InputTag>("gdY_VertMMMM"); */
-    /* gdZ_VertMMMM           = pset.getParameter<edm::InputTag>("gdZ_VertMMMM"); */
-    /* gdlagX_VertMMMM        = pset.getParameter<edm::InputTag>("gdlagX_VertMMMM"); */
-    /* gdlagY_VertMMMM        = pset.getParameter<edm::InputTag>("gdlagY_VertMMMM"); */
-    /* gdlagZ_VertMMMM        = pset.getParameter<edm::InputTag>("gdlagZ_VertMMMM"); */
-    /* gdlagProb_VertMMMM     = pset.getParameter<edm::InputTag>("gdlagProb_VertMMMM"); */
-    /* gdlagNdof_VertMMMM     = pset.getParameter<edm::InputTag>("gdlagNdof_VertMMMM"); */
-
-    /* ftsigma_VertEEEE       = pset.getParameter<edm::InputTag>("ftsigmaVertEEEE"); */
-    /* ftsigmalag_VertEEEE    = pset.getParameter<edm::InputTag>("ftsigmalagVertEEEE"); */
-    /* gdX_VertEEEE           = pset.getParameter<edm::InputTag>("gdX_VertEEEE"); */
-    /* gdY_VertEEEE           = pset.getParameter<edm::InputTag>("gdY_VertEEEE"); */
-    /* gdZ_VertEEEE           = pset.getParameter<edm::InputTag>("gdZ_VertEEEE"); */
-    /* gdlagX_VertEEEE        = pset.getParameter<edm::InputTag>("gdlagX_VertEEEE"); */
-    /* gdlagY_VertEEEE        = pset.getParameter<edm::InputTag>("gdlagY_VertEEEE"); */
-    /* gdlagZ_VertEEEE        = pset.getParameter<edm::InputTag>("gdlagZ_VertEEEE"); */
-    /* gdlagProb_VertEEEE     = pset.getParameter<edm::InputTag>("gdlagProb_VertEEEE"); */
-    /* gdlagNdof_VertEEEE     = pset.getParameter<edm::InputTag>("gdlagNdof_VertEEEE"); */
-
-    /* //ConstraintVertex 4l */
-    /* StandardFitVertex        = pset.getParameter<edm::InputTag>("StandardFitVertex"); */
-    /* StandardFitVertexMMMM    = pset.getParameter<edm::InputTag>("StandardFitVertexMMMM"); */
-    /* StandardFitVertexEEEE    = pset.getParameter<edm::InputTag>("StandardFitVertexEEEE"); */
-    /* KinematicFitVertex       = pset.getParameter<edm::InputTag>("KinematicFitVertex"); */
-    /* KinematicFitVertexMMMM   = pset.getParameter<edm::InputTag>("KinematicFitVertexMMMM"); */
-    /* KinematicFitVertexEEEE   = pset.getParameter<edm::InputTag>("KinematicFitVertexEEEE"); */
-    /* RefittedMass             = pset.getParameter<edm::InputTag>("RefittedMass"); */
-    /* RefittedMassMMMM         = pset.getParameter<edm::InputTag>("RefittedMassMMMM"); */
-    /* RefittedMassEEEE         = pset.getParameter<edm::InputTag>("RefittedMassEEEE"); */
-
-    /* //ConstraintVertex 3l */
-    /* StandardFitVertexMMM     = pset.getParameter<edm::InputTag>("StandardFitVertexMMM"); */
-    /* StandardFitVertexMME     = pset.getParameter<edm::InputTag>("StandardFitVertexMME"); */
-    /* StandardFitVertexEEE     = pset.getParameter<edm::InputTag>("StandardFitVertexEEE"); */
-    /* StandardFitVertexMEE     = pset.getParameter<edm::InputTag>("StandardFitVertexMEE"); */
-
-    /* // ConstraintVertex Dileptons */
-    /* StandardFitVertexDiLep   = pset.getParameter<edm::InputTag>("StandardFitVertexDiLep"); */
 
     //electronID
     eleIDTag_                 = pset.getParameter<vtag>("eleIDLabel");
-
+    
     // Other objets
     photonsTag_              = consumes<edm::View<pat::Photon> >(pset.getParameter<edm::InputTag>("PhotonsLabel"));
-//    tracksTag_               = consumes<vector<reco::Track> >(pset.getParameter<edm::InputTag>("TracksLabel"));
+    //    tracksTag_               = consumes<vector<reco::Track> >(pset.getParameter<edm::InputTag>("TracksLabel"));
     jetsTag_                 = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel")); 
- //   jetsDataTag_             = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsDataLabel"));
+    //   jetsDataTag_             = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsDataLabel"));
     jetsMVATag_              = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsMVALabel"));
     jetsQGTag_               = consumes<vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel"));//REHAM
     jetQGMapTag_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag"));//REHAM
     jetQGMapTag_axis2_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_axis2"));//REHAM
     jetQGMapTag_ptd_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_ptd"));//REHAM
     jetQGMapTag_mult_             = consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("jetQGMapTag_mult"));//REHAM
-
-//    PuJetMvaMCfullDiscr_     = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaMCfullDiscrLabel"));
-//    PuJetMvaMCfullId_        = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaMCfullIdLabel"));
-//    PuJetMvaDatafullDiscr_   = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaDatafullDiscrLabel"));
-//    PuJetMvaDatafullId_      = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("PuJetMvaDatafullIdLabel"));
- 
+    
+    
     rhojetsTag_              = consumes<double>(pset.getParameter<edm::InputTag>("RhoJetsLabel"));
     verticesTag_             = consumes<vector<reco::Vertex> >(pset.getParameter<edm::InputTag>("VerticesLabel"));
-
+    
     // GenJet 
     genjetTag_              = consumes<vector<reco::GenJet> >(pset.getParameter<edm::InputTag>("GenJetLabel")); // GenJet
-
-/*    
-    // MET reco
-    genmetTag_              = consumes<vector<reco::GenMET> >(pset.getParameter<edm::InputTag>("GenMETLabel")); // GenMET
-    trackermetTag_          = pset.getParameter<edm::InputTag>("TrackerMETLabel"); // TrackerMET
-    // Calo MET
-    calometTag_             = pset.getParameter<edm::InputTag>("CaloMETLabel");
-    calometnohfTag_         = pset.getParameter<edm::InputTag>("CaloMET_NoHFLabel");
-    useAdditionalMET_       = pset.getUntrackedParameter<bool>("useAdditionalMET");
-    calomethoTag_           = pset.getParameter<edm::InputTag>("CaloMET_HOLabel");
-    calometoptTag_          = pset.getParameter<edm::InputTag>("CaloMET_OptLabel");
-    calometoptnohfTag_      = pset.getParameter<edm::InputTag>("CaloMET_OptNoHFLabel");
-    calometoptnohfhoTag_    = pset.getParameter<edm::InputTag>("CaloMET_OptNoHFHOLabel");
-    calometopthoTag_        = pset.getParameter<edm::InputTag>("CaloMET_OptHOLabel");
-    calometnohfhoTag_       = pset.getParameter<edm::InputTag>("CaloMET_NoHFHOLabel");
-*/    
+    
     // PF MET
     pfmetTag_               = consumes<vector<pat::MET> >(pset.getParameter<edm::InputTag>("PfMETLabel"));
-/*
-    // htMET
-    htmetic5Tag_            = pset.getParameter<edm::InputTag>("HtMET_IC5Label");
-    htmetkt4Tag_            = pset.getParameter<edm::InputTag>("HtMET_KT4Label");
-    htmetkt6Tag_            = pset.getParameter<edm::InputTag>("HtMET_KT6Label");
-    htmetsc5Tag_            = pset.getParameter<edm::InputTag>("HtMET_SC5Label");
-    htmetsc7Tag_            = pset.getParameter<edm::InputTag>("HtMET_SC7Label");
-    // JES correction MET
-    jescormetic5Tag_        = pset.getParameter<edm::InputTag>("MET_JESCorIC5CaloJetLabel");
-    jescormetkt4Tag_        = pset.getParameter<edm::InputTag>("MET_JESCorKT4CaloJetLabel");
-    jescormetkt6Tag_        = pset.getParameter<edm::InputTag>("MET_JESCorKT6CaloJetLabel");
-    jescormetsc5Tag_        = pset.getParameter<edm::InputTag>("MET_JESCorSC5CaloJetLabel");
-    jescormetsc7Tag_        = pset.getParameter<edm::InputTag>("MET_JESCorSC7CaloJetLabel");
-    // Type I Muon Correction MET
-    cormetMuTag_            = pset.getParameter<edm::InputTag>("CorMETGlobalMuLabel");
-*/    
-
-    //quark/gluon tagging
-    //QGTaggerMC_LHTag_        = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("QGTaggerMC_LHLabel"));
-    //QGTaggerData_LHTag_      = consumes<edm::ValueMap<float> > (pset.getParameter<edm::InputTag>("QGTaggerData_LHLabel"));
+    // ecalBadCalibFilterUpdate_token   = consumes<bool>(edm::InputTag("ecalBadCalibReducedMINIAODFilter")); new met filter to be used (under test)
+    // BadChCandFilterToken_            = consumes<bool>(edm::InputTag("BadChargedCandidateFilter"));
+    // BadPFMuonFilterToken_            = consumes<bool>(edm::InputTag("BadPFMuonFilter"));
+      
     
     // btagging
     //   bDiscriminators_         =pset.getParameter<std::vector<std::string> >("bDiscriminators");
+    
+    tCHighEff_bTag_         =pset.getParameter<std::string>("tCHighEff_bTagLabel");
+    tCHighPur_bTag_         =pset.getParameter<std::string>("tCHighPur_bTagLabel");
+    cSV_bTag1_         =pset.getParameter<std::string>("cSV_bTagLabel1");
+    cSV_bTag2_         =pset.getParameter<std::string>("cSV_bTagLabel2");
 
-   tCHighEff_bTag_         =pset.getParameter<std::string>("tCHighEff_bTagLabel");
-   tCHighPur_bTag_         =pset.getParameter<std::string>("tCHighPur_bTagLabel");
-   cSV_bTag1_         =pset.getParameter<std::string>("cSV_bTagLabel1");
-   cSV_bTag2_         =pset.getParameter<std::string>("cSV_bTagLabel2");
-//    tCHighPur_bTag_         = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >(pset.getParameter<edm::InputTag>("tCHighPur_bTagLabel"));
-//    cSV_bTag_               = consumes<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >(pset.getParameter<edm::InputTag>("cSV_bTagLabel"));
-
-    // Conversion finder
-//    ConvMapDistTag_       = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ConvMapDist"));
-//    ConvMapDcotTag_       = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("ConvMapDcot"));
     
     // Matching
-   // /* to add matching informations Reham
+    // /* to add matching informations Reham
 
     goodElectronMCMatch_  = consumes<edm::Association<std::vector<reco::GenParticle> >>(pset.getParameter<edm::InputTag>("goodElectronMCMatch"));
     myElectrons_          = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myElectrons"));
@@ -721,8 +578,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOELE_MASS",RECOELE_MASS,"RECOELE_MASS[100]/F"); 
     Tree_->Branch("RECOELE_CHARGE",RECOELE_CHARGE,"RECOELE_CHARGE[100]/F"); 
   
-    //TEST
+    //Reham
     Tree_->Branch("RECOELE_ID",RECOELE_ID,"RECOELE_ID[100]/F");
+    Tree_->Branch("RECOELE_PT_uncorr",RECOELE_PT_uncorr,"RECOELE_PT_uncorr[100]/F");
 
     // Core attributes
     Tree_->Branch("RECOELE_isEcalDriven",   RECOELE_isEcalDriven,   "RECOELE_isEcalDriven[100]/b");   
@@ -852,7 +710,32 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     Tree_->Branch("RECOELE_TLE_ParentSC_X",RECOELE_TLE_ParentSC_X,"RECOELE_TLE_ParentSC_X[20]/F");
     Tree_->Branch("RECOELE_TLE_ParentSC_Y",RECOELE_TLE_ParentSC_Y,"RECOELE_TLE_ParentSC_Y[20]/F");
-    Tree_->Branch("RECOELE_TLE_ParentSC_Z",RECOELE_TLE_ParentSC_Z,"RECOELE_TLE_ParentSC_X[20]/F");
+    Tree_->Branch("RECOELE_TLE_ParentSC_Z",RECOELE_TLE_ParentSC_Z,"RECOELE_TLE_ParentSC_Z[20]/F");
+
+
+    //Reham Electron systematic variables
+
+    Tree_->Branch("RECOELE_ecalTrkEnergyPreCorr",RECOELE_ecalTrkEnergyPreCorr,"RECOELE_ecalTrkEnergyPreCorr[100]/F");
+    Tree_->Branch("RECOELE_ecalTrkEnergyErrPreCorr",RECOELE_ecalTrkEnergyErrPreCorr,"RECOELE_ecalTrkEnergyErrPreCorr[100]/F");
+    Tree_->Branch("RECOELE_ecalTrkEnergyErrPostCorr",RECOELE_ecalTrkEnergyErrPostCorr,"RECOELE_ecalTrkEnergyErrPostCorr[100]/F");
+    Tree_->Branch("RECOELE_energyScaleValue",RECOELE_energyScaleValue,"RECOELE_energyScaleValue[100]/F");       
+    Tree_->Branch("RECOELE_energySigmaValue",RECOELE_energySigmaValue, "RECOELE_energySigmaValue[100]/F");
+    Tree_->Branch("RECOELE_energyScaleUp",RECOELE_energyScaleUp,"RECOELE_energyScaleUp[100]/F");     
+    Tree_->Branch("RECOELE_energyScaleDown",RECOELE_energyScaleDown,"RECOELE_energyScaleDown[100]/F");       
+    Tree_->Branch("RECOELE_energyScaleStatUp",RECOELE_energyScaleStatUp,"RECOELE_energyScaleStatUp[100]/F");       
+    Tree_->Branch("RECOELE_energyScaleStatDown",RECOELE_energyScaleStatDown,"RECOELE_energyScaleStatDown[100]/F");        
+    Tree_->Branch("RECOELE_energyScaleSystUp",RECOELE_energyScaleSystUp,"RECOELE_energyScaleSystUp[100]/F");        
+    Tree_->Branch("RECOELE_energyScaleSystDown",RECOELE_energyScaleSystDown,"RECOELE_energyScaleSystDown[100]/F");        
+    Tree_->Branch("RECOELE_energyScaleGainUp",RECOELE_energyScaleGainUp,"RECOELE_energyScaleGainUp[100]/F");        
+    Tree_->Branch("RECOELE_energyScaleGainDown",RECOELE_energyScaleGainDown,"RECOELE_energyScaleGainDown[100]/F");      
+    Tree_->Branch("RECOELE_energyScaleEtUp",RECOELE_energyScaleEtUp,"RECOELE_energyScaleEtUp[100]/F");       
+    Tree_->Branch("RECOELE_energyScaleEtDown",RECOELE_energyScaleEtDown,"RECOELE_energyScaleEtDown[100]/F");       
+    Tree_->Branch("RECOELE_energySigmaUp",RECOELE_energySigmaUp,"RECOELE_energySigmaUp[100]/F");         
+    Tree_->Branch("RECOELE_energySigmaDown",RECOELE_energySigmaDown,"RECOELE_energySigmaDown[100]/F");       
+    Tree_->Branch("RECOELE_energySigmaPhiUp",RECOELE_energySigmaPhiUp,"RECOELE_energySigmaPhiUp[100]/F");        
+    Tree_->Branch("RECOELE_energySigmaPhiDown",RECOELE_energySigmaPhiDown,"RECOELE_energySigmaPhiDown[100]/F");     
+    Tree_->Branch("RECOELE_energySigmaRhoUp",RECOELE_energySigmaRhoUp,"RECOELE_energySigmaRhoUp[100]/F");        
+    Tree_->Branch("RECOELE_energySigmaRhoDown",RECOELE_energySigmaRhoDown,"RECOELE_energySigmaRhoDown[100]/F");      
 
     // Muon block
     Tree_->Branch("RECOMU_isPFMu", RECOMU_isPFMu, "RECOMU_isPFMu[100]/b");
@@ -870,7 +753,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOMU_PHI",RECOMU_PHI,"RECOMU_PHI[100]/F"); 
     Tree_->Branch("RECOMU_MASS",RECOMU_MASS,"RECOMU_MASS[100]/F"); 
     Tree_->Branch("RECOMU_CHARGE",RECOMU_CHARGE,"RECOMU_CHARGE[100]/F");
-    Tree_->Branch("RECOMU_Roch_calib_error",RECOMU_Roch_calib_error,"RECOMU_Roch_calib_error[100]/F");
+    // Tree_->Branch("RECOMU_Roch_calib_error",RECOMU_Roch_calib_error,"RECOMU_Roch_calib_error[100]/F");
+    Tree_->Branch("RECOMU_PT_uncorr",RECOMU_PT_uncorr,"RECOMU_PT_uncorr[100]/F");
 
     Tree_->Branch("RECOMU_COV",RECOMU_COV,"RECOMU_COV[100][3][3]/D"); 
 
@@ -982,6 +866,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECOMU_mubesttrkDz", RECOMU_mubesttrkDz, "RECOMU_mubesttrkDz[100]/F");
     Tree_->Branch( "RECOMU_mubesttrkDzError", RECOMU_mubesttrkDzError, "RECOMU_mubesttrkDzError[100]/F");
     Tree_->Branch( "RECOMU_mubesttrkPTError", RECOMU_mubesttrkPTError, "RECOMU_mubesttrkPTError[100]/F");
+    Tree_->Branch( "RECOMU_Rochester_Error",  RECOMU_Rochester_Error, "RECOMU_Rochester_Error[100]/F");
+
 
     // Geom. Discri.
     Tree_->Branch("ftsigma",        &ftsigma,        "ftsigma[100]/D");
@@ -1162,7 +1048,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOPHOT_THETA",RECOPHOT_THETA,"RECOPHOT_THETA[20]/F"); 
     Tree_->Branch("RECOPHOT_TLE_ParentSC_X",RECOPHOT_TLE_ParentSC_X,"RECOPHOT_TLE_ParentSC_X[20]/F");
     Tree_->Branch("RECOPHOT_TLE_ParentSC_Y",RECOPHOT_TLE_ParentSC_Y,"RECOPHOT_TLE_ParentSC_Y[20]/F");
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_Z",RECOPHOT_TLE_ParentSC_Z,"RECOPHOT_TLE_ParentSC_X[20]/F");
+    Tree_->Branch("RECOPHOT_TLE_ParentSC_Z",RECOPHOT_TLE_ParentSC_Z,"RECOPHOT_TLE_ParentSC_Z[20]/F");
 
     Tree_->Branch("RECO_NPFPHOT", &RECO_NPFPHOT, "RECO_NPFPHOT/I");
     Tree_->Branch("RECOPFPHOT_PT",RECOPFPHOT_PT,"RECOPFPHOT_PT[20]/F"); 
@@ -1171,6 +1057,33 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOPFPHOT_PHI",RECOPFPHOT_PHI,"RECOPFPHOT_PHI[20]/F"); 
     Tree_->Branch("RECOPFPHOT_THETA",RECOPFPHOT_THETA,"RECOPFPHOT_THETA[20]/F"); 
     
+    //Reham
+
+     Tree_->Branch("RECOPFPHOT_PT_uncorr",RECOPFPHOT_PT_uncorr,"RECOPFPHOT_PT_uncorr[20]/F");
+
+    //Reham photn systematic variables
+
+    Tree_->Branch("RECOPFPHOT_ecalEnergyPreCorr",RECOPFPHOT_ecalEnergyPreCorr,"RECOPFPHOT_ecalEnergyPreCorr[20]/F");
+    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPreCorr",RECOPFPHOT_ecalEnergyErrPreCorr,"RECOPFPHOT_ecalEnergyErrPreCorr[20]/F");   
+    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPostCorr",RECOPFPHOT_ecalEnergyErrPostCorr,"RECOPFPHOT_ecalEnergyErrPostCorr[20]/F");
+    Tree_->Branch("RECOPFPHOT_energyScaleValue",RECOPFPHOT_energyScaleValue,"RECOPFPHOT_energyScaleValue[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energySigmaValue",RECOPFPHOT_energySigmaValue, "RECOPFPHOT_energySigmaValue[20]/F");
+    Tree_->Branch("RECOPFPHOT_energyScaleUp",RECOPFPHOT_energyScaleUp,"RECOPFPHOT_energyScaleUp[20]/F");     
+    Tree_->Branch("RECOPFPHOT_energyScaleDown",RECOPFPHOT_energyScaleDown,"RECOPFPHOT_energyScaleDown[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energyScaleStatUp",RECOPFPHOT_energyScaleStatUp,"RECOPFPHOT_energyScaleStatUp[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energyScaleStatDown",RECOPFPHOT_energyScaleStatDown,"RECOPFPHOT_energyScaleStatDown[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energyScaleSystUp",RECOPFPHOT_energyScaleSystUp,"RECOPFPHOT_energyScaleSystUp[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energyScaleSystDown",RECOPFPHOT_energyScaleSystDown,"RECOPFPHOT_energyScaleSystDown[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energyScaleGainUp",RECOPFPHOT_energyScaleGainUp,"RECOPFPHOT_energyScaleGainUp[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energyScaleGainDown",RECOPFPHOT_energyScaleGainDown,"RECOPFPHOT_energyScaleGainDown[20]/F");      
+    Tree_->Branch("RECOPFPHOT_energyScaleEtUp",RECOPFPHOT_energyScaleEtUp,"RECOPFPHOT_energyScaleEtUp[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energyScaleEtDown",RECOPFPHOT_energyScaleEtDown,"RECOPFPHOT_energyScaleEtDown[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energySigmaUp",RECOPFPHOT_energySigmaUp,"RECOPFPHOT_energySigmaUp[20]/F");         
+    Tree_->Branch("RECOPFPHOT_energySigmaDown",RECOPFPHOT_energySigmaDown,"RECOPFPHOT_energySigmaDown[20]/F");       
+    Tree_->Branch("RECOPFPHOT_energySigmaPhiUp",RECOPFPHOT_energySigmaPhiUp,"RECOPFPHOT_energySigmaPhiUp[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energySigmaPhiDown",RECOPFPHOT_energySigmaPhiDown,"RECOPFPHOT_energySigmaPhiDown[20]/F");     
+    Tree_->Branch("RECOPFPHOT_energySigmaRhoUp",RECOPFPHOT_energySigmaRhoUp,"RECOPFPHOT_energySigmaRhoUp[20]/F");        
+    Tree_->Branch("RECOPFPHOT_energySigmaRhoDown",RECOPFPHOT_energySigmaRhoDown,"RECOPFPHOT_energySigmaRhoDown[20]/F"); 
     
     //Beam Spot position
     Tree_->Branch("BeamSpot_X",&BeamSpot_X,"BeamSpot_X/D");
@@ -1195,6 +1108,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFJET_PT",  RECO_PFJET_PT,  "RECO_PFJET_PT[200]/F");
     Tree_->Branch( "RECO_PFJET_ETA", RECO_PFJET_ETA, "RECO_PFJET_ETA[200]/F");
     Tree_->Branch( "RECO_PFJET_PHI", RECO_PFJET_PHI, "RECO_PFJET_PHI[200]/F");
+    Tree_->Branch( "RECO_PFJET_PUID_loose", RECO_PFJET_PUID_loose, "RECO_PFJET_PUID_loose[200]/I");
+    Tree_->Branch( "RECO_PFJET_PUID_medium", RECO_PFJET_PUID_medium, "RECO_PFJET_PUID_medium[200]/I");
     Tree_->Branch( "RECO_PFJET_PUID", RECO_PFJET_PUID, "RECO_PFJET_PUID[200]/I");
     Tree_->Branch( "RECO_PFJET_PUID_MVA", RECO_PFJET_PUID_MVA, "RECO_PFJET_PUID_MVA[200]/F");
     Tree_->Branch( "RECO_PFJET_QG_Likelihood", RECO_PFJET_QG_Likelihood, "RECO_PFJET_QG_Likelihood[200]/F");//REHAM QG tagger
@@ -1292,6 +1207,22 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFMET_TauEnUp ", &pfmet_TauEnUp , "RECO_PFMET_TauEnUp /F");
     Tree_->Branch( "RECO_PFMET_TauEnDown", &pfmet_TauEnDown, "RECO_PFMET_TauEnDown/F");
 
+    // decision of MET filter
+    //Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &PassecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new
+    // Tree_->Branch( "RECO_PFMET_filterbadChCandidate", &filterbadChCandidate, "RECO_PFMET_filterbadChCandidate/I");
+    // Tree_->Branch( "RECO_PFMET_filterbadPFMuon", &filterbadPFMuon, "RECO_PFMET_filterbadPFMuon/I");
+   
+    Tree_->Branch( "RECO_PFMET_GoodVtxNoiseFilter",&passFilterGoodVtxNoise, "RECO_PFMET_GoodVtxNoiseFilter/I");
+    Tree_->Branch( "RECO_PFMET_GlobalSuperTightHalo2016NoiseFilter",&passFilterGlobalSuperTightHalo2016NoiseFilter, "RECO_PFMET_GlobalSuperTightHalo2016NoiseFilter/I");
+    Tree_->Branch( "RECO_PFMET_HBHENoiseFilter",&passFilterHBHENoise, "RECO_PFMET_HBHENoiseFilter/I");
+    Tree_->Branch( "RECO_PFMET_HBHENoiseIsoFilter",&passFilterHBHENoiseIso, "RECO_PFMET_HBHENoiseIsoFilter/I");
+    Tree_->Branch( "RECO_PFMET_EcalDeadCellTriggerPrimitiveNoiseFilter",&passFilterEcalDeadCellTriggerPrimitiveNoise, "RECO_PFMET_EcalDeadCellTriggerPrimitiveNoiseFilter/I");
+    Tree_->Branch( "RECO_PFMET_BadPFMuonFilter",& passFilterBadPFMuon, "RECO_PFMET_BadPFMuonFilter/I");
+    Tree_->Branch( "RECO_PFMET_BadChargedCandidateFilter",&passFilterBadChargedCandidate, "RECO_PFMET_BadChargedCandidateFilter/I");
+    Tree_->Branch( "RECO_PFMET_EEBadScNoiseFilter",&passFilterEEBadScNoise, "RECO_PFMET_EEBadScNoiseFilter/I");
+    Tree_->Branch( "RECO_PFMET_EcalBadCalibFilter",&passFilterEcalBadCalib, "RECO_PFMET_EcalBadCalibFilter/I");
+    
+ 
     //Track Corrected MET
     Tree_->Branch( "RECO_TCMET", &tcmet, "RECO_TCMET/F");
     //Type I correction MET
@@ -1492,6 +1423,31 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECOPFPHOT_PFPUchAllPart[i]=-999.;
       RECOPFPHOT_PFX_rho[i]=-999.;
 
+       RECOPFPHOT_PT_uncorr[i]=-999.;
+
+      //Reham sys variables
+
+      RECOPFPHOT_ecalEnergyPreCorr[i] =-999.;
+      RECOPFPHOT_ecalEnergyErrPreCorr[i]=-999.;
+      RECOPFPHOT_ecalEnergyErrPostCorr[i]=-999.;
+      RECOPFPHOT_energyScaleValue[i]=-999.;       
+      RECOPFPHOT_energySigmaValue[i]=-999.;
+      RECOPFPHOT_energyScaleUp[i]=-999.;    
+      RECOPFPHOT_energyScaleDown[i]=-999.;       
+      RECOPFPHOT_energyScaleStatUp[i]=-999.;       
+      RECOPFPHOT_energyScaleStatDown[i]=-999.;        
+      RECOPFPHOT_energyScaleSystUp[i]=-999.;        
+      RECOPFPHOT_energyScaleSystDown[i]=-999.;        
+      RECOPFPHOT_energyScaleGainUp[i]=-999.;        
+      RECOPFPHOT_energyScaleGainDown[i]=-999.;      
+      RECOPFPHOT_energyScaleEtUp[i]=-999.;       
+      RECOPFPHOT_energyScaleEtDown[i]=-999.;       
+      RECOPFPHOT_energySigmaUp[i]=-999.;         
+      RECOPFPHOT_energySigmaDown[i]=-999.;       
+      RECOPFPHOT_energySigmaPhiUp[i]=-999.;        
+      RECOPFPHOT_energySigmaPhiDown[i]=-999.;     
+      RECOPFPHOT_energySigmaRhoUp[i]=-999.;        
+      RECOPFPHOT_energySigmaRhoDown[i]=-999.; 
 
     }
 		
@@ -1516,6 +1472,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECO_PFJET_ETA[ijets] = -999.; 
       RECO_PFJET_PHI[ijets] = -999.;
       RECO_PFJET_PUID[ijets] = -999;
+      RECO_PFJET_PUID_loose[ijets] = -999;
+      RECO_PFJET_PUID_medium[ijets] = -999;
       RECO_PFJET_PUID_MVA[ijets] = -999.;
       RECO_PFJET_QG_Likelihood[ijets] = -999.;
       RECO_PFJET_QG_axis2[ijets] = -999.;
@@ -1523,14 +1481,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECO_PFJET_QG_mult[ijets] = -999.;
     }
     
-/*     calomet=-999.; */
-/*     calometopt=-999.; */
-/*     calometoptnohf=-999.; */
-/*     calometoptnohfho=-999.; */
-/*     calometoptho=-999.; */
-/*     calometnohf=-999.; */
-/*     calometnohfho=-999.; */
-/*     calometho=-999.; */
 
 
     pfmet=-999.;
@@ -1545,6 +1495,22 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     pfmet_phi_uncorr=-999.;
     pfmet_theta_uncorr=-999.;
 
+    PassecalBadCalibFilterUpdated =-999;
+    //filterbadChCandidate=-999;
+    //filterbadPFMuon=-999;
+
+    //MET Filters decisions
+
+    passFilterGoodVtxNoise = -999;
+    passFilterGlobalSuperTightHalo2016NoiseFilter = -999;
+    passFilterHBHENoise = -999;
+      passFilterHBHENoiseIso = -999; 
+    passFilterEcalDeadCellTriggerPrimitiveNoise = -999;
+    passFilterBadPFMuon = -999;
+    passFilterBadChargedCandidate = -999;
+    passFilterEEBadScNoise = -999;
+    passFilterEcalBadCalib = -999;
+    
     tcmet=-999.;
     cormetmuons=-999.;
     
@@ -1796,6 +1762,31 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECOELE_MASS[i]=-999.;
       RECOELE_CHARGE[i]=-999.;
       RECOELE_ID[i]=-999.;
+      RECOELE_PT_uncorr[i]=-999.;
+  
+      //Reham sys variables
+
+      RECOELE_ecalTrkEnergyPreCorr[i] =-999.;
+      RECOELE_ecalTrkEnergyErrPreCorr[i]=-999.;
+      RECOELE_ecalTrkEnergyErrPostCorr[i]=-999.;
+      RECOELE_energyScaleValue[i]=-999.;       
+      RECOELE_energySigmaValue[i]=-999.;
+      RECOELE_energyScaleUp[i]=-999.;    
+      RECOELE_energyScaleDown[i]=-999.;       
+      RECOELE_energyScaleStatUp[i]=-999.;       
+      RECOELE_energyScaleStatDown[i]=-999.;        
+      RECOELE_energyScaleSystUp[i]=-999.;        
+      RECOELE_energyScaleSystDown[i]=-999.;        
+      RECOELE_energyScaleGainUp[i]=-999.;        
+      RECOELE_energyScaleGainDown[i]=-999.;      
+      RECOELE_energyScaleEtUp[i]=-999.;       
+      RECOELE_energyScaleEtDown[i]=-999.;       
+      RECOELE_energySigmaUp[i]=-999.;         
+      RECOELE_energySigmaDown[i]=-999.;       
+      RECOELE_energySigmaPhiUp[i]=-999.;        
+      RECOELE_energySigmaPhiDown[i]=-999.;     
+      RECOELE_energySigmaRhoUp[i]=-999.;        
+      RECOELE_energySigmaRhoDown[i]=-999.;  
       
       // Core attributes
       RECOELE_isEcalDriven[i]    = false;
@@ -1940,13 +1931,14 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
       RECOMU_E[i]=-999.;
       RECOMU_PT[i]=-999.;
-      RECOMU_Roch_calib_error[i]=-999.;
+      // RECOMU_Roch_calib_error[i]=-999.;
       RECOMU_P[i]=-999.;
       RECOMU_PHI[i]=-999.;
       RECOMU_ETA[i]=-999.;
       RECOMU_THETA[i]=-999.;
       RECOMU_MASS[i]=-999.;      
       RECOMU_CHARGE[i]=-999.;
+      RECOMU_PT_uncorr[i]=-999.;
       
       for (int j=0; j<3; j++){
 	for (int k=0;k<3;k++){
@@ -2029,6 +2021,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       RECOMU_mubesttrkDzB[i]=-999.;
       RECOMU_mubesttrkDzError[i]=-999.;
       RECOMU_mubesttrkPTError[i]=-999.;
+      RECOMU_Rochester_Error[i]=-999.;
 
       RECOMU_mutrkCharge[i]=-999.;
       RECOMU_mutrkNHits[i]=-999.;
@@ -2991,181 +2984,6 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       kk++;
     }
-    
-/*   
-    // tri-leptons
-    leptonscands_LLL0->clear();
-    leptonscands_LLL1->clear();
-    leptonscands_LLL2->clear();
-    leptonscands_LLL3->clear();
-
-    for (unsigned int i=0; i<RECOcollNameLLL.size(); i++) {  
-      edm::Handle<edm::View<Candidate> > CandidatesLLL;
-      if(i==0) iEvent.getByToken(triLeptonsMuMuMu, CandidatesLLL); 
-      if(i==1) iEvent.getByToken(triLeptonsMuMuE, CandidatesLLL);
-      if(i==2) iEvent.getByToken(triLeptonsMuEE, CandidatesLLL);
-      if(i==3) iEvent.getByToken(triLeptonsEEE, CandidatesLLL);
-      int k=0;
-      for( edm::View<Candidate>::const_iterator cand = CandidatesLLL->begin();cand != CandidatesLLL->end(); ++ cand ) { 
-	if (k>49) break;
-	if (i==0) RECO_LLL0_MASS[k]=cand->p4().mass();
-	if (i==0) RECO_LLL0_PT[0][k]=cand->p4().pt();
-	if (i==1) RECO_LLL1_MASS[k]=cand->p4().mass();
-	if (i==1) RECO_LLL1_PT[0][k]=cand->p4().pt();
-	if (i==2) RECO_LLL2_MASS[k]=cand->p4().mass();
-	if (i==2) RECO_LLL2_PT[0][k]=cand->p4().pt();
-	if (i==3) RECO_LLL3_MASS[k]=cand->p4().mass();
-	if (i==4) RECO_LLL3_PT[0][k]=cand->p4().pt();
-	cout << "Tri-lepton candidate of type=" << RECOcollNameLLL.at(i).label() << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<endl;
-	for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	  if (i==0) {
-	    RECO_LLL0_PT[j+1][k]=cand->daughter(j)->p4().pt();
-	    leptonscands_LLL0->push_back( cand->daughter(j)->clone());
-	  }
-	  if (i==1) {
-	    RECO_LLL1_PT[j+1][k]=cand->daughter(j)->p4().pt();
-	    leptonscands_LLL1->push_back( cand->daughter(j)->clone());
-	  }
-	  if (i==2) {
-	    RECO_LLL2_PT[j+1][k]=cand->daughter(j)->p4().pt();
-	    leptonscands_LLL2->push_back( cand->daughter(j)->clone()); 
-	  }
-	  if (i==3) {
-	    RECO_LLL3_PT[j+1][k]=cand->daughter(j)->p4().pt();
-	    leptonscands_LLL3->push_back( cand->daughter(j)->clone());
-	  }
-	}
-	k++;
-      }
-    }
-*/    
-/*
-    // 4-leptons SS
-    leptonscands_LLLLss0->clear();
-    leptonscands_LLLLss1->clear();
-    leptonscands_LLLLss2->clear();
-    
-    for (unsigned int i=0; i<RECOcollNameLLLLss.size(); i++) {  
-      edm::Handle<edm::View<Candidate> > CandidatesLLLLss;
-      if(i==0) iEvent.getByToken(quadLeptons4Mu, CandidatesLLLLss);
-      if(i==1) iEvent.getByToken(quadLeptons2Mu2E, CandidatesLLLLss);
-      if(i==2) iEvent.getByToken(quadLeptons4E, CandidatesLLLLss);
-      int kk=0;
-      for( edm::View<Candidate>::const_iterator cand = CandidatesLLLLss->begin();cand != CandidatesLLLLss->end(); ++ cand ) { 
-	if (kk>49) break;
-	if (i==0) RECO_LLLL0ss_MASS[kk]=cand->p4().mass();
-	if (i==0) RECO_LLLL0ss_PT[0][kk]=cand->p4().pt();
-	if (i==1) RECO_LLLL1ss_MASS[kk]=cand->p4().mass();
-	if (i==1) RECO_LLLL1ss_PT[0][kk]=cand->p4().pt();
-	if (i==2) RECO_LLLL2ss_MASS[kk]=cand->p4().mass();
-	if (i==2) RECO_LLLL2ss_PT[0][kk]=cand->p4().pt();
-	cout << "4-lepton ss candidate of type=" << RECOcollNameLLLLss.at(i).label() << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<endl;
-	for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	  for (unsigned k = 0; k < cand->daughter(j)->numberOfDaughters(); ++k ) {
-	    if (i==0) {
-	      if (j==0) RECO_LLLL0ss_PT[j+k+1][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      if (j==1) RECO_LLLL0ss_PT[j+k+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      leptonscands_LLLLss0->push_back( cand->daughter(j)->daughter(k)->clone());
-	    }
-	    if (i==1) {
-	      if (j==0) RECO_LLLL1ss_PT[j+k+1][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      if (j==1) RECO_LLLL1ss_PT[j+k+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      leptonscands_LLLLss1->push_back( cand->daughter(j)->daughter(k)->clone());
-	    }
-	    if (i==2) {
-	      if (j==0) RECO_LLLL2ss_PT[j+k+1][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      if (j==1) RECO_LLLL2ss_PT[j+k+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      leptonscands_LLLLss2->push_back( cand->daughter(j)->daughter(k)->clone());
-	    }
-	  }
-	}
-	kk++;
-      }      
-    }
-*/
-/*
-    // 4-leptons 3l+l
-    leptonscands_LLLl0->clear();
-    leptonscands_LLLl1->clear(); 
-    
-    for (unsigned int i=0; i<RECOcollNameLLLl.size(); i++){ 
-      edm::Handle<edm::View<Candidate> > CandidatesLLLl; 
-      if(i==0) iEvent.getByToken(quadLeptons3Mu1E, CandidatesLLLl);
-      if(i==1) iEvent.getByToken(quadLeptons3E1Mu, CandidatesLLLl);  
-      int kk=0;
-      for( edm::View<Candidate>::const_iterator cand = CandidatesLLLl->begin();cand != CandidatesLLLl->end(); ++ cand ) { 
-	if (kk>49) continue;
-	if (i==0) RECO_LLLl0_MASS[kk]=cand->p4().mass();
-	if (i==0) RECO_LLLl0_PT[0][kk]=cand->p4().pt();
-	if (i==1) RECO_LLLl1_MASS[kk]=cand->p4().mass();
-	if (i==1) RECO_LLLl1_PT[0][kk]=cand->p4().pt();
-	cout << "4-lepton from 3l+l candidate of type=" << RECOcollNameLLLl.at(i).label()
-	     << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<endl;
-	for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	  //cout << "j= " << j << endl;
-	  if ( i==0 && j==1) {
-	    RECO_LLLl0_PT[j+3][kk]=cand->daughter(j)->p4().pt();
-	    leptonscands_LLLl0->push_back( cand->daughter(j)->clone());
-	  }
-	  if ( i==1 && j==1) {
-	    RECO_LLLl1_PT[j+3][kk]=cand->daughter(j)->p4().pt(); 
-	    leptonscands_LLLl1->push_back( cand->daughter(j)->clone());
-	  }
-	  for (unsigned k = 0; k < cand->daughter(j)->numberOfDaughters(); ++k ) { 
-	    //cout << "k= " << k << endl;
-	    if (i==0) {
-	      if (j==0) RECO_LLLl0_PT[j+k+1][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      leptonscands_LLLl0->push_back( cand->daughter(j)->daughter(k)->clone());
-	    }
-	    if (i==1) {
-	      if (j==0) RECO_LLLl1_PT[j+k+1][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	      leptonscands_LLLl1->push_back( cand->daughter(j)->daughter(k)->clone());
-	    }
-	    
-	  } 
-	} 
-	kk++;
-      }
-    }
-
-
-    // LLLL merged (no flavour, no charge)
-
-    i=1;
-    leptonscands_LLLL->clear();
-    edm::Handle<edm::View<Candidate> > CandidatesLLLL;
-    iEvent.getByToken(RECOcollNameLLLL, CandidatesLLLL);
-    kk=0;    
-    for( edm::View<Candidate>::const_iterator cand = CandidatesLLLL->begin();cand != CandidatesLLLL->end(); ++ cand ) {
-      if (kk>49) break;
-      cout << "4lepton (any flavour and charge) candidate of type= allLLLL"  << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<endl;
-      
-      RECO_LLLL_MASS[0][kk]=cand->p4().mass();
-      RECO_LLLL_PT[0][kk]=cand->p4().pt();
-      RECO_LLLL_ETA[0][kk]=cand->p4().eta();
-      RECO_LLLL_PHI[0][kk]=cand->p4().phi();
-      int l=0;
-      //cout << "index" << i-1 << endl;
-      for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	RECO_LLLL_MASS[i+j][kk]=cand->daughter(j)->p4().mass();
-	RECO_LLLL_PT[i+j][kk]=cand->daughter(j)->p4().pt();
-	RECO_LLLL_ETA[i+j][kk]=cand->daughter(j)->p4().eta();
-	RECO_LLLL_PHI[i+j][kk]=cand->daughter(j)->p4().phi();
-	//cout << "index" << i+j <<endl;
-	for (unsigned k = 0; k < cand->daughter(j)->numberOfDaughters(); ++k ) {
-	  RECO_LLLL_MASS[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().mass();
-	  RECO_LLLL_PT[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
-	  RECO_LLLL_ETA[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().eta();
-	  RECO_LLLL_PHI[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().phi();
-	  
-	  leptonscands_LLLL->push_back( cand->daughter(j)->daughter(k)->clone());
-	  //cout << "index" << i+j+k+l+2 <<endl;
-	}
-	l++;
-      }
-      kk++;
-    }
-*/    
   }
 
 
@@ -3229,96 +3047,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     //edm::Handle<edm::ValueMap<float> >  mvaTrigV0map;
     //iEvent.getByToken(mvaTrigV0MapTag_, mvaTrigV0map);
     
-    ///@@@/// TEST Electron ID VID HZZWP REHAM
-    
     // edm::Handle<edm::ValueMap<float> >  mvaNonTrigV0map;
     //iEvent.getByToken(mvaNonTrigV0MapTag_, mvaNonTrigV0map);
-
-    /* //Reham */
-
-    /* edm::Handle<edm::View<pat::Electron> > electrons; */
-    /* iEvent.getByToken(electronsMiniAODToken_,electrons); */
-
-    /* //Reham */
-    
-    /* edm::Handle<edm::ValueMap<bool>> eleIDHandle; */
-    /* iEvent.getByToken(eleIDToken_,eleIDHandle); */
-    
-    // Particle Flow Isolation
-    /*
-      edm::Handle<edm::ValueMap<double> > isoPFChargedAllelemap;
-      iEvent.getByToken(electronPFIsoValueChargedAllTag_, isoPFChargedAllelemap);
-      
-      edm::Handle<edm::ValueMap<double> > isoPFChargedelemap;
-      iEvent.getByToken(electronPFIsoValueChargedTag_, isoPFChargedelemap);
-      
-      edm::Handle<edm::ValueMap<double> > isoPFNeutralelemap;
-      iEvent.getByToken(electronPFIsoValueNeutralTag_, isoPFNeutralelemap);
-      
-      edm::Handle<edm::ValueMap<double> > isoPFGammaelemap;
-      iEvent.getByToken(electronPFIsoValueGammaTag_, isoPFGammaelemap);
-      
-      edm::Handle<edm::ValueMap<double> > isoPFPUelemap;
-      iEvent.getByToken(electronPFIsoValuePUTag_, isoPFPUelemap);
-    */
-    // electron regression
-    //edm::Handle<edm::ValueMap<double> > eleRegressionEnergymap;
-    //iEvent.getByLabel(eleRegressionEnergyTag_, eleRegressionEnergymap);
-    
-    //edm::Handle<edm::ValueMap<double> > eleRegressionEnergyErrormap;
-    //iEvent.getByLabel(eleRegressionEnergyErrorTag_, eleRegressionEnergyErrormap);
-    //@// cout << "test 3" << endl;
-    // Vertexing
-    /* //3D DA */
-    /* edm::Handle<edm::View<pat::Electron> > VertEleCandidates; */
-    /* iEvent.getByLabel(electronTag_Vert, VertEleCandidates); */
-    
-    /* edm::Handle<edm::ValueMap<float> > vertexelemap; */
-    /* iEvent.getByToken(electronMapTag_Vert, vertexelemap); */
-    
-    /* edm::Handle<edm::ValueMap<float> > vertexelemapvalue; */
-    /* iEvent.getByToken(electronMapTag_VertValue, vertexelemapvalue); */
-    
-    /* edm::Handle<edm::ValueMap<float> > vertexelemaperror; */
-    /* iEvent.getByToken(electronMapTag_VertError, vertexelemaperror); */
-
-    /* // 3D KF */
-    /* edm::Handle<edm::ValueMap<float> > vertexelemapKF; */
-    /* iEvent.getByToken(electronMapTag_VertKF, vertexelemapKF); */
-    
-    /* edm::Handle<edm::ValueMap<float> > vertexelemapvalueKF; */
-    /* iEvent.getByToken(electronMapTag_VertValueKF, vertexelemapvalueKF); */
-    
-    /* edm::Handle<edm::ValueMap<float> > vertexelemaperrorKF; */
-    /* iEvent.getByToken(electronMapTag_VertErrorKF, vertexelemaperrorKF); */
-
-    /* //@// cout << "test 4" << endl; */
-    /* // STIP SLIP */
-    /* edm::Handle<edm::ValueMap<float> > stipelemap; */
-    /* iEvent.getByToken(electronSTIPMapTag_Vert, stipelemap); */
-    
-    /* edm::Handle<edm::ValueMap<float> > slipelemap; */
-    /* iEvent.getByToken(electronSLIPMapTag_Vert, slipelemap); */
-    
-    /* edm::Handle<edm::ValueMap<float> > stipelemapvalue; */
-    /* iEvent.getByToken(electronSTIPMapTag_VertValue, stipelemapvalue); */
-    
-    /* edm::Handle<edm::ValueMap<float> > slipelemapvalue; */
-    /* iEvent.getByToken(electronSLIPMapTag_VertValue, slipelemapvalue); */
-    
-    /* edm::Handle<edm::ValueMap<float> > stipelemaperror; */
-    /* iEvent.getByToken(electronSTIPMapTag_VertError, stipelemaperror); */
-    
-    /* edm::Handle<edm::ValueMap<float> > slipelemaperror; */
-    /* iEvent.getByToken(electronSLIPMapTag_VertError, slipelemaperror);		 */
-   
-    //@// cout << "test 5" << endl; 
-    // Conversion Finder
-//    edm::Handle<edm::ValueMap<float> > conversiondistmap;
-//    iEvent.getByToken(ConvMapDistTag_, conversiondistmap);
-
-//    edm::Handle<edm::ValueMap<float> > conversiondcotmap;
-//    iEvent.getByToken(ConvMapDcotTag_, conversiondcotmap);
 
 
     // primary vertex
@@ -3359,85 +3089,148 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }//*/
     //
 
-    for (edm::View<pat::Electron>::const_iterator cand = EleRefs->begin(); 
-	 cand != EleRefs->end(); ++cand) {
+    for (edm::View<pat::Electron>::const_iterator cand = EleRefs->begin(); cand != EleRefs->end(); ++cand) {
       
       if(index>99) break;
-
-      edm::Ref<edm::View<pat::Electron> > eletrackref(EleRefs,index);
-      //      edm::Ref<edm::View<pat::Electron> > eletrackrefv(VertEleCandidates,index);
-  
-      // Global variables
-      RECOELE_isEcalDriven[index]    = cand->ecalDrivenSeed();
-      RECOELE_isTrackerDriven[index] = cand->trackerDrivenSeed();
-
-      //@//
-      /* std::cout << "\n Electron in the event: "
-		<< "  isEcalDriven="    << RECOELE_isEcalDriven[index]  
-		<< "  isTrackerDriven=" << RECOELE_isTrackerDriven[index] 
-		<< std::endl;*/
       
-      /*      // kinematic //Reham comment to check the new corrected pt
-        RECOELE_E[index]       = cand->p4().energy();
-       RECOELE_PT[index]      = cand->p4().pt();
-
-
-       RECOELE_P[index]=sqrt(cand->p4().px()*cand->p4().px()+cand->p4().py()*cand->p4().py()+cand->p4().pz()*cand->p4().pz());
-       RECOELE_ETA[index]     = cand->p4().eta();
-       RECOELE_THETA[index]   = cand->p4().theta();
-       RECOELE_PHI[index]     = cand->p4().phi();
-       RECOELE_MASS[index]    = cand->p4().mass();
-       RECOELE_CHARGE[index]  = cand->charge();*/
-
-       /// /*    // For the elctron energy correction
+      edm::Ref<edm::View<pat::Electron> > eletrackref(EleRefs,index);
+      // edm::Ref<edm::View<pat::Electron> > eletrackrefv(VertEleCandidates,index);
+     
+    
+      /* // kinematic //Reham comment to check the new corrected pt
+	 RECOELE_E[index]       = cand->p4().energy();
+	 RECOELE_PT[index]      = cand->p4().pt();
+	 
+	 
+	 RECOELE_P[index]=sqrt(cand->p4().px()*cand->p4().px()+cand->p4().py()*cand->p4().py()+cand->p4().pz()*cand->p4().pz());
+	 RECOELE_ETA[index]     = cand->p4().eta();
+	 RECOELE_THETA[index]   = cand->p4().theta();
+	 RECOELE_PHI[index]     = cand->p4().phi();
+	 RECOELE_MASS[index]    = cand->p4().mass();
+	 RECOELE_CHARGE[index]  = cand->charge();*/
+      
+      ///// For the elctron energy correction
       //Reham
-      cout<<"TESTTTTT Electron pat::Electron::et() "<< cand->et() <<"pat::Electron::userFloat(ecalEnergyPreCorr)"<<cand->userFloat("ecalEnergyPreCorr")<<" pat::Electron::userFloat(ecalTrkEnergyPostCorr)"<< cand->userFloat("ecalTrkEnergyPostCorr")<<"pat::Electron::energy()"<<cand->energy()<<endl;
-
+      
       float corrEt = cand->et() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
       auto corrP4  = cand->p4() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
       cout<<"corrEt= "<<corrEt<<"corrP4 = "<<corrP4<<endl;
      
       cout<<"TESTTTT Kinematics corrPT = "<<corrP4.pt()<<" corrE = "<<corrP4.energy()<<"corrEta = "<<corrP4.eta()<<"corr phi = "<<corrP4.phi()<<"corrTheta = "<<corrP4.theta()<<"corrcharge = "<<cand->charge()<<endl;
 
-      cout<<"TESTTTT Kinematics BEFORE corr. corrPT = "<< cand->p4().pt()<<" corrE = "<<cand->p4().energy()<<"corrEta = "<<cand->p4().eta()<<"corr phi = "<<cand->p4().phi()<<"corrTheta = "<<cand->p4().theta()<<"corrcharge = "<<cand->charge()<<endl;
-      
+      cout<<"TESTTTT Kinematics BEFORE corr. PT = "<< cand->p4().pt()<<" E = "<<cand->p4().energy()<<"Eta = "<<cand->p4().eta()<<" phi = "<<cand->p4().phi()<<"Theta = "<<cand->p4().theta()<<"charge = "<<cand->charge()<<endl;
+ 
+
+      if (corrP4.pt() <7 )continue;
+      if (corrP4.eta() >2.5)continue;
+     
       RECOELE_E[index]       = corrP4.energy();
-      RECOELE_PT[index]      = corrP4.pt();
-      
-      
+      RECOELE_PT[index]      = corrP4.pt();   
       RECOELE_P[index]=sqrt(corrP4.px()*corrP4.px()+corrP4.py()*corrP4.py()+corrP4.pz()*corrP4.pz());
       RECOELE_ETA[index]     = corrP4.eta();
       RECOELE_THETA[index]   = corrP4.theta();
       RECOELE_PHI[index]     = corrP4.phi();
       RECOELE_MASS[index]    = corrP4.mass();
       RECOELE_CHARGE[index]  = cand->charge();
+      RECOELE_PT_uncorr[index]   = cand->pt();
+
+	//Reham error in PT and some systematic variables 
+      
+      // cout<<"ecalTrkEnergyErrPostCorr = "<<cand->userFloat("ecalTrkEnergyErrPostCorr")<<endl;
+      // cout<<"ecalTrkEnergyPreCorr"<<cand->userFloat("ecalTrkEnergyPreCorr")<<" ecalTrkEnergyErrPreCorr = "<<cand->userFloat("ecalTrkEnergyErrPreCorr");
+   
+      RECOELE_ecalTrkEnergyPreCorr[index]  = cand->userFloat("ecalTrkEnergyPreCorr");
+      RECOELE_ecalTrkEnergyErrPreCorr[index]  = cand->userFloat("ecalTrkEnergyErrPreCorr");
+      RECOELE_ecalTrkEnergyErrPostCorr[index]  = cand->userFloat("ecalTrkEnergyErrPostCorr");
+      RECOELE_energyScaleValue[index]          = cand->userFloat("energyScaleValue");
+      RECOELE_energySigmaValue[index]          = cand->userFloat("energySigmaValue");
+      RECOELE_energyScaleUp[index]          = cand->userFloat("energyScaleUp");
+      RECOELE_energyScaleDown[index]          = cand->userFloat("energyScaleDown");
+      RECOELE_energyScaleStatUp[index]          = cand->userFloat("energyScaleStatUp");
+      RECOELE_energyScaleStatDown[index]          = cand->userFloat("energyScaleStatDown");
+      RECOELE_energyScaleSystUp[index]          = cand->userFloat("energyScaleSystUp");
+      RECOELE_energyScaleSystDown[index]          = cand->userFloat("energyScaleSystDown");
+      RECOELE_energyScaleGainUp[index]          = cand->userFloat("energyScaleGainUp");
+      RECOELE_energyScaleGainDown[index]          = cand->userFloat("energyScaleGainDown");
+      RECOELE_energyScaleEtUp[index]          = cand->userFloat("energyScaleEtUp");
+      RECOELE_energyScaleEtDown[index]          = cand->userFloat("energyScaleEtDown");
+      RECOELE_energySigmaUp[index]               = cand->userFloat("energySigmaUp");
+      RECOELE_energySigmaDown[index]          = cand->userFloat("energySigmaDown");
+      RECOELE_energySigmaPhiUp[index]          = cand->userFloat("energySigmaPhiUp");
+      RECOELE_energySigmaPhiDown[index]          = cand->userFloat("energySigmaPhiDown");
+      RECOELE_energySigmaRhoUp[index]          = cand->userFloat("energySigmaRhoUp");
+      RECOELE_energySigmaRhoDown[index]          = cand->userFloat("energySigmaRhoDown");
 
       ///// */    
 
       
-        std::cout << "--kinematic:" 		
-		<< "  pT="     << RECOELE_PT[index]  
-		<< "  E="      << RECOELE_E[index]  
-		<< "  p="      << RECOELE_P[index] 
-		<< "  eta="    << RECOELE_ETA[index] 
-		<< "  theta="  << RECOELE_THETA[index] 
-		<< "  phi="    << RECOELE_PHI[index] 
-		<< "  mass="   << RECOELE_MASS[index] 
-		<< "  charge=" << RECOELE_CHARGE[index] 
-		<< std::endl;
-      cout<<"#########Electron step 1 "<<endl;
+        /* std::cout << "--kinematic:" 		 */
+	/* 	<< "  pT="     << RECOELE_PT[index]   */
+	/* 	<< "  E="      << RECOELE_E[index]   */
+	/* 	<< "  p="      << RECOELE_P[index]  */
+	/* 	<< "  eta="    << RECOELE_ETA[index]  */
+	/* 	<< "  theta="  << RECOELE_THETA[index]  */
+	/* 	<< "  phi="    << RECOELE_PHI[index]  */
+	/* 	<< "  mass="   << RECOELE_MASS[index]  */
+	/* 	<< "  charge=" << RECOELE_CHARGE[index] */
+	/* 	<< "  pT_uncorr ="     << RECOELE_PT_uncorr[index]  */
+	/* 	<< std::endl; */
 
-      ///@@@/// TEST Electron ID  REHAM
+	/* std::cout << "Electron syst ==" */
+	/* 	  <<"\n RECOELE_ecalTrkEnergyPreCorr[index] = "<<RECOELE_ecalTrkEnergyPreCorr[index] */
+	/* 	  <<"\n RECOELE_ecalTrkEnergyErrPreCorr[index] = "<<RECOELE_ecalTrkEnergyErrPreCorr[index] */
+	/* 	  <<"\n RECOELE_ecalTrkEnergyErrPostCorr[index]"<< RECOELE_ecalTrkEnergyErrPostCorr[index] */
+	/* 	  <<"\n RECOELE_energyScaleValue[index]"<<RECOELE_energyScaleValue[index] */
+	/* 	  <<"\n RECOELE_energySigmaValue[index]"<<RECOELE_energySigmaValue[index] */
+	/* 	  <<"\n RECOELE_energyScaleUp[index]"<<RECOELE_energyScaleUp[index] */
+	/* 	  <<"\n RECOELE_energyScaleDown[index]"<<RECOELE_energyScaleDown[index] */
+	/* 	  <<"\n RECOELE_energyScaleStatUp[index]"<< RECOELE_energyScaleStatUp[index] */
+	/* 	  <<"\n RECOELE_energyScaleStatDown[index]"<< RECOELE_energyScaleStatDown[index]      */
+	/* 	  <<"\n RECOELE_energyScaleSystUp[index]"<<RECOELE_energyScaleSystUp[index]         */
+	/* 	  <<"\n RECOELE_energyScaleSystDown[index]"<<RECOELE_energyScaleSystDown[index]        */
+	/* 	  <<"\n RECOELE_energyScaleGainUp[index]"<<RECOELE_energyScaleGainUp[index]          */
+	/* 	  <<"\n RECOELE_energyScaleGainDown[index]"<<RECOELE_energyScaleGainDown[index]        */
+	/* 	  <<"\n RECOELE_energyScaleEtUp[index]"<< RECOELE_energyScaleEtUp[index]        */
+	/* 	  <<"\n RECOELE_energyScaleEtDown[index]"<< RECOELE_energyScaleDown[index] */
+	/* 	  <<"\n RECOELE_energySigmaUp[index]"<< RECOELE_energySigmaUp[index]        */
+	/* 	  <<"\n RECOELE_energySigmaDown[index]"<< RECOELE_energySigmaDown[index]        */
+	/* 	  <<"\n RECOELE_energySigmaPhiUp[index]"<<RECOELE_energySigmaPhiUp[index]          */
+	/* 	  <<"\n RECOELE_energySigmaPhiDown[index]"<<RECOELE_energySigmaPhiDown[index]         */
+	/* 	  <<"\n RECOELE_energySigmaRhoUp[index]"<<RECOELE_energySigmaRhoUp[index]        */
+	/* 	  <<"\n RECOELE_energySigmaRhoDown[index]"<<RECOELE_energySigmaRhoDown[index]        */
+	/* 	  <<std::endl; */
+	
+	
+	cout<<"#########Electron step 1 "<<endl;
+
+     // Global variables
+      RECOELE_isEcalDriven[index]    = cand->ecalDrivenSeed();
+      RECOELE_isTrackerDriven[index] = cand->trackerDrivenSeed();
+
+     //@//
+       std::cout << "\n Electron in the event: "
+	 << "  isEcalDriven="    << RECOELE_isEcalDriven[index]  
+	 << "  isTrackerDriven=" << RECOELE_isTrackerDriven[index] 
+	 << std::endl;
+
+      ///@@@/// Electron ID  REHAM
       
 
      cout << cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << endl;
- 
+     cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values")<<endl;
+
      RECOELE_ID[index] = cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ");
+     RECOELE_mvaNonTrigV0[index] =  cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+
+     cout<<"RECOELE_ID[index] = "<<RECOELE_ID[index]<<" RECOELE_mvaNonTrigV0[index] = "<< RECOELE_mvaNonTrigV0[index]<<endl;
+
+     //@@@///  Electron SIP Reham
+
      RECOELE_SIP[index]= std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D);
      RECOELE_IP[index]= std::abs(cand->dB(pat::Electron::PV3D));
      RECOELE_IPERROR[index]= cand->edB(pat::Electron::PV3D);
 
-     cout<<"ID = "<<RECOELE_ID[index]<<" SIP = "<<RECOELE_SIP[index]<<endl;
+     // cout<<"ID = "<<RECOELE_ID[index]<<" SIP = "<<RECOELE_SIP[index]<<endl;
       
       // SuperCluster
       reco::SuperClusterRef sclRef = cand->superCluster();
@@ -3509,7 +3302,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       }
       
       cout<<"#########Electron step 2 "<<endl;
-
+      cout<<"RECOELE_PTError[index]= "<<RECOELE_PTError[index]<<endl;
+      cout<<"cand ecal energy = "<<cand->correctedEcalEnergy()<<endl;
 
       // Egamma isolation
       //RECOELE_EGMTRACKISO[index]=(*egmisoTkelemap)[eletrackref]/eletrackref->pt();
@@ -3601,80 +3395,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       //RECOELE_PFsumPUPt[index]= (cand->pfIsolationVariables().sumPUPt); 
       RECOELE_PFPUchAllPart[index]=(cand->pfIsolationVariables().sumPUPt);   
 
-      /*       RECOELE_PFX_dB[index]=(RECOELE_PFchHad[index]+max(0.,RECOELE_PFneuHad[index]+RECOELE_PFphoton[index]-0.5*RECOELE_PFsumPUPt[index]))/cand->p4().pt(); */      
-      /*       float EffectiveArea=0.; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 0.0 && fabs(RECOELE_ETA[index]) < 1.0 ) EffectiveArea = 0.132; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 1.0 && fabs(RECOELE_ETA[index]) < 1.5 ) EffectiveArea = 0.120; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 1.5 && fabs(RECOELE_ETA[index]) < 2.0 ) EffectiveArea = 0.114; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 2.0 && fabs(RECOELE_ETA[index]) < 2.2 ) EffectiveArea = 0.139; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 2.2 && fabs(RECOELE_ETA[index]) < 2.3 ) EffectiveArea = 0.168; */
-      /*       if (fabs(RECOELE_ETA[index]) >= 2.3 )                                     EffectiveArea = 0.189; */
-      
-      /*       RECOELE_PFX_rho[index]=(RECOELE_PFchHad[index]+  */
-      /* 				max( (RECOELE_PFneuHad[index]+RECOELE_PFphoton[index]-max(RHO_ele,0.0)*EffectiveArea),0.0) )/cand->p4().pt(); */
-      
-      //@//
-      /* std::cout << "--PF isolation"
-	        << "  chAllPart="<< RECOELE_PFchAllPart[index] 
-                << "  chHad="    << RECOELE_PFchHad[index] 
-                << "  neuHad="   << RECOELE_PFneuHad[index] 
-                << "  photon="   << RECOELE_PFphoton[index]
-                << "  PUchAllPart="  << RECOELE_PFPUchAllPart[index]
-                << "  PFX_dB="  << RECOELE_PFX_dB[index] 
-                << "  PFX_rho=" << RECOELE_PFX_rho[index]
-                << std::endl;*/
-      
-      // Electron Regression
-      // RECOELE_regEnergy[index]=(*eleRegressionEnergymap)[eletrackrefv];
-      // RECOELE_regEnergyError[index]=(*eleRegressionEnergyErrormap)[eletrackrefv];
-
-/*qier
-      if (!cand->parentSuperCluster().isNull()){
-        RECOELE_TLE_ParentSC_X[index]=cand->parentSuperCluster()->x();
-        RECOELE_TLE_ParentSC_Y[index]=cand->parentSuperCluster()->y();
-        RECOELE_TLE_ParentSC_Z[index]=cand->parentSuperCluster()->z();
-      }
-
-      cout << "Parent SC x,y,x= " <<RECOELE_TLE_ParentSC_X[index] << " " << RECOELE_TLE_ParentSC_Y[index] << " " << RECOELE_TLE_ParentSC_Z[index] << endl;
-*/
-      // Vertexing DA --- to be redefined with userFloat
-      /* RECOELE_SIP[index]=(*vertexelemap)[eletrackrefv]; */
-      /* RECOELE_IP[index]=(*vertexelemapvalue)[eletrackrefv]; */
-      /* RECOELE_IPERROR[index]=(*vertexelemaperror)[eletrackrefv]; */
-
-      // KF
-//      RECOELE_SIP_KF[index]=(*vertexelemapKF)[eletrackrefv];
-//      RECOELE_IP_KF[index]=(*vertexelemapvalueKF)[eletrackrefv];
-//      RECOELE_IPERROR_KF[index]=(*vertexelemaperrorKF)[eletrackrefv];
 
 
-      //RECOELE_SIP_GD[index]=(*vertexelemapGD)[eletrackrefv];
-      //if (decaychannel=="4e" || decaychannel=="2e2mu" ) RECOELE_SIP_GDEEEE[index]=(*vertexelemapGDEEEE)[eletrackrefv];
-      //RECOELE_SIP_Std[index]=(*vertexelemapStd)[eletrackrefv]; 
-      //if (decaychannel=="4e" || decaychannel=="2e2mu" ) RECOELE_SIP_StdEEEE[index]=(*vertexelemapStdEEEE)[eletrackrefv]; 
-      //RECOELE_SIP_Kin[index]=(*vertexelemapKin)[eletrackrefv]; 
-      //if (decaychannel=="4e" || decaychannel=="2e2mu" ) RECOELE_SIP_KinEEEE[index]=(*vertexelemapKinEEEE)[eletrackrefv]; 
-      
-/*
-      RECOELE_STIP[index]=(*stipelemap)[eletrackrefv];
-      RECOELE_SLIP[index]=(*slipelemap)[eletrackrefv];
-      RECOELE_TIP[index]=(*stipelemapvalue)[eletrackrefv] ;
-      RECOELE_LIP[index]=(*slipelemapvalue)[eletrackrefv];
-      RECOELE_TIPERROR[index]=(*stipelemaperror)[eletrackrefv] ;
-      RECOELE_LIPERROR[index]=(*slipelemaperror)[eletrackrefv];
-*/            
-      //@//
-      /* std::cout << "--vertexing: electron" 
-		<< "  Sign_3DIP=" << RECOELE_SIP[index]
-		<< "  3DIP="      << RECOELE_IP[index]
-		<< "  3DIPerr="   << RECOELE_IPERROR[index] 	     
-		<< "  Sign_TIP="  << RECOELE_STIP[index]  
-		<< "  TIP="       << RECOELE_TIP[index] 
-		<< "  TIPerror="  << RECOELE_TIPERROR[index] 
-		<< "  Sign_LIP="  << RECOELE_SLIP[index]
-		<< "  LIP="       << RECOELE_LIP[index] 
-		<< "  LIPerror="  << RECOELE_LIPERROR[index]
-		<< std::endl;*/
 
       cout<<"#########Electron step 4 "<<endl;
 
@@ -3833,106 +3555,42 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       cout<<"#########Electron step 6a "<<endl;
 
-      /////////Comment 
 
-/*       edm::Handle<edm::View<pat::Electron> > elecoll; */
-/*       iEvent.getByToken(mvaElectronTag_, elecoll); */
-/*       int indextris=0; */
-/*       for (edm::View<pat::Electron>::const_iterator candid = elecoll->begin(); candid!=elecoll->end(); ++candid) { */
-/*       	edm::Ref<edm::View<pat::Electron> > eletrackrefa(elecoll,indextris); */
-	
-/*       	//cout << "Elebis" << RECOELE_PT[index] << " " << candid->p4().pt() << " " << RECOELE_sigmaIetaIeta[index] << " " << candid->sigmaIetaIeta() << " " << fabs(RECOELE_sigmaIetaIeta[index]-candid->sigmaIetaIeta()) << endl; */
-	
-/* 	///@@@/// TEST Electron ID  REHAM */
-	
-/* 	cout<<"Mapping Electron Pt = "<< candid->p4().pt()<<" eta = "<< candid->p4().eta()<<endl; */
-	
-/* 	//	bool ispass = (*eleIDHandle)[eletrackrefa]; */
-/* 		//	cout<<"Elec IDDDDDD ispass = "<<ispass<<endl; */
-/* 	//	RECOELE_ID[index] = ( (int)ispass); */
-	
-/* 	cout<<"#########Electron step 6b "<<endl; */
+      //add Gen Level info for electrons 
 
-/* 	if ( RECOELE_sigmaEtaEta[index]==candid->sigmaEtaEta() && RECOELE_sigmaIetaIeta[index]==candid->sigmaIetaIeta() ){ */
-/* 	  //cout << "Trovato electtrone= " << RECOELE_PT[index] << " " << candid->p4().pt() << endl; */
-/*           //qier test */
-/*           // cout << "test11" << endl; */
-/* //	   RECOELE_mvaTrigV0[index]=(*mvaTrigV0map)[eletrackrefa]; */
+      ////////
 
-/* 	  cout<<"#########Electron step 6c "<<endl; */
-
-/* 	  ///@@@/// TEST Electron ID  REHAM */
-/* 	  // bool ispass = (*eleIDHandle)[eletrackrefa]; */
-/* 	  // cout<<"Elec IDDDDDD ispass = "<<ispass<<endl; */
-
-/* 	   //@// */
-/* 	   /\*  std::cout << "BDT MVA eleID flag = " */
-/* 		   //  << RECOELE_mvaTrigV0[index] << " " */
-/* 		     << RECOELE_mvaNonTrigV0[index] << " " */
-/* 		     << std::endl;*\/ */
-/* 	   cout<<"#########Electron step 6d "<<endl; */
-/* 	   } */
-/*       	indextris++; */
-/*       } */
-
-
-//////Comment end
-
-      cout<<"#########Electron step 7 "<<endl;
-
-      // Conversion Finder
-/*
-      ConvMapDist[index]=(*conversiondistmap)[eletrackref];
-      ConvMapDcot[index]=(*conversiondcotmap)[eletrackref];
-      std::cout << "Conversion finder = "
-		<< ConvMapDist[index] << " " 
-		<< ConvMapDcot[index] << " " 
-		<< std::endl;
-*/
-/*     
       // Matching
       if (fillMCTruth==true){
-	int i=0;
-	for ( reco::CandidateCollection::const_iterator hIter=CollEle->begin(); hIter!= CollEle->end(); ++hIter ){
-	  //cout << "Reco Electron with pT= " << hIter->pt() << " " << RECOELE_PT[index] << " " << fabs(hIter->pt()-RECOELE_PT[index]) << " and mass="<< hIter->mass()<< endl;
-	  if (fabs(hIter->pt()-RECOELE_PT[index])<0.01){
-	    i=hIter-(CollEle->begin());
-	    CandidateRef Ref( CollEle, i );
-	    edm::Ref<std::vector<reco::GenParticle> > genrefEle = (*GenParticlesMatchEle)[Ref];
-	    if (!genrefEle.isNull()){
-	      cout << "GenElectron with pT= " << genrefEle->p4().pt() << " and mass="<< genrefEle->p4().mass()<< endl;
-	      RECOELE_MatchingMCTruth[i]= true;
-	      RECOELE_MatchingMCpT[i]= genrefEle->p4().pt();
-	      RECOELE_MatchingMCEta[i]= genrefEle->p4().eta();
-	      RECOELE_MatchingMCPhi[i]= genrefEle->p4().phi();	    
-	    } 
-	    else {
-	      cout << "There is no a reference to a genElectron" << endl;
-	    }
-	  }   
-	}    
-      }
-*/
+      	//	int i=0;
+      	//	for ( reco::CandidateCollection::const_iterator hIter=CollEle->begin(); hIter!= CollEle->end(); ++hIter ){
+      	  //cout << "Reco Electron with pT= " << hIter->pt() << " " << RECOELE_PT[index] << " " << fabs(hIter->pt()-RECOELE_PT[index]) << " and mass="<< hIter->mass()<< endl;
+      	// if (fabs(hIter->pt()-RECOELE_PT[index])<0.01){
+      	//  i=hIter-(CollEle->begin());
+      	// CandidateRef Ref( CollEle, i );
+      	    edm::Ref<std::vector<reco::GenParticle> > genrefEle = (*GenParticlesMatchEle)[eletrackref];
+      	    if (!genrefEle.isNull()){
+      	      cout << "GenElectron with pT= " << genrefEle->p4().pt() << " and mass="<< genrefEle->p4().mass()<< endl;
+      	      RECOELE_MatchingMCTruth[index]= true;
+      	      RECOELE_MatchingMCpT[index]= genrefEle->p4().pt();
+      	      RECOELE_MatchingMCEta[index]= genrefEle->p4().eta();
+      	      RECOELE_MatchingMCPhi[index]= genrefEle->p4().phi();
+      	    }
+      	    else {
+      	      cout << "There is no a reference to a genElectron" << endl;
+      	    }
+      	    // }
+      	  //	}
+      }//end match
+
+      cout<<"RECOELE_MatchingMCTruth[index] = "<<RECOELE_MatchingMCTruth[index]<<endl;
+      cout<<" RECOELE_MatchingMCpT[index] = "<< RECOELE_MatchingMCpT[index]<<endl;
+      cout<<"RECOELE_MatchingMCEta[index]= "<<RECOELE_MatchingMCEta[index]<<endl;
+      cout<<" RECOELE_MatchingMCPhi[index]= "<< RECOELE_MatchingMCPhi[index]<<endl;
+      ///////
+
       index ++;
-    }
-
-    /* ///TRY implement the elctron id */
-
-    /* for (size_t i = 0; i < electrons->size(); ++i){ */
-
-    /*   const auto el = electrons->ptrAt(i); */
-
-    /*   cout<<"new electron loop uncorr_PT= "<<el->pt()<<endl; */
-
-    /*   cout << el->electronID("mvaEleID-Fall17-iso-V2-wpHZZ") << " " << std::abs(el->dB(pat::Electron::PV3D))/el->edB(pat::Electron::PV3D) << endl; */
-
-    /*   // bool isPass = (*eleIDHandle)[el]; */
-    /*   //cout<<"ISPASSSSS= "<<int(isPass)<<endl; */
-
-    /* }//end of electron loop */
-
-
-    
+    }  
   } 
 
   void fillMuons(const edm::Event& iEvent,const edm::EventSetup& iSetup){
@@ -3989,7 +3647,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
     */  
   /////////////////////////////////////////////////////////////////
-  /* 
+   
      //Reham To get the error in muon PT
 
     
@@ -4013,71 +3671,84 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     iEvent.getByToken(slimmedMuonsTag_, SlimmedMuons);
 
 
-    vector<double> vcorrPt, vcorrPtError;
+    vector<double> vcorrPt, vcorrPtError,vuncorrpt, GenMuon_pt, GenMuon_eta, GenMuon_phi;
+    vector<bool>Muon_match;
     double oldPt=0., oldPtError=0.;
     double  smearedPt=0., smearedPtError=0.;
     double correction=1, correction_error=0;
     TLorentzVector p4;
     int nl;
 
-    cout<<"######## //Muon correction// ########"<<endl;
+    cout<<"######## //ROOT TREE Muon correction// ########"<<endl;
    
     //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
 
-    edm::FileInPath corrPath("roccor_Run2_v2/RoccoR2017.txt");
+    edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
     calibrator = new RoccoR(corrPath.fullPath());
 
-    cout<<"#open the txt file for muon corrections"<<endl;
+    cout<<"#ROOT TREE open the txt file for muon corrections"<<endl;
    
+    int ii=0;
+
     for(edm::View<pat::Muon>::const_iterator SlimmedMuonsIter = SlimmedMuons->begin(); SlimmedMuonsIter != SlimmedMuons->end(); ++SlimmedMuonsIter){
 
-      // vector<double> vcorrPt, vcorrPtError; 
-    // double oldPt=0., oldPtError=0.; 
-    // double  smearedPt=0., smearedPtError=0.; 
-    // double correction=1, correction_error=0; 
-    // TLorentzVector p4; 
-    // int nl; 
+      edm::Ref<edm::View<pat::Muon> > muref(SlimmedMuons,ii);
 
     TRandom3* rgen_;
     rgen_ = new TRandom3(0);
     double u = rgen_->Rndm();
 
     bool Muon_Match = false;
-    double Gen_Mu_pt= 0.;
+    double Gen_Mu_pt= 0., Gen_Mu_eta= 0., Gen_Mu_phi= 0.;
 
 
       oldPt=SlimmedMuonsIter->pt();
       oldPtError=SlimmedMuonsIter->muonBestTrack()->ptError();
       
+      cout<<"Slimmed Muon Pt = "<<oldPt<<"old pt error from muon best track= "<<oldPtError<<endl;
       ////
       
-      // To add matching informations Reham
-      // Matching
-      // if (fillMCTruth==true){
-	int i=0;
-	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){
-	  cout << "Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl;
-	  if (fabs(hIter->pt()- SlimmedMuonsIter->pt()) <0.01){
-	      i=hIter-(CollMu->begin());
-	      cout<<"i = "<<i<<endl;
-	      CandidateRef Ref( CollMu, i );
-	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[Ref];
-	      if (!genrefMu.isNull()){
-		cout<<"#Matched found "<<endl;
-		cout << "#GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;
-		 Muon_Match = true;
-		 Gen_Mu_pt = genrefMu->p4().pt();
-	      }
-	      else {
-		cout << "There is no reference to a genMuon" << endl;
-		Muon_Match = false;
-	      }
-	  }  
-	} //end of matching
-	// }
+      /* // To add matching informations Reham */
+      /* // Matching */
+        if (fillMCTruth==true){ 
+      /*  	int i=0; */
+      /*  	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){ */
+      /*  	  cout << "ROOT TREE Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl; */
+      /*  	  if (fabs(hIter->pt()- SlimmedMuonsIter->pt()) <0.01){ */
+      /*  	    cout<<"Match found "<<endl; */
+      /*  	      i=hIter-(CollMu->begin()); */
+      /*  	      cout<<"i = "<<i<<endl; */
+	  //        	      CandidateRef Ref(SlimmedMuons, ii ); 
+        	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[muref]; 
+        	      if (!genrefMu.isNull()){ 
+        		cout<<"#ROOT TREE Matched found "<<endl; 
+        		cout << "#ROOT TREE GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl; 
+        		 Muon_Match = true; 
+        		 Gen_Mu_pt = genrefMu->p4().pt(); 
+			 Gen_Mu_eta = genrefMu->p4().eta();
+			 Gen_Mu_phi = genrefMu->p4().phi();
+			 Muon_match.push_back(Muon_Match);
+			 GenMuon_pt.push_back(Gen_Mu_pt);
+			 GenMuon_eta.push_back(Gen_Mu_eta);
+			 GenMuon_phi.push_back(Gen_Mu_phi);
+        	      } 
+        	      else { 
+        		cout << "ROOT TREE There is no reference to a genMuon" << endl; 
+        		Muon_Match = false;
+			Muon_match.push_back(Muon_Match);
+			GenMuon_pt.push_back(Gen_Mu_pt); 
+			GenMuon_eta.push_back(Gen_Mu_eta);
+			GenMuon_phi.push_back(Gen_Mu_phi);
+        	      } 
+      /*  	  } */
+      /*  	} //end of matching */
+        } 
       ////
       
-      cout<<"#slimmed muon pt = "<<SlimmedMuonsIter->pt()<<" and best track type = "<<SlimmedMuonsIter->muonBestTrackType()<<endl;
+	if(Muon_Match == true){cout<<"Gen muon pt ="<<Gen_Mu_pt<<"Gen muon eta = "<< Gen_Mu_eta<<"Gen muon phi = "<< Gen_Mu_phi<<endl; } 
+	
+
+     cout<<"#ROOT TREE slimmed muon pt = "<<SlimmedMuonsIter->pt()<<" and best track type = "<<SlimmedMuonsIter->muonBestTrackType()<<endl;
      
       if (SlimmedMuonsIter->muonBestTrackType() == 1 && SlimmedMuonsIter->pt()<=200.){
 
@@ -4085,7 +3756,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     	if (isData && nl>5 ){ //on data correction oly
 
-	  cout<<"#Data Muon correction "<<endl;
+	  cout<<"#ROOT TREE Data Muon correction "<<endl;
 
     	  if (SlimmedMuonsIter->pt()>2.0 && fabs(SlimmedMuonsIter->eta())<2.4){
 
@@ -4099,103 +3770,45 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
    
     	else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
 
-	  cout<<"#This is MC Muon correction"<<endl;
+	  cout<<"#ROOT TREE This is MC Muon correction"<<endl;
 
 	  if ( Muon_Match == true){// when matched gen muon available
 	    
-	    cout<<"MC and matched gen muon "<<endl;	    
-	    cout<<"gen muon pt = "<<Gen_Mu_pt<<endl;
+	    cout<<"ROOT TREE MC and matched gen muon "<<endl;	    
+	    cout<<"ROOT TREE gen muon pt = "<<Gen_Mu_pt<<endl;
 	    
 	    correction = calibrator->kSpreadMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt , 0 ,0 ); 
-	    correction_error = calibrator->kSpreadMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt);}
+	    correction_error = calibrator->kSpreadMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt);
+	    cout<<"TREE Corrrection = "<<correction<<endl;}
 	  
 	  else { //when matched gen muon not available
 	    
-	    cout<<"#MC and No matched gen muon "<<endl;		 
+	    cout<<"#rOOT TREE MC and No matched gen muon "<<endl;		 
 	    
 	    correction = calibrator->kSmearMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl , u, 0 ,0 ); 
-	    correction_error = calibrator->kSmearMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl ,u );}
+	    correction_error = calibrator->kSmearMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl ,u );
+ cout<<"TREE Corrrection = "<<correction<<endl;}
 	  
 	}//ends if !isdata
       }//end if tracker , pt<200
    
     smearedPt = oldPt*correction;
-    smearedPtError = oldPtError*correction_error;
-    cout<<"#Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
+    smearedPtError = correction_error;
+    cout<<"ROOT TREE #Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
+    cout<<"ROOT TREE #Old Muon Pt error = "<<oldPtError<<" , correction = "<<correction_error<<" smeared muon pt Error = "<<smearedPtError<<endl;
+    vuncorrpt.push_back(oldPt); 
     vcorrPt.push_back(smearedPt);
     vcorrPtError.push_back(smearedPtError);
-    }//end of for loop
+    
+    ii++;
 
-  */
+ }//end of for loop
+
+  
+    for (unsigned int k=0; k < Muon_match.size(); k++){
+      cout<<"muon match vector = "<<Muon_match.at(k)<<"gen muon vector = "<< GenMuon_pt.at(k)<<"gen muon eta = "<<GenMuon_eta.at(k)<<"gen muon phi = "<<GenMuon_phi.at(k); }
     ///////////////////////////////////////////////////////////
  
-    // Particle Flow Isolation
-/*
-    edm::Handle<edm::ValueMap<double> > isoPFChargedAllmumap;
-    iEvent.getByToken(muonPFIsoValueChargedAllTag_, isoPFChargedAllmumap);
-    
-    edm::Handle<edm::ValueMap<double> > isoPFChargedmumap;
-    iEvent.getByToken(muonPFIsoValueChargedTag_, isoPFChargedmumap);
-    
-    edm::Handle<edm::ValueMap<double> > isoPFNeutralmumap;
-    iEvent.getByToken(muonPFIsoValueNeutralTag_, isoPFNeutralmumap);
-    
-    edm::Handle<edm::ValueMap<double> > isoPFGammamumap;
-    iEvent.getByToken(muonPFIsoValueGammaTag_, isoPFGammamumap);
-    
-    edm::Handle<edm::ValueMap<double> > isoPFPUmumap;
-    iEvent.getByToken(muonPFIsoValuePUTag_, isoPFPUmumap);
-*/
-
-//TRYYY
-
-/*     // Vertexing */
-/*     // 3D */
-/*     edm::Handle<edm::View<pat::Muon> > VertMuCandidates; */
-/*     iEvent.getByLabel(muonTag_Vert, VertMuCandidates); */
-    
-/*     // 3D w.r.t primary vertex DA */
-/*     edm::Handle<edm::ValueMap<float> > vertexmumap; */
-/*     iEvent.getByToken(muonMapTag_Vert, vertexmumap); */
-    
-/*     edm::Handle<edm::ValueMap<float> > vertexmumapvalue; */
-/*     iEvent.getByToken(muonMapTag_VertValue, vertexmumapvalue); */
-    
-/*     edm::Handle<edm::ValueMap<float> > vertexmumaperror; */
-/*     iEvent.getByToken(muonMapTag_VertError, vertexmumaperror); */
-
-/*     // 3D w.r.t primary vertex KF */
-/*     edm::Handle<edm::ValueMap<float> > vertexmumapKF; */
-/* //    iEvent.getByToken(muonMapTag_VertKF, vertexmumapKF); */
-    
-/*     edm::Handle<edm::ValueMap<float> > vertexmumapvalueKF; */
-/* //    iEvent.getByToken(muonMapTag_VertValueKF, vertexmumapvalueKF); */
-    
-/*     edm::Handle<edm::ValueMap<float> > vertexmumaperrorKF; */
-/* //    iEvent.getByToken(muonMapTag_VertErrorKF, vertexmumaperrorKF); */
-
-
-/*     // STIP SLIP */
-/*     edm::Handle<edm::ValueMap<float> > stipmumap; */
-/* //    iEvent.getByToken(muonSTIPMapTag_Vert, stipmumap); */
-    
-/*     edm::Handle<edm::ValueMap<float> > slipmumap; */
-/* //    iEvent.getByToken(muonSLIPMapTag_Vert, slipmumap); */
-    
-/*     edm::Handle<edm::ValueMap<float> > stipmumapvalue; */
-/* //    iEvent.getByToken(muonSTIPMapTag_VertValue, stipmumapvalue); */
-    
-/*     edm::Handle<edm::ValueMap<float> > slipmumapvalue; */
-/* //    iEvent.getByToken(muonSLIPMapTag_VertValue, slipmumapvalue); */
-    
-/*     edm::Handle<edm::ValueMap<float> > stipmumaperror; */
-/* //    iEvent.getByToken(muonSTIPMapTag_VertError, stipmumaperror); */
-    
-/*     edm::Handle<edm::ValueMap<float> > slipmumaperror; */
-/* //    iEvent.getByToken(muonSLIPMapTag_VertError, slipmumaperror); */
-        
- 
-/////END TRYY
 
    // primary vertex
  
@@ -4224,41 +3837,54 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     int indexbis=0;
     RECO_NMU=MuCandidates->size();
-    //@// cout << "Event has muon numbers of " << RECO_NMU << endl;
-
-    /*      // To add matching informations Reham
-    // Matching
-    edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchMu;
-    iEvent.getByToken(goodMuonMCMatch_, GenParticlesMatchMu);
-    edm::Handle<reco::CandidateCollection > CollMu;
-    iEvent.getByToken(myMuons_, CollMu);
-
-    if (GenParticlesMatchMu.isValid()){
-      cout << endl<< "Muons:"<<endl<<"The reco collection to be matched has size= " <<  CollMu->size() << endl;
-      cout << "The matched map collection has size= " <<  GenParticlesMatchMu->size() << endl;
-    }
-    */
-    //
 
 
     for (edm::View<pat::Muon>::const_iterator cand = MuCandidates->begin(); cand != MuCandidates->end(); ++cand) {
             
       if(indexbis>99) break;
 
+      edm::Ref<edm::View<pat::Muon> > muonref(MuCandidates,indexbis);
+
            /////Reham need to check this part 
       //Reham comment for now 
-      /* 
+      
      //@ finds the pt error
-      double calibratorPtError = 0;
+      float calibratorPtError = 0, mu_uncorr_pt = 0, gen_muon_pt=0, gen_muon_eta=0, gen_muon_phi=0;
+      bool MUMATCH=false;
       unsigned int NslimmedMuons = vcorrPt.size();
-      cout << ">>>>> NslimmedMuons = " << NslimmedMuons << "NMuCandidates = " << MuCandidates->size() << endl;
+      cout << ">>>>> NslimmedMuons = " << NslimmedMuons <<" NMuCandidates = " << MuCandidates->size() << endl;
       for(unsigned int iref=0; iref<NslimmedMuons; ++iref){
-	if(vcorrPt.at(iref) == cand->pt()){
+	cout<<"Vcorrpt = "<<vcorrPt.at(iref)<<" cand pt = "<<cand->pt()<<endl;
+	float candpt = cand->pt();
+	float corrpt = vcorrPt.at(iref);
+	if( candpt == corrpt ){
+	//if( (vcorrPt.at(iref)) == (cand->pt()) ){
 	  calibratorPtError = vcorrPtError.at(iref);
+	  mu_uncorr_pt =vuncorrpt.at(iref);
 	  cout<< "MuCandPt = " << cand->pt() << ", calibratorPt = " << vcorrPt.at(iref) << ", calibratorPtError = " << vcorrPtError.at(iref) << endl;
+	  cout<<"mu uncorr pt = "<<mu_uncorr_pt<<endl;
+	 
+	  if (fillMCTruth==true){
+	  if(Muon_match.at(iref)== true) {
+	    MUMATCH = Muon_match.at(iref);
+	    gen_muon_pt = GenMuon_pt.at(iref);
+	    gen_muon_eta = GenMuon_eta.at(iref);
+	    gen_muon_phi = GenMuon_phi.at(iref);
+	    cout<<"MUMATCH = "<<MUMATCH<<"gen_muon = "<<gen_muon_pt<<"eta = "<<gen_muon_eta<<" phi = "<<gen_muon_phi<<endl;
+	  }
+	  }
 	} 
       }
-      */
+      
+      RECOMU_MatchingMCTruth[indexbis]=MUMATCH;
+      RECOMU_MatchingMCpT[indexbis]= gen_muon_pt;
+      RECOMU_MatchingMCEta[indexbis]= gen_muon_eta;
+      RECOMU_MatchingMCPhi[indexbis]= gen_muon_phi;
+      
+     cout<<" RECOMU_MatchingMCTruth[indexbis] = "<< RECOMU_MatchingMCTruth[indexbis]<<endl;
+      cout<<" RECOMU_MatchingMCpT[indexbis] = "<< RECOMU_MatchingMCpT[indexbis]<<endl;
+      cout<<" RECOMU_MatchingMCEta[indexbis] = "<< RECOMU_MatchingMCEta[indexbis]<<endl;
+      cout<<" RECOMU_MatchingMCPhi[indexbis] = "<< RECOMU_MatchingMCPhi[indexbis]<<endl;
       
       edm::Ref<edm::View<pat::Muon> > mutrackref(MuCandidates,indexbis); 
       //@// edm::Ref<edm::View<pat::Muon> > mutrackrefv(VertMuCandidates,indexbis); 
@@ -4292,9 +3918,10 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_PHI[indexbis]=cand->p4().phi();
       RECOMU_MASS[indexbis]=cand->p4().mass();
       RECOMU_CHARGE[indexbis]=cand->charge();
+      RECOMU_PT_uncorr[indexbis]=mu_uncorr_pt;
 
       //@//    
-      /* std::cout << "--kinematic:"
+       std::cout << "--kinematic:"
 		<< "  pT="     << RECOMU_PT[indexbis]
 	        << "  E="      << RECOMU_E[indexbis]
 		<< "  p="      << RECOMU_P[indexbis]
@@ -4303,7 +3930,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		<< "  phi="    << RECOMU_PHI[indexbis]
 		<< "  mass="   << RECOMU_MASS[indexbis]
 		<< "  charge=" << RECOMU_CHARGE[indexbis]
-		<< std::endl;*/
+		 <<"uncorr pt = "<< RECOMU_PT_uncorr[indexbis]
+		<< std::endl;
 	
       // Covariance matrix
       
@@ -4370,75 +3998,16 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_PFX_rho[indexbis]=(RECOMU_PFchHad[indexbis]+max( (RECOMU_PFneuHad[indexbis]+RECOMU_PFphoton[indexbis]-max(RHO_mu,0.0)*(EffectiveArea)),0.0) 
 )/double(cand->p4().pt());
 
-      //@//
-      /*  std::cout << "--isolation: muon"
-		<< "  X="       << RECOMU_X[indexbis]
-		<< "  Tracker=" << RECOMU_TRACKISO[indexbis] <<  "  no veto=" << RECOMU_TRACKISO_SUMPT[indexbis]
-		<< "  Ecal="    << RECOMU_ECALISO[indexbis]
-		<< "  Hcal="    << RECOMU_HCALISO[indexbis]
-	        << endl;
+ 
 
-      std::cout << "--PF isolation"
-	        << "  chHad="   << RECOMU_PFchHad[indexbis] 
-	        << "  neuHad="  << RECOMU_PFneuHad[indexbis]
-	        << "  photon="  << RECOMU_PFphoton[indexbis] 
-	        << "  sumPUPt=" << RECOMU_PFPUchAllPart[indexbis]
-                << "  PFX_dB="  << RECOMU_PFX_dB[indexbis] 
-                << "  PFX_rho=" << RECOMU_PFX_rho[indexbis]
-		<< std::endl;*/
-
-      // Vertexing
-
-      //Float_t mySIP = cand->userFloat("SIP");
-      //Float_t mySIP = std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D);
-      //cout << "mySIP= " <<  mySIP << endl;
-    
-      //tryyyyy
-      //
-      // RECOMU_SIP[indexbis]=(*vertexmumap)[mutrackrefv];
-      //  RECOMU_IP[indexbis]=(*vertexmumapvalue)[mutrackrefv];
-      //  RECOMU_IPERROR[indexbis]=(*vertexmumaperror)[mutrackrefv];
-
+      //Reham
       RECOMU_SIP[indexbis]= std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D);
       RECOMU_IP[indexbis]= std::abs(cand->dB(pat::Muon::PV3D));
       RECOMU_IPERROR[indexbis]= cand->edB(pat::Muon::PV3D);
 
       cout<<"SIP = "<<RECOMU_SIP[indexbis]<<"IP , error = "<<RECOMU_IP[indexbis]<<", "<<RECOMU_IPERROR[indexbis]<<"std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D) = "<<std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D)<<"cand->dB(pat::Muon::PV3D) ="<<cand->dB(pat::Muon::PV3D)<<"cand->edB(pat::Muon::PV3D)= "<<cand->edB(pat::Muon::PV3D)<<endl;
 
-/*
-      RECOMU_SIP_KF[indexbis]=(*vertexmumapKF)[mutrackrefv];
-      RECOMU_IP_KF[indexbis]=(*vertexmumapvalueKF)[mutrackrefv];
-      RECOMU_IPERROR_KF[indexbis]=(*vertexmumaperrorKF)[mutrackrefv];
-*/      
 
-      //RECOMU_SIP_GD[indexbis]=(*vertexmumapGD)[mutrackrefv];
-      //if (decaychannel=="4mu" || decaychannel=="2e2mu" ) RECOMU_SIP_GDMMMM[indexbis]=(*vertexmumapGDMMMM)[mutrackrefv];
-      //      RECOMU_SIP_Std[indexbis]=(*vertexmumapStd)[mutrackrefv];
-      //if (decaychannel=="4mu" || decaychannel=="2e2mu" ) RECOMU_SIP_StdMMMM[indexbis]=(*vertexmumapStdMMMM)[mutrackrefv];
-      //RECOMU_SIP_Kin[indexbis]=(*vertexmumapKin)[mutrackrefv];
-      //if (decaychannel=="4mu" || decaychannel=="2e2mu" ) RECOMU_SIP_KinMMMM[indexbis]=(*vertexmumapKinMMMM)[mutrackrefv];
-
-/*
-      RECOMU_STIP[indexbis]=(*stipmumap)[mutrackrefv];
-      RECOMU_SLIP[indexbis]=(*slipmumap)[mutrackrefv];
-      RECOMU_TIP[indexbis]=(*stipmumapvalue)[mutrackrefv];
-      RECOMU_LIP[indexbis]=(*slipmumapvalue)[mutrackrefv];
-      RECOMU_TIPERROR[indexbis]=(*stipmumaperror)[mutrackrefv];
-      RECOMU_LIPERROR[indexbis]=(*slipmumaperror)[mutrackrefv];
-*/      
-
-//@//
-      /*  std::cout << "--vertexing: muon"
-		<< "  Sign3DIP=" << RECOMU_SIP[indexbis]
-		<< "  3DIP="     << RECOMU_IP[indexbis]
-		<< "  3DIPerr="  << RECOMU_IPERROR[indexbis]
-		<< "  SignTIP="  << RECOMU_STIP[indexbis]
-		<< "  TIP="      << RECOMU_TIP[indexbis]
-		<< "  TIPerr="   << RECOMU_TIPERROR[indexbis]
-		<< "  SignLIP="  << RECOMU_SLIP[indexbis]
-		<< "  LIP="      << RECOMU_LIP[indexbis]
-		<< "  LIPerror=" << RECOMU_LIPERROR[indexbis]
-		<< std::endl;*/
       
       // Other properties
       RECOMU_numberOfMatches[indexbis]=cand->numberOfMatches();
@@ -4467,8 +4036,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_mubesttrkDzError[indexbis]=cand->muonBestTrack()->dzError();
 	//RECOMU_mubesttrkPTError[indexbis]=(*corrpterrormumap)[mutrackref];;
       }
+
       //@ Reham comment for now
-      // RECOMU_mubesttrkPTError[indexbis]=calibratorPtError;
+
+       RECOMU_mubesttrkPTError[indexbis]=cand->muonBestTrack()->ptError();
+       RECOMU_Rochester_Error[indexbis]=calibratorPtError;
+       cout<<">>>> check muon best track pt error "<< RECOMU_mubesttrkPTError[indexbis]<<" Muon rochester error ="<< RECOMU_Rochester_Error[indexbis]<<endl;
 
       if(cand->globalTrack().isAvailable()){
 	RECOMU_mutrkPT[indexbis]=cand->globalTrack()->pt();
@@ -4581,124 +4154,38 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		  << std::endl;*/
       }
   
-      /*      // To add matching informations Reham
-      // Matching
-      if (fillMCTruth==true){
-	int i=0;
-	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){
-	  //cout << "Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl;
-	  if (fabs(hIter->pt()-RECOMU_PT[indexbis])<0.01){
-	    i=hIter-(CollMu->begin());
-	    CandidateRef Ref( CollMu, i );
-	    edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[Ref];
-	    if (!genrefMu.isNull()){
-	      cout << "GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;
-	      RECOMU_MatchingMCTruth[i]= true;
-	      RECOMU_MatchingMCpT[i]= genrefMu->p4().pt();
-	      RECOMU_MatchingMCEta[i]= genrefMu->p4().eta();
-	      RECOMU_MatchingMCPhi[i]= genrefMu->p4().phi();
-	      cout<<"GenMuon pT check = "<< RECOMU_MatchingMCpT[i]<<endl;
-	      cout<<"GenMuon eta check = "<< RECOMU_MatchingMCEta[i]<<endl;
-	      cout<<"GenMuon phi check = "<< RECOMU_MatchingMCPhi[i]<<endl;
-	    } 
-	    else {
-	      cout << "There is no reference to a genMuon" << endl;
-	    }
-	  }   
-	}   
-      }  //end of matching
-      */
+         //    To add matching informations Reham */
+      /* // Matching */
+      /* if (fillMCTruth==true){  */
+      /* 	int i=0;  */
+      /* 	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){  */
+      /* 	  cout << "@@@@@@@@@Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl; */
+      /* 	  cout<<"RECOMU_PT[indexbis] = "<<RECOMU_PT[indexbis]<<endl; */
+      /* 	  if (fabs(hIter->pt()-RECOMU_PT[indexbis])<0.01){ */
+      /* 	    i=hIter-(CollMu->begin()); */
+      /* 	    CandidateRef Ref( CollMu, i ); */
+      /* 	    edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[Ref];  */
+      /* 	    if (!genrefMu.isNull()){  */
+      /* 	      cout << "@@@@@@GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;  */
+      /* 	      RECOMU_MatchingMCTruth[i]= true; */
+      /* 	      RECOMU_MatchingMCpT[i]= genrefMu->p4().pt(); */
+      /* 	      RECOMU_MatchingMCEta[i]= genrefMu->p4().eta(); */
+      /* 	      RECOMU_MatchingMCPhi[i]= genrefMu->p4().phi(); */
+      /* 	      //cout<<"GenMuon pT check = "<< RECOMU_MatchingMCpT[indexbis]<<endl; */
+      /* 	      //cout<<"GenMuon eta check = "<< RECOMU_MatchingMCEta[indexbis]<<endl; */
+      /* 	      // cout<<"GenMuon phi check = "<< RECOMU_MatchingMCPhi[indexbis]<<endl; */
+      /* 	    }  */
+      /* 	    else{  */
+      /* 	      cout << "There is no reference to a genMuon" << endl;  */
+      /* 		}  */
+      /* 	  } */
+      /* 	} */
+      /* } //end of matching  */
       
-      ///////////////////////////////////////////////////////////////
-      /*      
-      //Reham 
-      
-      //using Rochester muon correction for 2017 data
-      
-      vector<double> vcorrPt, vcorrPtError;
-      double oldPt=0., oldPtError=0.;
-      double  smearedPt=0., smearedPtError=0.;
-      double correction=1, correction_error=0;
-      TLorentzVector p4;
-      int nl;
-      
-      TRandom3* rgen_;
-      rgen_ = new TRandom3(0);
-    double u = rgen_->Rndm();
-    
-    cout<<"######## Muon correction ########"<<endl;
-    
-    //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
-    
-    edm::FileInPath corrPath("roccor_Run2_v2/RoccoR2017.txt");
-    calibrator = new RoccoR(corrPath.fullPath());
-    
-    cout<<"open the txt file for muon corrections"<<endl;
-    
-    oldPt=cand->p4().pt();
-    oldPtError=cand->muonBestTrack()->ptError();
-    
-    cout<<" muon pt = "<<cand->p4().pt()<<" and best track type = "<<cand->muonBestTrackType()<<endl;
-    
-    if (cand->muonBestTrackType() == 1 && cand->p4().pt()<=200.){
-      
-      nl =  cand->track()->hitPattern().trackerLayersWithMeasurement();
-      
-      if (isData && nl>5 ){ //on data correction oly
-	
-	cout<<"Data Muon correction "<<endl;
-	
-	if (cand->p4().pt()>2.0 && fabs(cand->p4().eta())<2.4){
-	  
-	  //RoccoR Calibrator;
-	  correction = calibrator->kScaleDT( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), 0 ,0); 
-	  correction_error = calibrator->kScaleDTerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi()); }//end eta > 2.4
-	else {// with pt<2 or not in the acceptance
-	  correction =1;
-	  correction_error =0;}//end else
-      }//end data
-      
-      else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
-	
-	cout<<"This is MC Muon correction"<<endl;
-	
-	if ( RECOMU_MatchingMCTruth[indexbis] == true){// when matched gen muon available
-	  
-	  cout<<"MC and matched gen muon "<<endl;
-	  
-	  correction = calibrator->kSpreadMC( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), RECOMU_MatchingMCpT[indexbis] , 0 ,0 ); 
-	  correction_error = calibrator->kSpreadMCerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(),RECOMU_MatchingMCpT[indexbis]);
-	}
-	
-	else { //when matched gen muon not available
-	  
-	  cout<<"MC and No matched gen muon "<<endl;		 
-	  
-	  correction = calibrator->kSmearMC( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), nl , u, 0 ,0 ); 
-	  correction_error = calibrator->kSmearMCerror( cand->charge(), cand->p4().pt(), cand->p4().eta(), cand->p4().phi(), nl ,u );}
-	
-      }//ends if !isdata
-    }//end if tracker , pt<200
-    
-    smearedPt = oldPt*correction;
-    //smearedPtError = oldPtError*correction_error;
-    smearedPtError = oldPtError*correction;
-    cout<<"Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
-    cout<<"Old pt error (from muon best track pt error) = "<<oldPtError<<", correction_error = "<<correction_error<<"smeared pt Error = "<< smearedPtError<<"+/- "<<correction_error<<endl;
-    
-    vcorrPt.push_back(smearedPt);
-    vcorrPtError.push_back(smearedPtError);
-     
-    RECOMU_mubesttrkPTError[indexbis]=smearedPtError;
-    RECOMU_Roch_calib_error[indexbis]= correction_error;
-*/
-           
-    ///////////////////////////////////////////////////////////////
-    
       indexbis++;
     }
   }
-
+  
 
 
   void fillPhotons(const edm::Event& iEvent){
@@ -4707,33 +4194,26 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     edm::Handle<edm::View<pat::Photon> > photons;
     iEvent.getByToken(photonsTag_, photons);
     RECO_NPHOT=photons->size();
-/*
+
     edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchPhot;
     iEvent.getByToken(goodGammaMCMatch_, GenParticlesMatchPhot);
     edm::Handle<reco::CandidateCollection > CollPhot;
     iEvent.getByToken(myGammas_, CollPhot);
     bool ismyGammas=false;
     if (CollPhot.isValid()) ismyGammas=true;
-*/    
+    
     int iphot=0;
     for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
       if (iphot>19) break;
+
+      
       RECOPHOT_PT[iphot]=cand->pt();
       RECOPHOT_ETA[iphot]=cand->eta();
       RECOPHOT_PHI[iphot]=cand->phi();
       RECOPHOT_THETA[iphot]=cand->theta();
-/*
-      if (!cand->parentSuperCluster().isNull()){
-        RECOPHOT_TLE_ParentSC_X[iphot]=cand->parentSuperCluster()->x();
-        RECOPHOT_TLE_ParentSC_Y[iphot]=cand->parentSuperCluster()->y();
-        RECOPHOT_TLE_ParentSC_Z[iphot]=cand->parentSuperCluster()->z();
-      }
 
-      cout << "Parent SC x,y,x= " <<RECOPHOT_TLE_ParentSC_X[iphot] << " " << RECOPHOT_TLE_ParentSC_Y[iphot] << " " << RECOPHOT_TLE_ParentSC_Z[iphot] << endl;
-*/
+      /////
 
-      //@//  cout << "Reco Photon with pT= " << RECOPHOT_PT[iphot] << " eta= " << RECOPHOT_ETA[iphot] << " phi= " << RECOPHOT_PHI[iphot] << endl;
-/*
       // Matching
       int i=0;
       if (ismyGammas){
@@ -4744,7 +4224,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    CandidateRef Ref( CollPhot, i );
 	    edm::Ref<std::vector<reco::GenParticle> > genrefPhot = (*GenParticlesMatchPhot)[Ref];
 	    if (!genrefPhot.isNull()){
-	      cout << "GenMuon with pT= " << genrefPhot->p4().pt() << " and mass="<< genrefPhot->p4().mass()<< endl;
+	      cout << "GenPhot with pT= " << genrefPhot->p4().pt() << " and mass="<< genrefPhot->p4().mass()<< endl;
 	      RECOPHOT_MatchingMCTruth[i]= true;
 	      RECOPHOT_MatchingMCpT[i]= genrefPhot->p4().pt();
 	      RECOPHOT_MatchingMCEta[i]= genrefPhot->p4().eta();
@@ -4752,43 +4232,45 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    } 
 	  }   
 	}
-      }  */ 
+      }
+
+      //////
+
       iphot++;
-    }
 
+       cout<<"photon pt = "<<RECOPHOT_PT[iphot]<<"eta= "<<RECOPHOT_ETA[iphot]<<endl;
+
+       cout<<" RECOPHOT_MatchingMCTruth[i] = "<< RECOPHOT_MatchingMCTruth[i]<<endl;
+       cout<<"RECOPHOT_MatchingMCpT[i] = "<<RECOPHOT_MatchingMCpT[i]<<endl;
+       cout<<"RECOPHOT_MatchingMCEta[i] = "<<RECOPHOT_MatchingMCEta[i]<<endl;
+       cout<<"RECOPHOT_MatchingMCPhi[i] = "<<RECOPHOT_MatchingMCPhi[i]<<endl;
+      }
     // PF ISR photon
-
-    // Photons
-//    edm::Handle<edm::View<pat::PackedCandidate> > pfphotons;
-//    iEvent.getByToken(pfphotonsTag_, pfphotons);
-
-/*
-    edm::Handle<edm::ValueMap<double> > isoPFChargedAllphmap; 
-    iEvent.getByToken(photonPFIsoValueChargedAllTag_, isoPFChargedAllphmap); 
-    
-    edm::Handle<edm::ValueMap<double> > isoPFChargedphmap; 
-    iEvent.getByToken(photonPFIsoValueChargedTag_, isoPFChargedphmap); 
-    
-    edm::Handle<edm::ValueMap<double> > isoPFNeutralphmap; 
-    iEvent.getByToken(photonPFIsoValueNeutralTag_, isoPFNeutralphmap); 
-    
-    edm::Handle<edm::ValueMap<double> > isoPFGammaphmap; 
-    iEvent.getByToken(photonPFIsoValueGammaTag_, isoPFGammaphmap); 
-    
-    edm::Handle<edm::ValueMap<double> > isoPFPUphmap; 
-    iEvent.getByToken(photonPFIsoValuePUTag_, isoPFPUphmap); 
-*/
 
     iphot=0;
     RECO_NPFPHOT=photons->size();
+
     //@// cout << "There are " << photons->size() << " photons" << endl;
+
     for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
 
       if (iphot>19) break;
 
       edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot); 
 
-      RECOPFPHOT_PT[iphot]=cand->pt();
+       RECOPFPHOT_PT_uncorr[iphot]=cand->pt();
+
+      cout<<"PF photon uncorr pt = "<< RECOPFPHOT_PT_uncorr[iphot]<<"eta= "<<cand->eta()<<endl;
+
+      //Reham correction of photon energy 
+
+      auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
+     
+      RECOPFPHOT_PT[iphot]= corrP4.pt();
+
+      // cout<<"corrP4"<<corrP4<<endl;
+      cout<<"Corrected PF photon pt = "<<corrP4.pt()<<" eta = "<<corrP4.eta()<<" phi = "<<corrP4.phi()<<" energy E = "<<corrP4.E()<<" energy Energy= "<<corrP4.energy()<<" energy Et= "<<corrP4.Et()<<endl;
+
 
       // error on pt of photon taken from #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
       double C;
@@ -4800,7 +4282,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       double pterr = perr*cand->pt()/cand->p(); 
       RECOPFPHOT_PTError[iphot]=float(pterr);
       
-      //@//   cout << "PF Photon : pT= " << RECOPFPHOT_PT[iphot] << " pTerr= " << RECOPFPHOT_PTError[iphot]<< endl;
+        cout << "PF Photon : pT= " << RECOPFPHOT_PT[iphot] << " pTerr= " << RECOPFPHOT_PTError[iphot]<< endl;
 
       RECOPFPHOT_ETA[iphot]=cand->eta();
       RECOPFPHOT_PHI[iphot]=cand->phi();
@@ -4817,17 +4299,66 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOPFPHOT_PFneuHad[iphot]         =  (cand->neutralHadronIso()); 
       RECOPFPHOT_PFphoton[iphot]         =  (cand->photonIso()); 
       RECOPFPHOT_PFPUchAllPart[iphot]    =  (cand->puChargedHadronIso());
-
-
-      
-      
+    
       RECOPFPHOT_PFX_rho[iphot]=( 
  				 RECOPFPHOT_PFchHad[iphot]+ 
  				 RECOPFPHOT_PFneuHad[iphot]+ 
  				 RECOPFPHOT_PFphoton[iphot]+ 
  				 RECOPFPHOT_PFPUchAllPart[iphot] 
 				  )/double(cand->p4().pt()); 
+
+     	//Reham error in PT and some systematic variables 
       
+      cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<endl;
+      cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<endl;
+      cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<endl;
+
+      RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
+      RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
+      RECOPFPHOT_ecalEnergyErrPostCorr[iphot]  = cand->userFloat("ecalEnergyErrPostCorr");
+      RECOPFPHOT_energyScaleValue[iphot]          = cand->userFloat("energyScaleValue");
+      RECOPFPHOT_energySigmaValue[iphot]          = cand->userFloat("energySigmaValue");
+      RECOPFPHOT_energyScaleUp[iphot]          = cand->userFloat("energyScaleUp");
+      RECOPFPHOT_energyScaleDown[iphot]          = cand->userFloat("energyScaleDown");
+      RECOPFPHOT_energyScaleStatUp[iphot]          = cand->userFloat("energyScaleStatUp");
+      RECOPFPHOT_energyScaleStatDown[iphot]          = cand->userFloat("energyScaleStatDown");
+      RECOPFPHOT_energyScaleSystUp[iphot]          = cand->userFloat("energyScaleSystUp");
+      RECOPFPHOT_energyScaleSystDown[iphot]          = cand->userFloat("energyScaleSystDown");
+      RECOPFPHOT_energyScaleGainUp[iphot]          = cand->userFloat("energyScaleGainUp");
+      RECOPFPHOT_energyScaleGainDown[iphot]          = cand->userFloat("energyScaleGainDown");
+      RECOPFPHOT_energyScaleEtUp[iphot]          = cand->userFloat("energyScaleEtUp");
+      RECOPFPHOT_energyScaleEtDown[iphot]          = cand->userFloat("energyScaleEtDown");
+      RECOPFPHOT_energySigmaUp[iphot]               = cand->userFloat("energySigmaUp");
+      RECOPFPHOT_energySigmaDown[iphot]          = cand->userFloat("energySigmaDown");
+      RECOPFPHOT_energySigmaPhiUp[iphot]          = cand->userFloat("energySigmaPhiUp");
+      RECOPFPHOT_energySigmaPhiDown[iphot]          = cand->userFloat("energySigmaPhiDown");
+      RECOPFPHOT_energySigmaRhoUp[iphot]          = cand->userFloat("energySigmaRhoUp");
+      RECOPFPHOT_energySigmaRhoDown[iphot]          = cand->userFloat("energySigmaRhoDown");
+
+	/* std::cout << "Photon syst ==" */
+	/* 	  <<"\n RECOPFPHOT_ecalEnergyPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyPreCorr[iphot] */
+	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPreCorr[iphot] */
+	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPostCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPostCorr[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energyScaleValue[iphot]= "<<RECOPFPHOT_energyScaleValue[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energySigmaValue[iphot]= "<<RECOPFPHOT_energySigmaValue[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energyScaleUp[iphot]= "<<RECOPFPHOT_energyScaleUp[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energyScaleDown[iphot]= "<<RECOPFPHOT_energyScaleDown[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energyScaleStatUp[iphot]= "<< RECOPFPHOT_energyScaleStatUp[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energyScaleStatDown[iphot]= "<< RECOPFPHOT_energyScaleStatDown[iphot]      */
+	/* 	  <<"\n RECOPFPHOT_energyScaleSystUp[iphot]= "<<RECOPFPHOT_energyScaleSystUp[iphot]         */
+	/* 	  <<"\n RECOPFPHOT_energyScaleSystDown[iphot]= "<<RECOPFPHOT_energyScaleSystDown[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energyScaleGainUp[iphot]= "<<RECOPFPHOT_energyScaleGainUp[iphot]          */
+	/* 	  <<"\n RECOPFPHOT_energyScaleGainDown[iphot]= "<<RECOPFPHOT_energyScaleGainDown[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energyScaleEtUp[iphot]= "<< RECOPFPHOT_energyScaleEtUp[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energyScaleEtDown[iphot]= "<< RECOPFPHOT_energyScaleDown[iphot] */
+	/* 	  <<"\n RECOPFPHOT_energySigmaUp[iphot]= "<< RECOPFPHOT_energySigmaUp[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energySigmaDown[iphot]= "<< RECOPFPHOT_energySigmaDown[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energySigmaPhiUp[iphot]= "<<RECOPFPHOT_energySigmaPhiUp[iphot]          */
+	/* 	  <<"\n RECOPFPHOT_energySigmaPhiDown[iphot]= "<<RECOPFPHOT_energySigmaPhiDown[iphot]         */
+	/* 	  <<"\n RECOPFPHOT_energySigmaRhoUp[iphot]= "<<RECOPFPHOT_energySigmaRhoUp[iphot]        */
+	/* 	  <<"\n RECOPFPHOT_energySigmaRhoDown[iphot]= "<<RECOPFPHOT_energySigmaRhoDown[iphot]        */
+	/* 	  <<std::endl;  */
+     
       iphot++;
       
     }
@@ -4867,44 +4398,8 @@ void fillTracks(const edm::Event& iEvent){
 }
         
 
-  
- /* 
-  double SetMET(const edm::Event& iEvent, edm::InputTag myTag_ ){
-    double met=-999.;
-    edm::Handle<reco::METCollection> metHandle;
-    iEvent.getByLabel(myTag_,metHandle);
-    for ( pat::METCollection::const_iterator iMet=metHandle->begin(); iMet!=metHandle->end(); iMet++) {
-      met = iMet->pt();
-    }
-    return met;
-  }
-  
-  double SetCaloMET(const edm::Event& iEvent, edm::InputTag myTag_ ){
-    double met=-999.;
-    edm::Handle<reco::CaloMETCollection> metHandle;
-    iEvent.getByLabel(myTag_,metHandle);
-    for ( CaloMETCollection::const_iterator iMet=metHandle->begin(); iMet!=metHandle->end(); iMet++) {
-      met = iMet->pt();
-    }
-    return met;
-  }
-  
-*/
-  void fillMET(const edm::Event& iEvent){
-    //TCMET
-    //tcmet = SetMET(iEvent,trackermetTag_);
-    //CALOMET
-    //calomet = SetCaloMET(iEvent,calometTag_);
-/*     calometnohf = SetCaloMET(iEvent,calometnohfTag_); */
 
-/*     if (useAdditionalMET_==true){ */
-/*       calometho = SetCaloMET(iEvent,calomethoTag_); */
-/*       calometopt = SetCaloMET(iEvent,calometoptTag_); */
-/*       calometoptnohf =  SetCaloMET(iEvent,calometoptnohfTag_); */
-/*       calometoptnohfho =  SetCaloMET(iEvent,calometoptnohfhoTag_); */
-/*       calometoptho = SetCaloMET(iEvent,calomethoTag_); */
-/*       calometnohfho = SetCaloMET(iEvent,calometnohfhoTag_); */
-/*     } */
+  void fillMET(const edm::Event& iEvent){
 
     //Type I Muon Correction MET
     //cormetmuons = SetCaloMET(iEvent,cormetMuTag_);
@@ -4914,6 +4409,29 @@ void fillTracks(const edm::Event& iEvent){
     edm::Handle<pat::METCollection> pfmetHandle;
     iEvent.getByToken(pfmetTag_,pfmetHandle);
     for ( pat::METCollection::const_iterator i=pfmetHandle->begin(); i!=pfmetHandle->end(); i++) {
+      
+      //Read the decision of MET Filter Reham
+
+      //new filter to be use (under test)
+
+      /* edm::Handle <bool> passecalBadCalibFilterUpdate ; */
+      /* iEvent.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate); */
+      /* PassecalBadCalibFilterUpdated =  (*passecalBadCalibFilterUpdate ); */
+      /* cout<<" PassecalBadCalibFilterUpdated = "<< PassecalBadCalibFilterUpdated<<endl; */ 
+
+      //old filters
+
+      /* edm::Handle<bool> ifilterbadChCand; */
+      /* iEvent.getByToken(BadChCandFilterToken_, ifilterbadChCand); */
+      /* filterbadChCandidate = (*ifilterbadChCand);  */
+
+      /* cout<<"filterbadChCandidate= "<<filterbadChCandidate<<endl; */
+
+      /* edm::Handle<bool> ifilterbadPFMuon; */
+      /* iEvent.getByToken(BadPFMuonFilterToken_, ifilterbadPFMuon); */
+      /* filterbadPFMuon = (*ifilterbadPFMuon); */
+
+      /* cout<<"filterbadPFMuon = "<<filterbadPFMuon<<endl; */
       
       cormetmuons = i->pt();
       
@@ -4930,6 +4448,8 @@ void fillTracks(const edm::Event& iEvent){
       pfmet_y_uncorr     = i->uncorPy();
       pfmet_phi_uncorr   = i->uncorPhi();
       pfmet_theta_uncorr = i->uncorP3().theta();
+
+
       
       //std::cout<<"met uncer"<< i->MET::METUncertainty(0) <<endl;
 
@@ -4951,24 +4471,62 @@ void fillTracks(const edm::Event& iEvent){
       pfmet_TauEnDown       = i->shiftedPt(pat::MET::TauEnDown, pat::MET::Type1); 
 
     }
+     
+  }
+
+
+  void fillMETFilters(const edm::Event& iEvent){
     
+  //filters decision from trigger results
 
+   edm::Handle<edm::TriggerResults> noiseFilterBits_; //our trigger result object
+   iEvent.getByToken(noiseFilterTag_,noiseFilterBits_);
+   const edm::TriggerNames &names = iEvent.triggerNames(*noiseFilterBits_);
 
+   for (unsigned int i = 0, n = noiseFilterBits_->size(); i < n; ++i) {
+     // cout <<"&&&&&&&"<< names.triggerName(i) << endl;
+     
 
-    //@//   std::cout << "MET:"
-    //@//	      << "  tcMET="            << tcmet 
-    //@//	      << "  caloMET="          << calomet 
-/* 	      << "  caloMETopt="       << calometopt */
-/* 	      << "  caloMEToptnohf="   << calometoptnohf */
-/* 	      << "  caloMEToptnohfho=" << calometoptnohfho */
-/* 	      << "  caloMEToptho="     << calometoptho */
-/* 	      << "  caloMETnohf="      << calometnohf */
-/* 	      << "  caloMETnohfho="    << calometnohfho */
-/* 	      << "  caloMETho="        << calometho */
-//@//	      << "  TypeIMucorrMET="   << cormetmuons
-//@//	      << "  pfMET="            << pfmet
-//@//	      << std::endl;
-    
+     if (names.triggerName(i) == GoodVtxNoiseFilter_Selector_ ){
+       cout<<"&&&&& pass GoodVtxNoiseFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterGoodVtxNoise = int(noiseFilterBits_->accept(i));};
+
+     if (names.triggerName(i) == GlobalSuperTightHalo2016NoiseFilter_Selector_ ){
+       cout<<"&&&&& pass GlobalSuperTightHalo2016NoiseFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterGlobalSuperTightHalo2016NoiseFilter = int(noiseFilterBits_->accept(i));};
+
+     if (names.triggerName(i) == HBHENoiseFilter_Selector_){
+       cout<<"&&&& Pass HBHENoiseFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterHBHENoise = int(noiseFilterBits_->accept(i));};
+     
+     if (names.triggerName(i) == HBHENoiseIsoFilter_Selector_ ){
+       cout<<"&&&&& pass HBHENoiseIsoFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterHBHENoiseIso = int(noiseFilterBits_->accept(i));};
+
+     if (names.triggerName(i) == EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_ ){
+       cout<<"&&&&& pass EcalDeadCellTriggerPrimitiveNoiseFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterEcalDeadCellTriggerPrimitiveNoise = int(noiseFilterBits_->accept(i));};
+
+    if (names.triggerName(i) == BadPFMuonFilter_Selector_ ){
+       cout<<"&&&&& pass EcalBadPFMuonFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterBadPFMuon = int(noiseFilterBits_->accept(i));};
+
+    if (names.triggerName(i) == BadChargedCandidateFilter_Selector_ ){
+       cout<<"&&&&& pass BadChargedCandidateFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterBadChargedCandidate = int(noiseFilterBits_->accept(i));};
+
+     if (names.triggerName(i) == EEBadScNoiseFilter_Selector_ ){
+       cout<<"&&&&& pass EEBadScNoiseFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterEEBadScNoise = int(noiseFilterBits_->accept(i));};
+
+    if (names.triggerName(i) == EcalBadCalibFilter_Selector_ ){
+       cout<<"&&&&& pass EcalBadCalibFilter = "<< noiseFilterBits_->accept(i)<<endl;
+       passFilterEcalBadCalib = int(noiseFilterBits_->accept(i));};
+      
+   };
+   // cout<<"passFilterHBHE ="<< passFilterHBHE <<", "
+   //  <<"passFilterEEBadSC ="<< passFilterEEBadSC 
+   //  << endl;
   }
 
   void fillGD2e2mu(const edm::Event& iEvent){
@@ -5571,53 +5129,15 @@ void fillTracks(const edm::Event& iEvent){
 
      //test Reham    
 
-      /* cout<<"tesssssssssst"<<endl;
-      cout <<"pileupjetid = "<<i->userInt("pileupJetId:fullId")<<" and in binary = "<<std::bitset<4>(i->userInt("pileupJetId:fullId"))<<endl;
-      cout<<"condition (1 << 2) = "<<(1 << 2)<<"and in binary = "<<std::bitset<4>((1 << 2))<<endl;
-      cout<<"condition (1 << 1) = "<<(1 << 1)<<"and in binary = "<<std::bitset<4>((1 << 1))<<endl;
-      cout<<"condition (1 << 0) = "<<(1 << 0)<<"and in binary = "<<std::bitset<4>((1 << 0))<<endl;
-      cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 2))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 2)))<<endl;
-       cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 1))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 1)))<<endl;
-       cout<<"Total condition Loose = "<<(i->userInt("pileupJetId:fullId") & (1 << 0))<<" and in binary = "<<std::bitset<4>((i->userInt("pileupJetId:fullId") & (1 << 0)))<<endl; */
-
       bool passLoose_PUID = (i->userInt("pileupJetId:fullId") & (1 << 2));
       bool passMedium_PUID = (i->userInt("pileupJetId:fullId") & (1 << 1));
       bool passTight_PUID = (i->userInt("pileupJetId:fullId") & (1 << 0));
- 
-       
-         cout<<"passLoose_PUID = "<<passLoose_PUID<<endl;
-      cout<<"passMedium_PUID = "<<passMedium_PUID<<endl;
-      cout<<"passTight_PUID = "<<passTight_PUID<<endl;
-
-      /////////////////////////////////////
-/*
-      if (fillMCTruth == 1){
-	mva = (*puJetIdMVAMC)[pfjetrefmva];
-      }
-      else{
-	mva = (*puJetIdMVAData)[pfjetrefmva];
-      }
-*/      
-  
-/*    //      New Selection
-      if(i->pt()>20.){
-	if(fabs(i->eta())>3.){
-	  if(mva<=-0.45) pupass=0;
-	}else if(fabs(i->eta())>2.75){
-	  if(mva<=-0.55) pupass=0;
-	}else if(fabs(i->eta())>2.5){
-	  if(mva<=-0.6) pupass=0;
-	}else if(mva<=-0.63) pupass=0;
-      }else{
-	if(fabs(i->eta())>3.){
-	  if(mva<=-0.95) pupass=0;
-	}else if(fabs(i->eta())>2.75){
-	  if(mva<=-0.94) pupass=0;
-	}else if(fabs(i->eta())>2.5){
-	  if(mva<=-0.96) pupass=0;
-	}else if(mva<=-0.95) pupass=0;
-	} */
-        
+      
+      
+      // cout<<"passLoose_PUID = "<<passLoose_PUID<<endl;
+      // cout<<"passMedium_PUID = "<<passMedium_PUID<<endl;
+      // cout<<"passTight_PUID = "<<passTight_PUID<<endl;
+      
       
       RECO_PFJET_CHARGE[index_jets] = i->charge();
       RECO_PFJET_ET[index_jets]     = i->et();
@@ -5625,6 +5145,8 @@ void fillTracks(const edm::Event& iEvent){
       RECO_PFJET_ETA[index_jets]    = i->eta();
       RECO_PFJET_PHI[index_jets]    = i->phi();
       //RECO_PFJET_PUID[index_jets]     = pupass;
+      RECO_PFJET_PUID_loose[index_jets]     = passLoose_PUID;
+      RECO_PFJET_PUID_medium[index_jets]     = passMedium_PUID;
       RECO_PFJET_PUID[index_jets]     = passTight_PUID;
       RECO_PFJET_PUID_MVA[index_jets] = mva;
 
@@ -5962,6 +5484,10 @@ void fillTracks(const edm::Event& iEvent){
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
 
+  //Reham Read MET filter decision from trigger results
+
+  edm::EDGetTokenT<edm::TriggerResults> noiseFilterTag_; 
+
 
   edm::InputTag triggerMatchObjectEle;
   edm::EDGetTokenT<edm::Association<std::vector<pat::TriggerObjectStandAlone> > > triggerMatchObject;
@@ -6144,6 +5670,9 @@ void fillTracks(const edm::Event& iEvent){
   edm::InputTag htmetic5Tag_,htmetkt4Tag_,htmetkt6Tag_,htmetsc5Tag_,htmetsc7Tag_;
   edm::InputTag jescormetic5Tag_,jescormetkt4Tag_,jescormetkt6Tag_,jescormetsc5Tag_,jescormetsc7Tag_;
   edm::InputTag cormetMuTag_;
+  //edm::EDGetTokenT<bool>ecalBadCalibFilterUpdate_token ;// new met filter to be used (unser test)
+  // edm::EDGetTokenT<bool> BadChCandFilterToken_;
+  // edm::EDGetTokenT<bool> BadPFMuonFilterToken_;
 
   // Conversion
 //  edm::EDGetTokenT<edm::ValueMap<float> > ConvMapDistTag_,ConvMapDcotTag_;
@@ -6277,7 +5806,7 @@ void fillTracks(const edm::Event& iEvent){
   // RECO electrons
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
   float RECOELE_E[100],RECOELE_PT[100],RECOELE_PTError[100],RECOELE_P[100],RECOELE_ETA[100],RECOELE_THETA[100],RECOELE_PHI[100],RECOELE_MASS[100];
-  float RECOELE_CHARGE[100],RECOELE_ID[100] ;
+  float RECOELE_CHARGE[100],RECOELE_ID[100], RECOELE_PT_uncorr[100] ;
 
   bool RECOELE_isEcalDriven[100], RECOELE_isTrackerDriven[100];
   float 
@@ -6331,10 +5860,14 @@ void fillTracks(const edm::Event& iEvent){
   double ele_eidHZZVeryLoose[100], ele_eidHZZLoose[100], ele_eidHZZMedium[100], ele_eidHZZTight[100] ;
   double RECOELE_COV[100][3][3];
 
+  //Reham electron systematic variables
+
+  float RECOELE_ecalTrkEnergyErrPostCorr[100],RECOELE_energyScaleValue[100],RECOELE_energySigmaValue[100], RECOELE_energyScaleUp[100], RECOELE_energyScaleDown[100], RECOELE_energyScaleStatUp[100], RECOELE_energyScaleStatDown[100], RECOELE_energyScaleSystUp[100], RECOELE_energyScaleSystDown[100], RECOELE_energyScaleGainUp[100], RECOELE_energyScaleGainDown[100],RECOELE_energyScaleEtUp[100], RECOELE_energyScaleEtDown[100], RECOELE_energySigmaUp[100], RECOELE_energySigmaDown[100], RECOELE_energySigmaPhiUp[100], RECOELE_energySigmaPhiDown[100], RECOELE_energySigmaRhoUp[100], RECOELE_energySigmaRhoDown[100],RECOELE_ecalTrkEnergyPreCorr[100], RECOELE_ecalTrkEnergyErrPreCorr[100];
+
   // RECO muons
   bool RECOMU_isPFMu[100],RECOMU_isGlobalMu[100],RECOMU_isStandAloneMu[100],RECOMU_isTrackerMu[100],RECOMU_isCaloMu[100],RECOMU_isTrackerHighPtMu[100],RECOMU_isME0Muon[100];
   float RECOMU_E[100],RECOMU_PT[100],RECOMU_P[100],RECOMU_ETA[100],RECOMU_THETA[100],RECOMU_PHI[100],RECOMU_MASS[100],RECOMU_CHARGE[100];
-  double RECOMU_COV[100][3][3],RECOMU_Roch_calib_error[100];
+  double RECOMU_COV[100][3][3]/*,RECOMU_Roch_calib_error[100]*/,RECOMU_PT_uncorr[100];
 
   float 
     RECOMU_TRACKISO[100],RECOMU_TRACKISO_SUMPT[100],RECOMU_ECALISO[100],RECOMU_HCALISO[100], RECOMU_X[100],   
@@ -6372,8 +5905,7 @@ void fillTracks(const edm::Event& iEvent){
     RECOMU_muInnertrkDxy[100],RECOMU_muInnertrkDxyError[100],RECOMU_muInnertrkDxyB[100],
     RECOMU_muInnertrkDz[100],RECOMU_muInnertrkDzError[100],RECOMU_muInnertrkDzB[100],
     RECOMU_mubesttrkDxy[100],RECOMU_mubesttrkDxyError[100],RECOMU_mubesttrkDxyB[100],
-    RECOMU_mubesttrkDz[100],RECOMU_mubesttrkDzError[100],RECOMU_mubesttrkDzB[100],
-    RECOMU_mubesttrkPTError[100],
+    RECOMU_mubesttrkDz[100],RECOMU_mubesttrkDzError[100],RECOMU_mubesttrkDzB[100], RECOMU_mubesttrkPTError[100], RECOMU_Rochester_Error[100],
     RECOMU_muInnertrkChi2PerNdof[100],
     RECOMU_muInnertrktrackerLayersWithMeasurement[100],RECOMU_muInnertrkPT[100],RECOMU_muInnertrkPTError[100],
     RECOMU_muInnertrkCharge[100],RECOMU_muInnertrkNHits[100],RECOMU_muInnertrkNPixHits[100],RECOMU_muInnertrkNStripHits[100],
@@ -6389,7 +5921,11 @@ void fillTracks(const edm::Event& iEvent){
   float RECOPHOT_PT[20],RECOPHOT_ETA[20],RECOPHOT_PHI[20],RECOPHOT_THETA[20],RECOPHOT_TLE_ParentSC_X[20],RECOPHOT_TLE_ParentSC_Y[20],RECOPHOT_TLE_ParentSC_Z[20];
   float RECOPFPHOT_PT[20],RECOPFPHOT_PTError[20],RECOPFPHOT_ETA[20],RECOPFPHOT_PHI[20],RECOPFPHOT_THETA[20];
   double RECOPFPHOT_PFchAllPart[20],RECOPFPHOT_PFchHad[20],RECOPFPHOT_PFneuHad[20],RECOPFPHOT_PFphoton[20],
-    RECOPFPHOT_PFPUchAllPart[20],RECOPFPHOT_PFX_rho[20];
+    RECOPFPHOT_PFPUchAllPart[20],RECOPFPHOT_PFX_rho[20], RECOPFPHOT_PT_uncorr[20];
+
+  //Reham 
+  
+  float RECOPFPHOT_ecalEnergyErrPostCorr[20],RECOPFPHOT_energyScaleValue[20],RECOPFPHOT_energySigmaValue[20], RECOPFPHOT_energyScaleUp[20], RECOPFPHOT_energyScaleDown[20], RECOPFPHOT_energyScaleStatUp[20], RECOPFPHOT_energyScaleStatDown[20], RECOPFPHOT_energyScaleSystUp[20], RECOPFPHOT_energyScaleSystDown[20], RECOPFPHOT_energyScaleGainUp[20], RECOPFPHOT_energyScaleGainDown[20],RECOPFPHOT_energyScaleEtUp[20], RECOPFPHOT_energyScaleEtDown[20], RECOPFPHOT_energySigmaUp[20], RECOPFPHOT_energySigmaDown[20], RECOPFPHOT_energySigmaPhiUp[20], RECOPFPHOT_energySigmaPhiDown[20], RECOPFPHOT_energySigmaRhoUp[20], RECOPFPHOT_energySigmaRhoDown[20],RECOPFPHOT_ecalEnergyPreCorr[20],RECOPFPHOT_ecalEnergyErrPreCorr[20];
   
 
   // Vertexing
@@ -6489,7 +6025,7 @@ void fillTracks(const edm::Event& iEvent){
   int RECO_VERTEX_ntracks[15];
   
   // RECO JETS
-  int RECO_PFJET_N, RECO_PFJET_CHARGE[200],RECO_PFJET_PUID[200];
+  int RECO_PFJET_N, RECO_PFJET_CHARGE[200],RECO_PFJET_PUID[200], RECO_PFJET_PUID_loose[200], RECO_PFJET_PUID_medium[200];
   float RECO_PFJET_ET[200], RECO_PFJET_PT[200], RECO_PFJET_ETA[200], RECO_PFJET_PHI[200],RECO_PFJET_PUID_MVA[200],RECO_PFJET_QG_Likelihood[200],RECO_PFJET_QG_axis2[200],RECO_PFJET_QG_ptd[200],RECO_PFJET_QG_mult[200];
   double RHO,RHO_ele,RHO_mu;
 
@@ -6517,12 +6053,27 @@ void fillTracks(const edm::Event& iEvent){
   float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr;
   float pfmet_JetEnUp, pfmet_JetEnDn, pfmet_ElectronEnUp, pfmet_ElectronEnDn, pfmet_MuonEnUp, pfmet_MuonEnDn;
   float pfmet_JetResUp, pfmet_JetResDn, pfmet_UnclusteredEnUp, pfmet_UnclusteredEnDn, pfmet_PhotonEnUp, pfmet_PhotonEnDn,pfmet_TauEnUp,pfmet_TauEnDown;
+  int PassecalBadCalibFilterUpdated, filterbadChCandidate, filterbadPFMuon;
 
     //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;        
     float tcmet;
     //jescormetic5,jescormetkt4,jescormetkt6,jescormetsc5,jescormetsc7;    
-  float cormetmuons;  
+  float cormetmuons; 
+
+  //Read MET filter decisions
+
+    std::string GoodVtxNoiseFilter_Selector_;
+    std::string GlobalSuperTightHalo2016NoiseFilter_Selector_;
+    std::string HBHENoiseFilter_Selector_;
+    std::string HBHENoiseIsoFilter_Selector_;
+    std::string EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_;
+    std::string BadPFMuonFilter_Selector_;
+    std::string BadChargedCandidateFilter_Selector_;
+    std::string EEBadScNoiseFilter_Selector_;                         
+    std::string EcalBadCalibFilter_Selector_; 
   
+    int  passFilterGoodVtxNoise, passFilterGlobalSuperTightHalo2016NoiseFilter, passFilterHBHENoise, passFilterHBHENoiseIso, passFilterEcalDeadCellTriggerPrimitiveNoise, passFilterBadPFMuon, passFilterBadChargedCandidate, passFilterEEBadScNoise, passFilterEcalBadCalib; 
+
   // Beam Spot
   double BeamSpot_X,BeamSpot_Y,BeamSpot_Z;	
   BeamSpot bs;

@@ -304,6 +304,11 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   //RECO MET
   fillMET(iEvent);
 
+ 
+  cout << "fill MET Filters" << endl;
+  //RECO MET
+  fillMETFilters(iEvent);
+
 
    cout << " beam spot met " << endl;
   // Beam Spot

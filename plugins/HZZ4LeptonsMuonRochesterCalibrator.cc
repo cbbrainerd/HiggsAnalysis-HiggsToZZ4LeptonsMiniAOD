@@ -66,6 +66,7 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
   
   // muons
   auto_ptr<pat::MuonCollection> Gmuon( new pat::MuonCollection );
+ 
   edm::Handle<edm::View<pat::Muon> > muons;
   edm::View<pat::Muon>::const_iterator mIter;    
   iEvent.getByToken(muonLabel, muons);
@@ -91,11 +92,15 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
   // // cout << "The matched map collection has size= " <<  GenParticlesMatchMu->size() << endl;
   //  }
   
+    int jj=0;
+
   // Loop over muons
   for (mIter = muons->begin(); mIter != muons->end(); ++mIter ) {
+
+    edm::Ref<edm::View<pat::Muon>>muref(muons,jj);
     
     pat::Muon* calibmu = mIter->clone();
-   
+
     //
     vector<double> vcorrPt, vcorrPtError;
     double oldPt=0., oldPtError=0.;
@@ -116,41 +121,46 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
     
     oldPt=mIter->pt();
     oldPtError=mIter->muonBestTrack()->ptError();
-      
+  
+    cout<<"Muon PT = "<<oldPt<<endl;
+    
     // To add matching informations Reham
       // Matching
       if (MCTruth==true){
-	int i=0;
-	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){
-	  // cout << "Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl;
-	  
-	  if (fabs(hIter->pt()- mIter->pt())<0.01){
-	    i=hIter-(CollMu->begin());
-	    CandidateRef Ref( CollMu, i );
-	    edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[Ref];
-	    if (!genrefMu.isNull()){
-	      // cout<<"Matched found "<<endl;
-	      // cout << "GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;
-	       Match = true;
-	       gen_Mu_pt = genrefMu->p4().pt();
-	    } 
-	    else {
-	      //cout << "There is no reference to a genMuon" << endl;
-	      Match = false;
-	    }
-	  } //if  
-	}//for   
+      // 	int i=0;
+      // 	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){
+      // 	   cout << "Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< endl;
+
+      // 	  if (fabs(hIter->pt()- mIter->pt())<0.01){
+      // 	    cout<<"Match found "<<endl;
+      // 	    i=hIter-(CollMu->begin());
+      // 	    cout<<"i = "<<i<<endl;
+      // 	    CandidateRef Ref( CollMu, i );
+	             edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[muref];
+		     if (!genrefMu.isNull()){
+		       cout<<"Matched found "<<endl;
+		       cout << "GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< endl;
+		       Match = true;
+		       gen_Mu_pt = genrefMu->p4().pt();
+		       cout<<"Calibrator Match Gen Muon PT = "<<gen_Mu_pt<<endl;
+		     } 
+		     else {
+       	      cout << "Calibrator There is no reference to a genMuon" << endl;
+       	      Match = false;
+		     }
+      // 	  } //if  
+      // 	}//for   
       }  //end of matching
 
 
       // cout<<"######## Muon correction ########"<<endl;
  
-    edm::FileInPath corrPath("roccor_Run2_v2/RoccoR2017.txt");
+    edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
     calibrator = new RoccoR(corrPath.fullPath());
 
     // cout<<"open the txt file for muon corrections"<<endl;
      
-    // cout<<" muon pt = "<<mIter->pt()<<" and best track type = "<<mIter->muonBestTrackType()<<endl;
+     cout<<" muon pt = "<<mIter->pt()<<" and best track type = "<<mIter->muonBestTrackType()<<endl;
      
       if (mIter->muonBestTrackType() == 1 && mIter->pt()<=200.){
 
@@ -158,7 +168,7 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
 
     	if (isData && nl>5 ){ //on data correction oly
 
-	  // cout<<"Data Muon correction "<<endl;
+	   cout<<"Data Muon correction "<<endl;
 
     	  if (mIter->pt()>2.0 && fabs(mIter->eta())<2.4){
 
@@ -172,37 +182,41 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
    
 	 	else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
 
-		  // cout<<"This is MC Muon correction"<<endl;
+		   cout<<"Calibrator This is MC Muon correction"<<endl;
 
 		    if (  Match == true){// when matched gen muon available
 
-		      // cout<<"MC and matched gen muon "<<endl;
-		      //cout<<"gen muon pt = "<<gen_Mu_pt<<endl;
+		       cout<<"Calibrator MC and matched gen muon "<<endl;
+		      cout<<"Calibrator gen muon pt = "<<gen_Mu_pt<<endl;
 
 	     correction = calibrator->kSpreadMC( mIter->charge(), mIter->pt(), mIter->eta(), mIter->phi(), gen_Mu_pt , 0 ,0 ); 
 	    correction_error = calibrator->kSpreadMCerror( mIter->charge(), mIter->pt(), mIter->eta(), mIter->phi(), gen_Mu_pt);
+	    cout<<"Calibrator correction = "<<correction<<endl;
 	     }
 
 		    else { //when matched gen muon not available
 
-		      // cout<<"MC and No matched gen muon "<<endl;		 
+		       cout<<"Calibrator MC and No matched gen muon "<<endl;		 
 
 		    correction = calibrator->kSmearMC( mIter->charge(), mIter->pt(), mIter->eta(), mIter->phi(), nl , u, 0 ,0 ); 
-		    correction_error = calibrator->kSmearMCerror( mIter->charge(), mIter->pt(), mIter->eta(), mIter->phi(), nl ,u );}
+		    correction_error = calibrator->kSmearMCerror( mIter->charge(), mIter->pt(), mIter->eta(), mIter->phi(), nl ,u );
 
-	}//ends if !isdata
+	    cout<<"Calibrator correction = "<<correction<<endl;}
+
+		}//ends if !isdata
       }//end if tracker , pt<200
    
     smearedPt = oldPt*correction;
-    smearedPtError = oldPtError*correction;
+    smearedPtError = oldPtError+correction;
 
-    //cout<<"Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
-    cout<<"Old pt error (from muon best track pt error) = "<<oldPtError<<", correction_error = "<<correction_error<<"smeared pt Error = "<< smearedPtError<<"+/- "<<correction_error<<endl;
+    cout<<"In calibrator Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<endl;
+     cout<<"Old pt error (from muon best track pt error) = "<<oldPtError<<", correction_error = "<<correction_error<<"smeared pt Error = "<< smearedPtError<<"+/- "<<correction_error<<endl;
      
     pterror.push_back(smearedPtError);    
     p4.SetPtEtaPhiM(smearedPt, mIter->eta(), mIter->phi(), mIter->mass());
     calibmu->setP4(reco::Particle::PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), mIter->mass())); 
     Gmuon->push_back( *calibmu );
+    jj++;
   }
   
   fillerCorrPtError.insert(muons,pterror.begin(),pterror.end());
