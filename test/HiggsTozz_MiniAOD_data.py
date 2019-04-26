@@ -4,22 +4,22 @@ process = cms.Process('MonoHiggs')
 
 # Complete Preselection Sequence for 4l analysis
 
-process.load('Configuration/StandardSequences/Services_cff')
-process.load('FWCore/MessageService/MessageLogger_cfi')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # import of standard configurations
-process.load('Configuration/StandardSequences/Services_cff')
-process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('Configuration/Geometry/GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.Geometry.GeometryRecoDB_cff')
 #process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')#reham
 process.load('Configuration.StandardSequences.MagneticField_cff') #reham
-process.load('Configuration/StandardSequences/EndOfProcess_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration/EventContent/EventContent_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.EventContent.EventContent_cff')
 
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v6', '') # Reham Tag recommended for JEC 2017
+process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v11', '') # Reham Tag recommended for JEC 2017
 
 # Random generator 
 #process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -84,7 +84,7 @@ process.goodOfflinePrimaryVerticestwo = cms.EDFilter("VertexSelector",
         
 #@#Rochester correction
 
-process.load('HiggsAnalysis/HiggsToZZ4Leptons/hTozzTo4leptonsMuonRochesterCalibrator_cfi')
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonRochesterCalibrator_cfi')
 process.hTozzTo4leptonsMuonRochesterCalibrator.isData = cms.bool(True)
 process.hTozzTo4leptonsMuonRochesterCalibrator.MCTruth = cms.bool(False)
 
@@ -139,7 +139,7 @@ setupEgammaPostRecoSeq(process,
 #/////////////////////////////////////////////////////
 
 
-process.load('HiggsAnalysis/HiggsToZZ4Leptons/hTozzTo4leptonsPreselection_data_noskim_cff') 
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsPreselection_data_noskim_cff') 
 #@#process.calibratedPatElectrons.isMC = cms.bool(False) #reham run2 2017
 
 
@@ -184,12 +184,12 @@ process.hTozzTo4leptonsSelectionPath = cms.Path(
 
 #///////////////////////////////////////////
 
-process.load('HiggsAnalysis/HiggsToZZ4Leptons/hTozzTo4leptonsOutputModule_cff')
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsOutputModule_cff')
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsOutputModule_cff import *   #reham need to comment in run in crab
-process.hTozzTo4leptonsSelectionOutputModuleNew = hTozzTo4leptonsSelectionOutputModule.clone()  #reham need to comment in run in crab
-process.hTozzTo4leptonsSelectionOutputModuleNew.fileName = "Data_2017_DoubleMuon_RunB_hTozzToLeptons.root"  #reham need to comment in run in crab
+#process.hTozzTo4leptonsSelectionOutputModuleNew = hTozzTo4leptonsSelectionOutputModule.clone()  #reham need to comment in run in crab
+#process.hTozzTo4leptonsSelectionOutputModuleNew.fileName = "Data_2017_DoubleMuon_RunB_hTozzToLeptons.root"  #reham need to comment in run in crab
 
-process.o = cms.EndPath (process.hTozzTo4leptonsSelectionOutputModuleNew ) #reham comment in run in crab
+#process.o = cms.EndPath (process.hTozzTo4leptonsSelectionOutputModuleNew ) #reham comment in run in crab
 process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,                            
                                  #@#process.Flag_HBHENoiseFilter,
                                  #@#process.Flag_HBHENoiseIsoFilter,
@@ -201,20 +201,36 @@ process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,
                                  #@#process.Flag_BadChargedCandidateFilter,###
                                  #process.Flag_ecalBadCalibFilter,  #new 2017 changed with reduced
                                  process.hTozzTo4leptonsSelectionPath,
-                                 process.o)
+#                                 process.o
+)
 
 
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
+#process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck', #DEBUG
+#    ignoreTotal=cms.untracked.int32(1), #DEBUG
+#    showMallocInfo=cms.untracked.bool(True), #DEBUG
+#    moduleMemorySummary=cms.untracked.bool(True) #DEBUG
+#) #DEBUG
+
 process.source = cms.Source ("PoolSource",
                              
   fileNames = cms.untracked.vstring(
-'file:data_DoubleMuon_2017_RunB_0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root' 
+#'file:data_DoubleMuon_2017_RunB_0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root' 
+'root://cmsxrootd.fnal.gov//store/data/Run2017B/DoubleMuon/MINIAOD/17Nov2017-v1/30000/0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root'
 #'file:Data_2017_DoubleMuon_RunB_hTozzToLeptons.root'
   )
 )
 
+#from IgTools.IgProf.IgProfTrigger import igprof
+#process.load("IgTools.IgProf.IgProfTrigger")
+#process.igprofPath = cms.Path(process.igprof)
+#process.igprof.reportEventInterval     = cms.untracked.int32(25)
+#process.igprof.reportToFileAtBeginJob  = cms.untracked.string("|gzip -c>igprof.begin-job.gz")
+#process.igprof.reportToFileAtEvent = cms.untracked.string("|gzip -c>igprof.%I.%E.%L.%R.event.gz")
+#process.schedule.append(process.igprofPath)
+#
 ## # Endpath
 #process.o = cms.EndPath (process.hTozzTo4leptonsSelectionOutputModuleNew ) #reham comment in run in crab

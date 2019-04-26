@@ -52,11 +52,15 @@ HZZ4LeptonsMuonRochesterCalibrator::HZZ4LeptonsMuonRochesterCalibrator(const edm
   string alias;
   produces<pat::MuonCollection>(); 
   produces<edm::ValueMap<float> >("CorrPtError");
+  edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
+  calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
+  rgen_ = std::unique_ptr<TRandom3>(new TRandom3(0));
+
 }
 
 
 HZZ4LeptonsMuonRochesterCalibrator::~HZZ4LeptonsMuonRochesterCalibrator() {
-  
+
 }
 
 //
@@ -108,10 +112,7 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
     double correction=1, correction_error=0;
     TLorentzVector p4;
     int nl;
-    TRandom3* rgen_;
-    rgen_ = new TRandom3(0);
     double u = rgen_->Rndm();
-    RoccoR* calibrator; //muon calibrator
     
     bool Match = false;
     double gen_Mu_pt= 0.;
@@ -155,9 +156,6 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
 
       // cout<<"######## Muon correction ########"<<endl;
  
-    edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
-    calibrator = new RoccoR(corrPath.fullPath());
-
     // cout<<"open the txt file for muon corrections"<<endl;
      
      cout<<" muon pt = "<<mIter->pt()<<" and best track type = "<<mIter->muonBestTrackType()<<endl;

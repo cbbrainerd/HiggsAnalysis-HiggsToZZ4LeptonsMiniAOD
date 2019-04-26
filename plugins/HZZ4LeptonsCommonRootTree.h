@@ -169,7 +169,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   void beginJob();
   void endJob();
 
-  RoccoR* calibrator; //muon calibrator 
+  std::unique_ptr<RoccoR> calibrator; //muon calibrator 
  
   void respondToOpenInputFile(edm::FileBlock const& fb) {
     inputfileName = fb.fileName();
@@ -1248,7 +1248,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   
   void Initialize(){
     
-    irun=-999,ievt=-999,ils=-999;
     Avginstlumi=-999.;
     RHO=-999.,RHO_ele=-999.,RHO_mu=-999.;
 
@@ -1265,33 +1264,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     //for (int ii=0;ii<200;ii++){
     //  HLTPathsFired[ii]="";
     //}
-
-    leptonscands2e2mu_= new (CandidateCollection);
-    leptonscands2e2murf_= new (CandidateCollection);
-    leptonscands4mu_= new (CandidateCollection);
-    leptonscands4murf_= new (CandidateCollection);
-    leptonscands4e_= new (CandidateCollection);
-    leptonscands4erf_= new (CandidateCollection);
-
-    leptonscands_Z0= new (CandidateCollection);
-    leptonscands_Z1= new (CandidateCollection);
-    leptonscands_Zss0= new (CandidateCollection);
-    leptonscands_Zss1= new (CandidateCollection);
-    leptonscands_Zcross= new (CandidateCollection);
-    leptonscands_DiLep= new (CandidateCollection);
-    leptonscands_MMMM= new (CandidateCollection);
-    leptonscands_EEEE= new (CandidateCollection);
-    leptonscands_EEMM= new (CandidateCollection);
-    leptonscands_LLL0= new (CandidateCollection);
-    leptonscands_LLL1= new (CandidateCollection);
-    leptonscands_LLL2= new (CandidateCollection);
-    leptonscands_LLL3= new (CandidateCollection);
-    leptonscands_LLLLss0= new (CandidateCollection);
-    leptonscands_LLLLss1= new (CandidateCollection);
-    leptonscands_LLLLss2= new (CandidateCollection);
-    leptonscands_LLLl0= new (CandidateCollection);
-    leptonscands_LLLl1= new (CandidateCollection);
-    leptonscands_LLLL= new (CandidateCollection);
 
     for  (int i=0; i<4;i++){ 
       MC_LEPT_PT[i]=-999.;
@@ -3684,7 +3656,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
 
     edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
-    calibrator = new RoccoR(corrPath.fullPath());
+    calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
 
     cout<<"#ROOT TREE open the txt file for muon corrections"<<endl;
    
@@ -3694,9 +3666,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       edm::Ref<edm::View<pat::Muon> > muref(SlimmedMuons,ii);
 
-    TRandom3* rgen_;
-    rgen_ = new TRandom3(0);
     double u = rgen_->Rndm();
+    std::cout << "Random number: " << u << std::endl;
 
     bool Muon_Match = false;
     double Gen_Mu_pt= 0., Gen_Mu_eta= 0., Gen_Mu_phi= 0.;
@@ -5089,7 +5060,7 @@ void fillTracks(const edm::Event& iEvent){
      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
      iSetup.get<JetCorrectionsRecord>().get("AK4PFchs",JetCorParColl);//slimmedJets are ak4PFJetsCHS
      JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-     JetCorrectionUncertainty *jecUnc = new JetCorrectionUncertainty(JetCorPar);
+     std::unique_ptr<JetCorrectionUncertainty> jecUnc = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
 
 /*    
     if (fillMCTruth == 1){
@@ -5712,12 +5683,12 @@ void fillTracks(const edm::Event& iEvent){
 
  
   // tmp candidate collections
-  reco::CandidateCollection *leptonscands2e2mu_;
-  reco::CandidateCollection *leptonscands2e2murf_;
-  reco::CandidateCollection *leptonscands4mu_;
-  reco::CandidateCollection *leptonscands4murf_;
-  reco::CandidateCollection *leptonscands4e_;
-  reco::CandidateCollection *leptonscands4erf_;
+//  reco::CandidateCollection *leptonscands2e2mu_;//unused branch
+//  reco::CandidateCollection *leptonscands2e2murf_;//unused branch
+//  reco::CandidateCollection *leptonscands4mu_;//unused branch
+//  reco::CandidateCollection *leptonscands4murf_;//unused branch
+//  reco::CandidateCollection *leptonscands4e_;//unused branch
+//  reco::CandidateCollection *leptonscands4erf_;//unused branch
   
   reco::CandidateCollection *leptonscands_Z0;
   reco::CandidateCollection *leptonscands_Z1;
@@ -5728,16 +5699,16 @@ void fillTracks(const edm::Event& iEvent){
   reco::CandidateCollection *leptonscands_MMMM;
   reco::CandidateCollection *leptonscands_EEEE;
   reco::CandidateCollection *leptonscands_EEMM;
-  reco::CandidateCollection *leptonscands_LLL0;
-  reco::CandidateCollection *leptonscands_LLL1;
-  reco::CandidateCollection *leptonscands_LLL2;
-  reco::CandidateCollection *leptonscands_LLL3;
-  reco::CandidateCollection *leptonscands_LLLLss0;
-  reco::CandidateCollection *leptonscands_LLLLss1;
-  reco::CandidateCollection *leptonscands_LLLLss2;
-  reco::CandidateCollection *leptonscands_LLLl0;
-  reco::CandidateCollection *leptonscands_LLLl1;
-  reco::CandidateCollection *leptonscands_LLLL;
+//  reco::CandidateCollection *leptonscands_LLL0;//unused branch
+//  reco::CandidateCollection *leptonscands_LLL1;//unused branch
+//  reco::CandidateCollection *leptonscands_LLL2;//unused branch
+//  reco::CandidateCollection *leptonscands_LLL3;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLLss0;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLLss1;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLLss2;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLl0;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLl1;//unused branch
+//  reco::CandidateCollection *leptonscands_LLLL;//unused branch
 
 
   // MC info
@@ -6101,7 +6072,7 @@ void fillTracks(const edm::Event& iEvent){
 
   // Magnetic Field
   edm::ESHandle<MagneticField> magfield_;
-
+  std::unique_ptr<TRandom3> rgen_;
 };
 
 #endif

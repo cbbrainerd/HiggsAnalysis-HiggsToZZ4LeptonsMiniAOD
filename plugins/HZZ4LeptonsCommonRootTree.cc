@@ -57,8 +57,34 @@ HZZ4LeptonsCommonRootTree::HZZ4LeptonsCommonRootTree(const edm::ParameterSet& ps
 
   // Counter of number of analyzed events
   nevt=0;
+  //Create candidate collections
+//    leptonscands2e2mu_= new (CandidateCollection);//unused branch
+//    leptonscands2e2murf_= new (CandidateCollection);//unused branch
+//    leptonscands4mu_= new (CandidateCollection);//unused branch
+//    leptonscands4murf_= new (CandidateCollection);//unused branch
+//    leptonscands4e_= new (CandidateCollection);//unused branch
+//    leptonscands4erf_= new (CandidateCollection);//unused branch
 
-  
+    leptonscands_Z0= new (CandidateCollection);
+    leptonscands_Z1= new (CandidateCollection);
+    leptonscands_Zss0= new (CandidateCollection);
+    leptonscands_Zss1= new (CandidateCollection);
+    leptonscands_Zcross= new (CandidateCollection);
+    leptonscands_DiLep= new (CandidateCollection);
+    leptonscands_MMMM= new (CandidateCollection);
+    leptonscands_EEEE= new (CandidateCollection);
+    leptonscands_EEMM= new (CandidateCollection);
+//    leptonscands_LLL0= new (CandidateCollection);//unused branch
+//    leptonscands_LLL1= new (CandidateCollection);//unused branch
+//    leptonscands_LLL2= new (CandidateCollection);//unused branch
+//    leptonscands_LLL3= new (CandidateCollection);//unused branch
+//    leptonscands_LLLLss0= new (CandidateCollection);//unused branch
+//    leptonscands_LLLLss1= new (CandidateCollection);//unused branch
+//    leptonscands_LLLLss2= new (CandidateCollection);//unused branch
+//    leptonscands_LLLl0= new (CandidateCollection);//unused branch
+//    leptonscands_LLLl1= new (CandidateCollection);//unused branch
+//    leptonscands_LLLL= new (CandidateCollection);//unused branch
+    rgen_ = std::unique_ptr<TRandom3>(new TRandom3(0));
 }
 
 // Destructor
@@ -66,7 +92,7 @@ HZZ4LeptonsCommonRootTree::~HZZ4LeptonsCommonRootTree() {
 
   // Write the histos to file
   theFile_->cd();
-  theFile_->Write() ;
+  theFile_->Write();
   theFile_->Close();
 
   cout << "Number of events analysed for the ROOT tree= " << nevt << std::endl;

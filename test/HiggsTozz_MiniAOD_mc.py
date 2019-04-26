@@ -138,7 +138,7 @@ setupEgammaPostRecoSeq(process,
 
 #/////////////////////////////////////////////////////
 
-process.load('HiggsAnalysis/HiggsToZZ4Leptons/hTozzTo4leptonsPreselection_data_noskim_cff')  
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsPreselection_data_noskim_cff')  
 
 #@#process.calibratedPatElectrons.isMC = cms.bool(True)#Reham Run2 2017
 
@@ -209,6 +209,8 @@ process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+process.SimpleMemoryCheck=cms.Service("SimpleMemoryCheck")
 
 process.source = cms.Source ("PoolSource",
                              

@@ -463,7 +463,7 @@ HZZ4LeptonsRootTree::HZZ4LeptonsRootTree( const edm::ParameterSet& pset )
   //===============================================================================================
   //Create the root file
   theFile_ = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile_->cd();
+  theFile_->cd();
 
   //outputFile_ = pset.getParameter<std::string>("outputFile");
   //rootFile_   = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
@@ -478,7 +478,7 @@ HZZ4LeptonsRootTree::HZZ4LeptonsRootTree( const edm::ParameterSet& pset )
 HZZ4LeptonsRootTree::~HZZ4LeptonsRootTree()
 //========================================================================    
 {
-  delete rootFile_;
+//  delete rootFile_;
 }
 
 //========================================================================
@@ -487,6 +487,7 @@ void HZZ4LeptonsRootTree::beginJob() {
   // go to *OUR* rootfile and book histograms
   //rootFile_->cd();
   //========================================================
+  theFile_->cd();
   mytree = new TTree("HZZ4LeptonsAnalysis", "HZZ4Leptons Analysis Tree");
 
   //=============================================================
@@ -3464,12 +3465,12 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
   RECOHzzEEMM_MatchingMCEta.clear();
   RECOHzzEEMM_MatchingMCPhi.clear();
   //tmp candidate collections
-  /*reco::CandidateCollection *leptonscands2e2mu_;
-    reco::CandidateCollection *leptonscands2e2murf_;
-    reco::CandidateCollection *leptonscands4mu_;
-    reco::CandidateCollection *leptonscands4murf_;
-    reco::CandidateCollection *leptonscands4e_;
-    reco::CandidateCollection *leptonscands4erf_;*/
+//  /*reco::CandidateCollection *leptonscands2e2mu_;//unused branch
+//    reco::CandidateCollection *leptonscands2e2murf_;//unused branch
+//    reco::CandidateCollection *leptonscands4mu_;//unused branch
+//    reco::CandidateCollection *leptonscands4murf_;//unused branch
+//    reco::CandidateCollection *leptonscands4e_;//unused branch
+//    reco::CandidateCollection *leptonscands4erf_;*///unused branch
   
   reco::CandidateCollection *leptonscands_Z0;
   reco::CandidateCollection *leptonscands_Z1;
@@ -3491,12 +3492,12 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
   reco::CandidateCollection *leptonscands_LLLl1;
   reco::CandidateCollection *leptonscands_LLLL;
   
-  /*leptonscands2e2mu_= new (CandidateCollection);
-  leptonscands2e2murf_= new (CandidateCollection);
-  leptonscands4mu_= new (CandidateCollection);
-  leptonscands4murf_= new (CandidateCollection);
-  leptonscands4e_= new (CandidateCollection);
-  leptonscands4erf_= new (CandidateCollection);*/
+//  /*leptonscands2e2mu_= new (CandidateCollection);//unused branch
+//  leptonscands2e2murf_= new (CandidateCollection);//unused branch
+//  leptonscands4mu_= new (CandidateCollection);//unused branch
+//  leptonscands4murf_= new (CandidateCollection);//unused branch
+//  leptonscands4e_= new (CandidateCollection);//unused branch
+//  leptonscands4erf_= new (CandidateCollection);*///unused branch
   
   leptonscands_Z0= new (CandidateCollection);
   leptonscands_Z1= new (CandidateCollection);

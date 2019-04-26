@@ -21,6 +21,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
+class TRandom3;
+class RoccoR;
+
 class HZZ4LeptonsMuonRochesterCalibrator: public edm::EDProducer {
  public:
   explicit HZZ4LeptonsMuonRochesterCalibrator(const edm::ParameterSet& );
@@ -34,7 +37,8 @@ class HZZ4LeptonsMuonRochesterCalibrator: public edm::EDProducer {
   edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodMuonMCMatch_;
   edm::EDGetTokenT<reco::CandidateCollection> myMuons_;
   bool MCTruth;
-  
+  std::unique_ptr<TRandom3> rgen_;
+  std::unique_ptr<RoccoR> calibrator; 
 };
 
 #endif
