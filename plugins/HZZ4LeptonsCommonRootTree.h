@@ -142,7 +142,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 //ArrayVector hack
-#include "HiggsAnalysis/HiggsToZZ4Leptons/include/ArrayVector.hpp"
+#include "HiggsAnalysis/HiggsToZZ4Leptons/interface/ArrayVector.h"
 
 class MultiTrajectoryStateMode ;
 class EgammaTowerIsolation ;
@@ -399,61 +399,61 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     // HLT 
     Tree_->Branch("RECO_nMuHLTMatch",&RECO_nMuHLTMatch,"RECO_nMuHLTMatch/I");
-    Tree_->Branch("RECOMU_PT_MuHLTMatch",RECOMU_PT_MuHLTMatch,"RECOMU_PT_MuHLTMatch[100]/F");
-    Tree_->Branch("RECOMU_ETA_MuHLTMatch",RECOMU_ETA_MuHLTMatch,"RECOMU_ETA_MuHLTMatch[100]/F");
-    Tree_->Branch("RECOMU_PHI_MuHLTMatch",RECOMU_PHI_MuHLTMatch,"RECOMU_PHI_MuHLTMatch[100]/F");
+    Tree_->Branch("RECOMU_PT_MuHLTMatch",&RECOMU_PT_MuHLTMatch,"std::vector<float >");
+    Tree_->Branch("RECOMU_ETA_MuHLTMatch",&RECOMU_ETA_MuHLTMatch,"std::vector<float >");
+    Tree_->Branch("RECOMU_PHI_MuHLTMatch",&RECOMU_PHI_MuHLTMatch,"std::vector<float >");
 
     Tree_->Branch("RECO_nEleHLTMatch",&RECO_nEleHLTMatch,"RECO_nEleHLTMatch/I");
-    Tree_->Branch("RECOELE_PT_EleHLTMatch",RECOELE_PT_EleHLTMatch,"RECOELE_PT_EleHLTMatch[100]/F");
-    Tree_->Branch("RECOELE_ETA_EleHLTMatch",RECOELE_ETA_EleHLTMatch,"RECOELE_ETA_EleHLTMatch[100]/F");
-    Tree_->Branch("RECOELE_PHI_EleHLTMatch",RECOELE_PHI_EleHLTMatch,"RECOELE_PHI_EleHLTMatch[100]/F");
+    Tree_->Branch("RECOELE_PT_EleHLTMatch",&RECOELE_PT_EleHLTMatch,"std::vector<float >");
+    Tree_->Branch("RECOELE_ETA_EleHLTMatch",&RECOELE_ETA_EleHLTMatch,"std::vector<float >");
+    Tree_->Branch("RECOELE_PHI_EleHLTMatch",&RECOELE_PHI_EleHLTMatch,"std::vector<float >");
 
     Tree_->Branch("HLTPathsFired",HLTPathsFired,"HLTPathsFired/C");
 
    
     // MC block 
-    Tree_->Branch("MC_E", MC_E, "MC_E[7]/F"); 
-    Tree_->Branch("MC_PT", MC_PT, "MC_PT[7]/F"); 
-    Tree_->Branch("MC_ETA", MC_ETA, "MC_ETA[7]/F"); 
-    Tree_->Branch("MC_THETA", MC_THETA, "MC_THETA[7]/F");
-    Tree_->Branch("MC_PHI", MC_PHI, "MC_PHI[7]/F");
-    Tree_->Branch("MC_MASS", MC_MASS, "MC_MASS[7]/F");
-    Tree_->Branch("MC_PDGID", &MC_PDGID, "MC_PDGID[7]/F");
+    Tree_->Branch("MC_E",&MC_E,"std::vector<float >"); 
+    Tree_->Branch("MC_PT",&MC_PT,"std::vector<float >"); 
+    Tree_->Branch("MC_ETA",&MC_ETA,"std::vector<float >"); 
+    Tree_->Branch("MC_THETA",&MC_THETA,"std::vector<float >");
+    Tree_->Branch("MC_PHI",&MC_PHI,"std::vector<float >");
+    Tree_->Branch("MC_MASS",&MC_MASS,"std::vector<float >");
+    Tree_->Branch("MC_PDGID",&MC_PDGID,"std::vector<float >");
    
 
     //  Leptons stable ordered in PT
-    Tree_->Branch("MC_LEPT_PT", MC_LEPT_PT, "MC_LEPT_PT[4]/F"); 
-    Tree_->Branch("MC_LEPT_ETA", MC_LEPT_ETA, "MC_LEPT_ETA[4]/F"); 
-    Tree_->Branch("MC_LEPT_PHI", MC_LEPT_PHI, "MC_LEPT_PHI[4]/F"); 
-    Tree_->Branch("MC_LEPT_THETA", MC_LEPT_THETA, "MC_LEPT_THETA[4]/F"); 
-    Tree_->Branch("MC_LEPT_PDGID", MC_LEPT_PDGID, "MC_LEPT_PDGID[4]/F");
+    Tree_->Branch("MC_LEPT_PT",&MC_LEPT_PT,"std::vector<float >"); 
+    Tree_->Branch("MC_LEPT_ETA",&MC_LEPT_ETA,"std::vector<float >"); 
+    Tree_->Branch("MC_LEPT_PHI",&MC_LEPT_PHI,"std::vector<float >"); 
+    Tree_->Branch("MC_LEPT_THETA",&MC_LEPT_THETA,"std::vector<float >"); 
+    Tree_->Branch("MC_LEPT_PDGID",&MC_LEPT_PDGID,"std::vector<float >");
 
     // MC Z1, Z2 (first index) and daughter leptons and photon (second index, order: L1, L2, P1, P2 with PT ordering of the leptons and P1 associated to L1)
-    Tree_->Branch("MC_Z_PT", MC_Z_PT, "MC_Z_PT[2][5]/F");
-    Tree_->Branch("MC_Z_ETA", MC_Z_ETA, "MC_Z_ETA[2][5]/F");
-    Tree_->Branch("MC_Z_PHI", MC_Z_PHI, "MC_Z_PHI[2][5]/F");
-    Tree_->Branch("MC_Z_THETA", MC_Z_THETA, "MC_Z_THETA[2][5]/F");
-    Tree_->Branch("MC_Z_MASS", MC_Z_MASS, "MC_Z_MASS[2][5]/F");
-    Tree_->Branch("MC_Z_PDGID", MC_Z_PDGID, "MC_Z_PDGID[2][5]/F");
+    Tree_->Branch("MC_Z_PT",&MC_Z_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_Z_ETA",&MC_Z_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_Z_PHI",&MC_Z_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_Z_THETA",&MC_Z_THETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_Z_MASS",&MC_Z_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_Z_PDGID",&MC_Z_PDGID,"std::vector<std::vector<float > >");
 
     // 4l from stable particles
-    Tree_->Branch("MC_fourl_MASS",MC_fourl_MASS,"MC_fourl_MASS[50][5]/F");
-    Tree_->Branch("MC_fourl_PT",MC_fourl_PT,"MC_fourl_PT[50][5]/F");
-    Tree_->Branch("MC_fourl_PDGID",MC_fourl_PDGID,"MC_fourl_PDGID[50][5]/F");
+    Tree_->Branch("MC_fourl_MASS",&MC_fourl_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_fourl_PT",&MC_fourl_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_fourl_PDGID",&MC_fourl_PDGID,"std::vector<std::vector<float > >");
 
     // diZ
-    Tree_->Branch("MC_ZZ_MASS",MC_ZZ_MASS,"MC_ZZ_MASS[4][7]/F");
-    Tree_->Branch("MC_ZZ_PT",MC_ZZ_PT,"MC_ZZ_PT[4][7]/F");
-    Tree_->Branch("MC_ZZ_ETA",MC_ZZ_ETA,"MC_ZZ_ETA[4][7]/F");
-    Tree_->Branch("MC_ZZ_PHI",MC_ZZ_PHI,"MC_ZZ_PHI[4][7]/F");
-    Tree_->Branch("MC_ZZ_THETA",MC_ZZ_THETA,"MC_ZZ_THETA[4][7]/F");
-    Tree_->Branch("MC_ZZ_PDGID",MC_ZZ_PDGID,"MC_ZZ_PDGID[4][7]/F");
+    Tree_->Branch("MC_ZZ_MASS",&MC_ZZ_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_ZZ_PT",&MC_ZZ_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_ZZ_ETA",&MC_ZZ_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_ZZ_PHI",&MC_ZZ_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_ZZ_THETA",&MC_ZZ_THETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("MC_ZZ_PDGID",&MC_ZZ_PDGID,"std::vector<std::vector<float > >");
 
 
     // GenJet
-    Tree_->Branch( "MC_GENJET_PT",  MC_GENJET_PT,  "MC_GENJET_PT[100]/F");
-    Tree_->Branch( "MC_GENJET_ETA", MC_GENJET_ETA, "MC_GENJET_ETA[100]/F");
-    Tree_->Branch( "MC_GENJET_PHI", MC_GENJET_PHI, "MC_GENJET_PHI[100]/F");
+    Tree_->Branch( "MC_GENJET_PT",&MC_GENJET_PT,"std::vector<float >");
+    Tree_->Branch( "MC_GENJET_ETA",&MC_GENJET_ETA,"std::vector<float >");
+    Tree_->Branch( "MC_GENJET_PHI",&MC_GENJET_PHI,"std::vector<float >");
 
     // GenMET  
     Tree_->Branch("MC_GENMET", &genmet, "MC_GENMET/F");
@@ -461,567 +461,567 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   
      // RECORF block 2e2mu
     
-    Tree_->Branch("RECORF_2e2mu_cosTheta1_spin",RECORF_2e2mu_cosTheta1_spin,"RECORF_2e2mu_cosTheta1_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_cosTheta2_spin",RECORF_2e2mu_cosTheta2_spin,"RECORF_2e2mu_cosTheta2_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_cosThetaStar_spin",RECORF_2e2mu_cosThetaStar_spin,"RECORF_2e2mu_cosThetaStar_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_Phi_spin",RECORF_2e2mu_Phi_spin,"RECORF_2e2mu_Phi_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_Phi1_spin",RECORF_2e2mu_Phi1_spin,"RECORF_2e2mu_Phi1_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_Phi2_spin",RECORF_2e2mu_Phi2_spin,"RECORF_2e2mu_Phi2_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_phi1RF_spin",RECORF_2e2mu_phi1RF_spin,"RECORF_2e2mu_phi1RF_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_phi2RF_spin",RECORF_2e2mu_phi2RF_spin,"RECORF_2e2mu_phi2RF_spin[100]/D");
-    Tree_->Branch("RECORF_2e2mu_MELA",RECORF_2e2mu_MELA,"RECORF_2e2mu_MELA[100]/D");
+    Tree_->Branch("RECORF_2e2mu_cosTheta1_spin",&RECORF_2e2mu_cosTheta1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_cosTheta2_spin",&RECORF_2e2mu_cosTheta2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_cosThetaStar_spin",&RECORF_2e2mu_cosThetaStar_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_Phi_spin",&RECORF_2e2mu_Phi_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_Phi1_spin",&RECORF_2e2mu_Phi1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_Phi2_spin",&RECORF_2e2mu_Phi2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_phi1RF_spin",&RECORF_2e2mu_phi1RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_phi2RF_spin",&RECORF_2e2mu_phi2RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_2e2mu_MELA",&RECORF_2e2mu_MELA,"std::vector<double >");
 
    
-    Tree_->Branch("RECORF_4e_cosTheta1_spin", RECORF_4e_cosTheta1_spin,"RECORF_4e_cosTheta1_spin[100]/D");
-    Tree_->Branch("RECORF_4e_cosTheta2_spin", RECORF_4e_cosTheta2_spin,"RECORF_4e_cosTheta2_spin[100]/D");
-    Tree_->Branch("RECORF_4e_cosThetaStar_spin",RECORF_4e_cosThetaStar_spin,"RECORF_4e_cosThetaStar_spin[100]/D");
-    Tree_->Branch("RECORF_4e_Phi_spin", RECORF_4e_Phi_spin,"RECORF_4e_Phi_spin[100]/D");
-    Tree_->Branch("RECORF_4e_Phi1_spin", RECORF_4e_Phi1_spin,"RECORF_4e_Phi1_spin[100]/D");
-    Tree_->Branch("RECORF_4e_Phi2_spin", RECORF_4e_Phi2_spin,"RECORF_4e_Phi2_spin[100]/D");
-    Tree_->Branch("RECORF_4e_phi1RF_spin", RECORF_4e_phi1RF_spin,"RECORF_4e_phi1RF_spin[100]/D");
-    Tree_->Branch("RECORF_4e_phi2RF_spin", RECORF_4e_phi2RF_spin,"RECORF_4e_phi2RF_spin[100]/D");
-    Tree_->Branch("RECORF_4e_MELA", RECORF_4e_MELA,"RECORF_4e_MELA[100]/D");
+    Tree_->Branch("RECORF_4e_cosTheta1_spin",&RECORF_4e_cosTheta1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_cosTheta2_spin",&RECORF_4e_cosTheta2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_cosThetaStar_spin",&RECORF_4e_cosThetaStar_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_Phi_spin",&RECORF_4e_Phi_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_Phi1_spin",&RECORF_4e_Phi1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_Phi2_spin",&RECORF_4e_Phi2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_phi1RF_spin",&RECORF_4e_phi1RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_phi2RF_spin",&RECORF_4e_phi2RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4e_MELA",&RECORF_4e_MELA,"std::vector<double >");
      
-    Tree_->Branch("RECORF_4mu_cosTheta1_spin", RECORF_4mu_cosTheta1_spin,"RECORF_4mu_cosTheta1_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_cosTheta2_spin", RECORF_4mu_cosTheta2_spin,"RECORF_4mu_cosTheta2_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_cosThetaStar_spin", RECORF_4mu_cosThetaStar_spin,"RECORF_4mu_cosThetaStar_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_Phi_spin", RECORF_4mu_Phi_spin,"RECORF_4mu_Phi_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_Phi1_spin", RECORF_4mu_Phi1_spin,"RECORF_4mu_Phi1_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_Phi2_spin", RECORF_4mu_Phi2_spin,"RECORF_4mu_Phi2_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_phi1RF_spin", RECORF_4mu_phi1RF_spin,"RECORF_4mu_phi1RF_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_phi2RF_spin", RECORF_4mu_phi2RF_spin,"RECORF_4mu_phi2RF_spin[100]/D");
-    Tree_->Branch("RECORF_4mu_MELA", RECORF_4mu_MELA,"RECORF_4mu_MELA[100]/D");
+    Tree_->Branch("RECORF_4mu_cosTheta1_spin",&RECORF_4mu_cosTheta1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_cosTheta2_spin",&RECORF_4mu_cosTheta2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_cosThetaStar_spin",&RECORF_4mu_cosThetaStar_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_Phi_spin",&RECORF_4mu_Phi_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_Phi1_spin",&RECORF_4mu_Phi1_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_Phi2_spin",&RECORF_4mu_Phi2_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_phi1RF_spin",&RECORF_4mu_phi1RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_phi2RF_spin",&RECORF_4mu_phi2RF_spin,"std::vector<double >");
+    Tree_->Branch("RECORF_4mu_MELA",&RECORF_4mu_MELA,"std::vector<double >");
 
 
 
     // RECO additional block for reconstructed higgs, Z and their daughters
-    Tree_->Branch("RECO_ZMM_MASS", RECO_ZMM_MASS, "RECO_ZMM_MASS[50]/F");
-    Tree_->Branch("RECO_ZEE_MASS", RECO_ZEE_MASS, "RECO_ZEE_MASS[50]/F");
-    Tree_->Branch("RECO_DiLep_MASS", RECO_DiLep_MASS, "RECO_DiLep_MASS[50]/F");
-    Tree_->Branch("RECO_ZMM_PT", RECO_ZMM_PT, "RECO_ZMM_PT[3][50]/F");
-    Tree_->Branch("RECO_ZEE_PT", RECO_ZEE_PT, "RECO_ZEE_PT[3][50]/F");  
-    Tree_->Branch("RECO_DiLep_PT", RECO_DiLep_PT, "RECO_DiLep_PT[3][50]/F");  
-    Tree_->Branch("RECO_ZMM_ETA", RECO_ZMM_ETA, "RECO_ZMM_ETA[3][50]/F");
-    Tree_->Branch("RECO_ZEE_ETA", RECO_ZEE_ETA, "RECO_ZEE_ETA[3][50]/F");
-    Tree_->Branch("RECO_DiLep_ETA", RECO_DiLep_ETA, "RECO_DiLep_ETA[3][50]/F");  
-    Tree_->Branch("RECO_ZMM_PHI", RECO_ZMM_PHI, "RECO_ZMM_PHI[3][50]/F");
-    Tree_->Branch("RECO_ZEE_PHI", RECO_ZEE_PHI, "RECO_ZEE_PHI[3][50]/F");
-    Tree_->Branch("RECO_DiLep_PHI", RECO_DiLep_PHI, "RECO_DiLep_PHI[3][50]/F");  
+    Tree_->Branch("RECO_ZMM_MASS",&RECO_ZMM_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_ZEE_MASS",&RECO_ZEE_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_DiLep_MASS",&RECO_DiLep_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_ZMM_PT",&RECO_ZMM_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEE_PT",&RECO_ZEE_PT,"std::vector<std::vector<float > >");  
+    Tree_->Branch("RECO_DiLep_PT",&RECO_DiLep_PT,"std::vector<std::vector<float > >");  
+    Tree_->Branch("RECO_ZMM_ETA",&RECO_ZMM_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEE_ETA",&RECO_ZEE_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_DiLep_ETA",&RECO_DiLep_ETA,"std::vector<std::vector<float > >");  
+    Tree_->Branch("RECO_ZMM_PHI",&RECO_ZMM_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEE_PHI",&RECO_ZEE_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_DiLep_PHI",&RECO_DiLep_PHI,"std::vector<std::vector<float > >");  
                               
-    Tree_->Branch("RECO_ZMMss_MASS", RECO_ZMMss_MASS, "RECO_ZMMss_MASS[50]/F");
-    Tree_->Branch("RECO_ZEEss_MASS", RECO_ZEEss_MASS, "RECO_ZEEss_MASS[50]/F");
-    Tree_->Branch("RECO_ZEM_MASS", RECO_ZEM_MASS, "RECO_ZEM_MASS[50]/F");
-    Tree_->Branch("RECO_ZMMss_PT", RECO_ZMMss_PT, "RECO_ZMMss_PT[3][50]/F");
-    Tree_->Branch("RECO_ZEEss_PT", RECO_ZEEss_PT, "RECO_ZEEss_PT[3][50]/F");
-    Tree_->Branch("RECO_ZEM_PT", RECO_ZEM_PT, "RECO_ZEM_PT[3][50]/F");
-    Tree_->Branch("RECO_ZMMss_ETA", RECO_ZMMss_ETA, "RECO_ZMMss_ETA[3][50]/F");
-    Tree_->Branch("RECO_ZEEss_ETA", RECO_ZEEss_ETA, "RECO_ZEEss_ETA[3][50]/F");
-    Tree_->Branch("RECO_ZEM_ETA", RECO_ZEM_ETA, "RECO_ZEM_ETA[3][50]/F");
-    Tree_->Branch("RECO_ZMMss_PHI", RECO_ZMMss_PHI, "RECO_ZMMss_PHI[3][50]/F");
-    Tree_->Branch("RECO_ZEEss_PHI", RECO_ZEEss_PHI, "RECO_ZEEss_PHI[3][50]/F");
-    Tree_->Branch("RECO_ZEM_PHI", RECO_ZEM_PHI, "RECO_ZEM_PHI[3][50]/F");
+    Tree_->Branch("RECO_ZMMss_MASS",&RECO_ZMMss_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_ZEEss_MASS",&RECO_ZEEss_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_ZEM_MASS",&RECO_ZEM_MASS,"std::vector<float >");
+    Tree_->Branch("RECO_ZMMss_PT",&RECO_ZMMss_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEEss_PT",&RECO_ZEEss_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEM_PT",&RECO_ZEM_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZMMss_ETA",&RECO_ZMMss_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEEss_ETA",&RECO_ZEEss_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEM_ETA",&RECO_ZEM_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZMMss_PHI",&RECO_ZMMss_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEEss_PHI",&RECO_ZEEss_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_ZEM_PHI",&RECO_ZEM_PHI,"std::vector<std::vector<float > >");
 
     
-    Tree_->Branch("RECO_MMMM_MASS", RECO_MMMM_MASS, "RECO_MMMM_MASS[7][100]/F");
-    Tree_->Branch("RECO_MMMM_PT", RECO_MMMM_PT, "RECO_MMMM_PT[7][100]/F");
-    Tree_->Branch("RECO_MMMM_ETA", RECO_MMMM_ETA, "RECO_MMMM_ETA[7][100]/F");
-    Tree_->Branch("RECO_MMMM_PHI", RECO_MMMM_PHI, "RECO_MMMM_PHI[7][100]/F");
-    Tree_->Branch("RECO_MMMM_MASS_REFIT", RECO_MMMM_MASS_REFIT, "RECO_MMMM_MASS_REFIT[100]/F");
+    Tree_->Branch("RECO_MMMM_MASS",&RECO_MMMM_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_MMMM_PT",&RECO_MMMM_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_MMMM_ETA",&RECO_MMMM_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_MMMM_PHI",&RECO_MMMM_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_MMMM_MASS_REFIT",&RECO_MMMM_MASS_REFIT,"std::vector<float >");
 
-    Tree_->Branch("RECO_EEEE_MASS", RECO_EEEE_MASS, "RECO_EEEE_MASS[7][100]/F");
-    Tree_->Branch("RECO_EEEE_PT", RECO_EEEE_PT, "RECO_EEEE_PT[7][100]/F"); 
-    Tree_->Branch("RECO_EEEE_ETA", RECO_EEEE_ETA, "RECO_EEEE_ETA[7][100]/F");
-    Tree_->Branch("RECO_EEEE_PHI", RECO_EEEE_PHI, "RECO_EEEE_PHI[7][100]/F");
-    Tree_->Branch("RECO_EEEE_MASS_REFIT", RECO_EEEE_MASS_REFIT, "RECO_EEEE_MASS_REFIT[100]/F");
+    Tree_->Branch("RECO_EEEE_MASS",&RECO_EEEE_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEEE_PT",&RECO_EEEE_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_EEEE_ETA",&RECO_EEEE_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEEE_PHI",&RECO_EEEE_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEEE_MASS_REFIT",&RECO_EEEE_MASS_REFIT,"std::vector<float >");
 
-    Tree_->Branch("RECO_EEMM_MASS", RECO_EEMM_MASS, "RECO_EEMM_MASS[7][100]/F");
-    Tree_->Branch("RECO_EEMM_PT", RECO_EEMM_PT, "RECO_EEMM_PT[7][100]/F");
-    Tree_->Branch("RECO_EEMM_ETA", RECO_EEMM_ETA, "RECO_EEMM_ETA[7][100]/F");
-    Tree_->Branch("RECO_EEMM_PHI", RECO_EEMM_PHI, "RECO_EEMM_PHI[7][100]/F");
-    Tree_->Branch("RECO_EEMM_MASS_REFIT", RECO_EEMM_MASS_REFIT, "RECO_EEMM_MASS_REFIT[100]/F");
+    Tree_->Branch("RECO_EEMM_MASS",&RECO_EEMM_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEMM_PT",&RECO_EEMM_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEMM_ETA",&RECO_EEMM_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEMM_PHI",&RECO_EEMM_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_EEMM_MASS_REFIT",&RECO_EEMM_MASS_REFIT,"std::vector<float >");
 
-    Tree_->Branch("RECO_LLL0_MASS", RECO_LLL0_MASS, "RECO_LLL0_MASS[50]/F"); 
-    Tree_->Branch("RECO_LLL1_MASS", RECO_LLL1_MASS, "RECO_LLL1_MASS[50]/F"); 
-    Tree_->Branch("RECO_LLL2_MASS", RECO_LLL2_MASS, "RECO_LLL2_MASS[50]/F"); 
-    Tree_->Branch("RECO_LLL3_MASS", RECO_LLL3_MASS, "RECO_LLL3_MASS[50]/F"); 
-    Tree_->Branch("RECO_LLL0_PT", RECO_LLL0_PT, "RECO_LLL0_PT[4][50]/F"); 
-    Tree_->Branch("RECO_LLL1_PT", RECO_LLL1_PT, "RECO_LLL1_PT[4][50]/F"); 
-    Tree_->Branch("RECO_LLL2_PT", RECO_LLL2_PT, "RECO_LLL2_PT[4][50]/F"); 
-    Tree_->Branch("RECO_LLL3_PT", RECO_LLL3_PT, "RECO_LLL3_PT[4][50]/F"); 
+    Tree_->Branch("RECO_LLL0_MASS",&RECO_LLL0_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLL1_MASS",&RECO_LLL1_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLL2_MASS",&RECO_LLL2_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLL3_MASS",&RECO_LLL3_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLL0_PT",&RECO_LLL0_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLL1_PT",&RECO_LLL1_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLL2_PT",&RECO_LLL2_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLL3_PT",&RECO_LLL3_PT,"std::vector<std::vector<float > >"); 
 
-    Tree_->Branch("RECO_LLLl0_MASS", RECO_LLLl0_MASS, "RECO_LLLl0_MASS[20]/F"); 
-    Tree_->Branch("RECO_LLLl1_MASS", RECO_LLLl1_MASS, "RECO_LLLl1_MASS[20]/F"); 
-    Tree_->Branch("RECO_LLLl0_PT", RECO_LLLl0_PT, "RECO_LLLl0_PT[5][20]/F"); 
-    Tree_->Branch("RECO_LLLl1_PT", RECO_LLLl1_PT, "RECO_LLLl1_PT[5][20]/F"); 
+    Tree_->Branch("RECO_LLLl0_MASS",&RECO_LLLl0_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLLl1_MASS",&RECO_LLLl1_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLLl0_PT",&RECO_LLLl0_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLLl1_PT",&RECO_LLLl1_PT,"std::vector<std::vector<float > >"); 
 
-    Tree_->Branch("RECO_LLLL0ss_MASS", RECO_LLLL0ss_MASS, "RECO_LLLL0ss_MASS[20]/F"); 
-    Tree_->Branch("RECO_LLLL0ss_PT", RECO_LLLL0ss_PT, "RECO_LLLL0ss_PT[5][20]/F"); 
-    Tree_->Branch("RECO_LLLL1ss_MASS", RECO_LLLL1ss_MASS, "RECO_LLLL1ss_MASS[20]/F"); 
-    Tree_->Branch("RECO_LLLL1ss_PT", RECO_LLLL1ss_PT, "RECO_LLLL1ss_PT[5][20]/F"); 
-    Tree_->Branch("RECO_LLLL2ss_MASS", RECO_LLLL2ss_MASS, "RECO_LLLL2ss_MASS[20]/F"); 
-    Tree_->Branch("RECO_LLLL2ss_PT", RECO_LLLL2ss_PT, "RECO_LLLL2ss_PT[5][20]/F"); 
+    Tree_->Branch("RECO_LLLL0ss_MASS",&RECO_LLLL0ss_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLLL0ss_PT",&RECO_LLLL0ss_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLLL1ss_MASS",&RECO_LLLL1ss_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLLL1ss_PT",&RECO_LLLL1ss_PT,"std::vector<std::vector<float > >"); 
+    Tree_->Branch("RECO_LLLL2ss_MASS",&RECO_LLLL2ss_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECO_LLLL2ss_PT",&RECO_LLLL2ss_PT,"std::vector<std::vector<float > >"); 
        
-    //Tree_->Branch("RECOcollNameLLLLssos_MASS",RECOcollNameLLLLssos_MASS,"RECOcollNameLLLLssos_MASS[20]/F");
-    //Tree_->Branch("RECOcollNameLLLLssos_PT",RECOcollNameLLLLssos_PT,"RECOcollNameLLLLssos_PT[5][20]/F");
+    //Tree_->Branch("RECOcollNameLLLLssos_MASS",&RECOcollNameLLLLssos_MASS,"std::vector<float >");
+    //Tree_->Branch("RECOcollNameLLLLssos_PT",&RECOcollNameLLLLssos_PT,"std::vector<std::vector<float > >");
 
-    Tree_->Branch("RECO_LLLL_MASS", RECO_LLLL_MASS, "RECO_LLLL_MASS[7][50]/F");
-    Tree_->Branch("RECO_LLLL_PT", RECO_LLLL_PT, "RECO_LLLL_PT[7][50]/F");
-    Tree_->Branch("RECO_LLLL_ETA", RECO_LLLL_ETA, "RECO_LLLL_ETA[7][50]/F");
-    Tree_->Branch("RECO_LLLL_PHI", RECO_LLLL_PHI, "RECO_LLLL_PHI[7][50]/F");
+    Tree_->Branch("RECO_LLLL_MASS",&RECO_LLLL_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_LLLL_PT",&RECO_LLLL_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_LLLL_ETA",&RECO_LLLL_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_LLLL_PHI",&RECO_LLLL_PHI,"std::vector<std::vector<float > >");
  
    
     // Electron block
-    Tree_->Branch("RECOELE_E", RECOELE_E, "RECOELE_E[100]/F"); 
-    Tree_->Branch("RECOELE_PT",RECOELE_PT,"RECOELE_PT[100]/F");
-    Tree_->Branch("RECOELE_PTError",RECOELE_PTError,"RECOELE_PTError[100]/F");
-    Tree_->Branch("RECOELE_P",RECOELE_P,"RECOELE_P[100]/F");
-    Tree_->Branch("RECOELE_ETA",RECOELE_ETA,"RECOELE_ETA[100]/F"); 
-    Tree_->Branch("RECOELE_THETA",RECOELE_THETA,"RECOELE_THETA[100]/F"); 
-    Tree_->Branch("RECOELE_PHI",RECOELE_PHI,"RECOELE_PHI[100]/F"); 
-    Tree_->Branch("RECOELE_MASS",RECOELE_MASS,"RECOELE_MASS[100]/F"); 
-    Tree_->Branch("RECOELE_CHARGE",RECOELE_CHARGE,"RECOELE_CHARGE[100]/F"); 
+    Tree_->Branch("RECOELE_E",&RECOELE_E,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_PT",&RECOELE_PT,"std::vector<float >");
+    Tree_->Branch("RECOELE_PTError",&RECOELE_PTError,"std::vector<float >");
+    Tree_->Branch("RECOELE_P",&RECOELE_P,"std::vector<float >");
+    Tree_->Branch("RECOELE_ETA",&RECOELE_ETA,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_THETA",&RECOELE_THETA,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_PHI",&RECOELE_PHI,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_MASS",&RECOELE_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_CHARGE",&RECOELE_CHARGE,"std::vector<float >"); 
   
     //Reham
-    Tree_->Branch("RECOELE_ID",RECOELE_ID,"RECOELE_ID[100]/F");
-    Tree_->Branch("RECOELE_PT_uncorr",RECOELE_PT_uncorr,"RECOELE_PT_uncorr[100]/F");
+    Tree_->Branch("RECOELE_ID",&RECOELE_ID,"std::vector<float >");
+    Tree_->Branch("RECOELE_PT_uncorr",&RECOELE_PT_uncorr,"std::vector<float >");
 
     // Core attributes
-    Tree_->Branch("RECOELE_isEcalDriven",   RECOELE_isEcalDriven,   "RECOELE_isEcalDriven[100]/b");   
-    Tree_->Branch("RECOELE_isTrackerDriven",RECOELE_isTrackerDriven,"RECOELE_isTrackerDriven[100]/b");  
-    Tree_->Branch("RECOELE_gsftrack_NPixHits",RECOELE_gsftrack_NPixHits,"RECOELE_gsftrack_NPixHits[100]/f");
-    Tree_->Branch("RECOELE_gsftrack_NStripHits",RECOELE_gsftrack_NStripHits,"RECOELE_gsftrack_NStripHits[100]/f");
-    Tree_->Branch("RECOELE_gsftrack_chi2",  RECOELE_gsftrack_chi2, "RECOELE_gsftrack_chi2[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dxyB",  RECOELE_gsftrack_dxyB,"RECOELE_gsftrack_dxyB[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dxy",   RECOELE_gsftrack_dxy,"RECOELE_gsftrack_dxy[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dxyError", RECOELE_gsftrack_dxyError,"RECOELE_gsftrack_dxyError[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dzB",   RECOELE_gsftrack_dzB,"RECOELE_gsftrack_dzB[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dz",    RECOELE_gsftrack_dz,"RECOELE_gsftrack_dz[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_dzError", RECOELE_gsftrack_dzError,"RECOELE_gsftrack_dzError[100]/F");
-    Tree_->Branch("RECOELE_gsftrack_losthits", RECOELE_gsftrack_losthits,"RECOELE_gsftrack_losthits[100]/I");
-    Tree_->Branch("RECOELE_gsftrack_validhits",RECOELE_gsftrack_validhits,"RECOELE_gsftrack_validhits[100]/I");
-    Tree_->Branch("RECOELE_gsftrack_expected_inner_hits",RECOELE_gsftrack_expected_inner_hits,"RECOELE_gsftrack_expected_inner_hits[100]/I") ; 
-    Tree_->Branch("RECOELE_scl_E",  RECOELE_scl_E,"RECOELE_scl_E[100]/F");
-    Tree_->Branch("RECOELE_scl_Et", RECOELE_scl_Et,"RECOELE_scl_Et[100]/F");
-    Tree_->Branch("RECOELE_scl_Eta",RECOELE_scl_Eta,"RECOELE_scl_Eta[100]/F");
-    Tree_->Branch("RECOELE_scl_Phi",RECOELE_scl_Phi,"RECOELE_scl_Phi[100]/F");    
-    Tree_->Branch("RECOELE_ecalEnergy",RECOELE_ecalEnergy,"RECOELE_ecalEnergy[100]/F");
+    Tree_->Branch("RECOELE_isEcalDriven",&RECOELE_isEcalDriven,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isTrackerDriven",&RECOELE_isTrackerDriven,"std::vector<int >");  
+    Tree_->Branch("RECOELE_gsftrack_NPixHits",&RECOELE_gsftrack_NPixHits,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_NStripHits",&RECOELE_gsftrack_NStripHits,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_chi2",&RECOELE_gsftrack_chi2,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dxyB",&RECOELE_gsftrack_dxyB,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dxy",&RECOELE_gsftrack_dxy,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dxyError",&RECOELE_gsftrack_dxyError,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dzB",&RECOELE_gsftrack_dzB,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dz",&RECOELE_gsftrack_dz,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_dzError",&RECOELE_gsftrack_dzError,"std::vector<float >");
+    Tree_->Branch("RECOELE_gsftrack_losthits",&RECOELE_gsftrack_losthits,"std::vector<int >");
+    Tree_->Branch("RECOELE_gsftrack_validhits",&RECOELE_gsftrack_validhits,"std::vector<int >");
+    Tree_->Branch("RECOELE_gsftrack_expected_inner_hits",&RECOELE_gsftrack_expected_inner_hits,"std::vector<int >") ; 
+    Tree_->Branch("RECOELE_scl_E",&RECOELE_scl_E,"std::vector<float >");
+    Tree_->Branch("RECOELE_scl_Et",&RECOELE_scl_Et,"std::vector<float >");
+    Tree_->Branch("RECOELE_scl_Eta",&RECOELE_scl_Eta,"std::vector<float >");
+    Tree_->Branch("RECOELE_scl_Phi",&RECOELE_scl_Phi,"std::vector<float >");    
+    Tree_->Branch("RECOELE_ecalEnergy",&RECOELE_ecalEnergy,"std::vector<float >");
 
     // Track-Cluster Matching    
-    Tree_->Branch("RECOELE_ep",          RECOELE_ep,"RECOELE_ep[100]/F");
-    Tree_->Branch("RECOELE_eSeedp",      RECOELE_eSeedp,"RECOELE_eSeedp[100]/F");
-    Tree_->Branch("RECOELE_eSeedpout",   RECOELE_eSeedpout,"RECOELE_eSeedpout[100]/F");
-    Tree_->Branch("RECOELE_eElepout",    RECOELE_eElepout,"RECOELE_eElepout[100]/F");
-    Tree_->Branch("RECOELE_deltaEtaIn",  RECOELE_deltaEtaIn,"RECOELE_deltaEtaIn[100]/F");
-    Tree_->Branch("RECOELE_deltaEtaSeed",RECOELE_deltaEtaSeed,"RECOELE_deltaEtaSeed[100]/F");
-    Tree_->Branch("RECOELE_deltaEtaEle", RECOELE_deltaEtaEle,"RECOELE_deltaEtaEle[100]/F");
-    Tree_->Branch("RECOELE_deltaPhiIn",  RECOELE_deltaPhiIn,"RECOELE_deltaPhiIn[100]/F");
-    Tree_->Branch("RECOELE_deltaPhiSeed",RECOELE_deltaPhiSeed,"RECOELE_deltaPhiSeed[100]/F");
-    Tree_->Branch("RECOELE_deltaPhiEle", RECOELE_deltaPhiEle,"RECOELE_deltaPhiEle[100]/F");
+    Tree_->Branch("RECOELE_ep",&RECOELE_ep,"std::vector<float >");
+    Tree_->Branch("RECOELE_eSeedp",&RECOELE_eSeedp,"std::vector<float >");
+    Tree_->Branch("RECOELE_eSeedpout",&RECOELE_eSeedpout,"std::vector<float >");
+    Tree_->Branch("RECOELE_eElepout",&RECOELE_eElepout,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaEtaIn",&RECOELE_deltaEtaIn,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaEtaSeed",&RECOELE_deltaEtaSeed,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaEtaEle",&RECOELE_deltaEtaEle,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaPhiIn",&RECOELE_deltaPhiIn,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaPhiSeed",&RECOELE_deltaPhiSeed,"std::vector<float >");
+    Tree_->Branch("RECOELE_deltaPhiEle",&RECOELE_deltaPhiEle,"std::vector<float >");
     // Fiducial flags
-    Tree_->Branch("RECOELE_isbarrel",    RECOELE_isbarrel,   "RECOELE_isbarrel[100]/I");   
-    Tree_->Branch("RECOELE_isendcap",    RECOELE_isendcap,   "RECOELE_isendcap[100]/I");   
-    Tree_->Branch("RECOELE_isGap",       RECOELE_isGap,      "RECOELE_isGap[100]/I");
-    Tree_->Branch("RECOELE_isEBetaGap",  RECOELE_isEBetaGap, "RECOELE_isEBetaGap[100]/I");   
-    Tree_->Branch("RECOELE_isEBphiGap",  RECOELE_isEBphiGap, "RECOELE_isEBphiGap[100]/I");   
-    Tree_->Branch("RECOELE_isEEdeeGap",  RECOELE_isEEdeeGap, "RECOELE_isEEdeeGap[100]/I");   
-    Tree_->Branch("RECOELE_isEEringGap", RECOELE_isEEringGap,"RECOELE_isEEringGap[100]/I");   
+    Tree_->Branch("RECOELE_isbarrel",&RECOELE_isbarrel,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isendcap",&RECOELE_isendcap,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isGap",&RECOELE_isGap,"std::vector<int >");
+    Tree_->Branch("RECOELE_isEBetaGap",&RECOELE_isEBetaGap,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isEBphiGap",&RECOELE_isEBphiGap,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isEEdeeGap",&RECOELE_isEEdeeGap,"std::vector<int >");   
+    Tree_->Branch("RECOELE_isEEringGap",&RECOELE_isEEringGap,"std::vector<int >");   
     // Shower shape
-    Tree_->Branch("RECOELE_sigmaIetaIeta", RECOELE_sigmaIetaIeta, "RECOELE_sigmaIetaIeta[100]/F");   
-    Tree_->Branch("RECOELE_sigmaEtaEta",   RECOELE_sigmaEtaEta,   "RECOELE_sigmaEtaEta[100]/F");   
-    Tree_->Branch("RECOELE_e15",           RECOELE_e15,           "RECOELE_e15[100]/F");   
-    Tree_->Branch("RECOELE_e25max",        RECOELE_e25max,        "RECOELE_e25max[100]/F");   
-    Tree_->Branch("RECOELE_e55",           RECOELE_e55,           "RECOELE_e55[100]/F");   
-    Tree_->Branch("RECOELE_he",            RECOELE_he,            "RECOELE_he[100]/F");   
-    Tree_->Branch("RECOELE_r9",            RECOELE_r9,            "RECOELE_r9[100]/F");   
+    Tree_->Branch("RECOELE_sigmaIetaIeta",&RECOELE_sigmaIetaIeta,"std::vector<float >");   
+    Tree_->Branch("RECOELE_sigmaEtaEta",&RECOELE_sigmaEtaEta,"std::vector<float >");   
+    Tree_->Branch("RECOELE_e15",&RECOELE_e15,"std::vector<float >");   
+    Tree_->Branch("RECOELE_e25max",&RECOELE_e25max,"std::vector<float >");   
+    Tree_->Branch("RECOELE_e55",&RECOELE_e55,"std::vector<float >");   
+    Tree_->Branch("RECOELE_he",&RECOELE_he,"std::vector<float >");   
+    Tree_->Branch("RECOELE_r9",&RECOELE_r9,"std::vector<float >");   
     // Particle flow
-    Tree_->Branch("RECOELE_mva", RECOELE_mva,"RECOELE_mva[100]/F");   
+    Tree_->Branch("RECOELE_mva",&RECOELE_mva,"std::vector<float >");   
     // Brem & Classifaction
-    Tree_->Branch("RECOELE_fbrem",  RECOELE_fbrem,  "RECOELE_fbrem[100]/F");   
-    Tree_->Branch("RECOELE_nbrems", RECOELE_nbrems, "RECOELE_nbrems[100]/I");   
+    Tree_->Branch("RECOELE_fbrem",&RECOELE_fbrem,"std::vector<float >");   
+    Tree_->Branch("RECOELE_nbrems",&RECOELE_nbrems,"std::vector<int >");   
     //  golden/bigbrem/(narrow)/showering/crack
-    Tree_->Branch("RECOELE_Class",  RECOELE_Class,  "RECOELE_Class[100]/I");  
+    Tree_->Branch("RECOELE_Class",&RECOELE_Class,"std::vector<int >");  
     //fBrem addition
-    Tree_->Branch("RECOELE_fbrem_mode", &RECOELE_fbrem_mode,"RECOELE_fbrem_mode[100]/D");
-    Tree_->Branch("RECOELE_fbrem_mean", &RECOELE_fbrem_mean,"RECOELE_fbrem_mean[100]/D");
+    Tree_->Branch("RECOELE_fbrem_mode",&RECOELE_fbrem_mode,"std::vector<double >");
+    Tree_->Branch("RECOELE_fbrem_mean",&RECOELE_fbrem_mean,"std::vector<double >");
     
     // Isolation
-    Tree_->Branch("RECOELE_EGMTRACKISO",RECOELE_EGMTRACKISO,"RECOELE_EGMTRACKISO[100]/F");  
-    Tree_->Branch("RECOELE_EGMHCALISO",RECOELE_EGMHCALISO,"RECOELE_EGMHCALISO[100]/F");  
-    Tree_->Branch("RECOELE_EGMECALISO",RECOELE_EGMECALISO,"RECOELE_EGMECALISO[100]/F"); 
-    Tree_->Branch("RECOELE_EGMX",RECOELE_EGMX,"RECOELE_EGMX[100]/F"); 
+    Tree_->Branch("RECOELE_EGMTRACKISO",&RECOELE_EGMTRACKISO,"std::vector<float >");  
+    Tree_->Branch("RECOELE_EGMHCALISO",&RECOELE_EGMHCALISO,"std::vector<float >");  
+    Tree_->Branch("RECOELE_EGMECALISO",&RECOELE_EGMECALISO,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_EGMX",&RECOELE_EGMX,"std::vector<float >"); 
 
     // PF isolation
-    Tree_->Branch("RECOELE_PFchAllPart",  RECOELE_PFchAllPart,  "RECOELE_PFchAllPart[100]/D");
-    Tree_->Branch("RECOELE_PFchHad",         RECOELE_PFchHad,  "RECOELE_PFchHad[100]/D");
-    Tree_->Branch("RECOELE_PFneuHad",        RECOELE_PFneuHad, "RECOELE_PFneuHad[100]/D");
-    Tree_->Branch("RECOELE_PFphoton",        RECOELE_PFphoton, "RECOELE_PFphoton[100]/D");
-    Tree_->Branch("RECOELE_PFPUchAllPart",   RECOELE_PFPUchAllPart,"RECOELE_PFPUchAllPart[100]/D");
-    Tree_->Branch("RECOELE_PFX_dB",          RECOELE_PFX_dB,   "RECOELE_PFX_dB[100]/D");
-    Tree_->Branch("RECOELE_PFX_rho",         RECOELE_PFX_rho,  "RECOELE_PFX_rho[100]/D");
+    Tree_->Branch("RECOELE_PFchAllPart",&RECOELE_PFchAllPart,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFchHad",&RECOELE_PFchHad,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFneuHad",&RECOELE_PFneuHad,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFphoton",&RECOELE_PFphoton,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFPUchAllPart",&RECOELE_PFPUchAllPart,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFX_dB",&RECOELE_PFX_dB,"std::vector<double >");
+    Tree_->Branch("RECOELE_PFX_rho",&RECOELE_PFX_rho,"std::vector<double >");
 
     // Electron Regression
-    Tree_->Branch("RECOELE_regEnergy",RECOELE_regEnergy,"RECOELE_regEnergy[100]/D");
-    Tree_->Branch("RECOELE_regEnergyError",RECOELE_regEnergyError,"RECOELE_regEnergyError[100]/D");
+    Tree_->Branch("RECOELE_regEnergy",&RECOELE_regEnergy,"std::vector<double >");
+    Tree_->Branch("RECOELE_regEnergyError",&RECOELE_regEnergyError,"std::vector<double >");
     
     // Vertexing DA and KF
-    Tree_->Branch("RECOELE_SIP",RECOELE_SIP,"RECOELE_SIP[100]/F"); 
-    Tree_->Branch("RECOELE_IP",RECOELE_IP,"RECOELE_IP[100]/F"); 
-    Tree_->Branch("RECOELE_IPERROR",RECOELE_IPERROR,"RECOELE_IPERROR[100]/F"); 
-    Tree_->Branch("RECOELE_SIP_KF",RECOELE_SIP_KF,"RECOELE_SIP_KF[100]/F"); 
-    Tree_->Branch("RECOELE_IP_KF",RECOELE_IP_KF,"RECOELE_IP_KF[100]/F"); 
-    Tree_->Branch("RECOELE_IPERROR_KF",RECOELE_IPERROR_KF,"RECOELE_IPERROR_KF[100]/F"); 
+    Tree_->Branch("RECOELE_SIP",&RECOELE_SIP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_IP",&RECOELE_IP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_IPERROR",&RECOELE_IPERROR,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_SIP_KF",&RECOELE_SIP_KF,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_IP_KF",&RECOELE_IP_KF,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_IPERROR_KF",&RECOELE_IPERROR_KF,"std::vector<float >"); 
 
      // GD vertex
-    Tree_->Branch("RECOELE_SIP_GD",RECOELE_SIP_GD,"RECOELE_SIP_GD[100]/F"); //2e2mu
-    Tree_->Branch("RECOELE_SIP_GDEEEE",RECOELE_SIP_GDEEEE,"RECOELE_SIP_GDEEEE[100]/F");  //4e
+    Tree_->Branch("RECOELE_SIP_GD",&RECOELE_SIP_GD,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOELE_SIP_GDEEEE",&RECOELE_SIP_GDEEEE,"std::vector<float >");  //4e
     // Std vertex
-    Tree_->Branch("RECOELE_SIP_Std",RECOELE_SIP_Std,"RECOELE_SIP_Std[100]/F"); //2e2mu
-    Tree_->Branch("RECOELE_SIP_StdEEEE",RECOELE_SIP_StdEEEE,"RECOELE_SIP_StdEEEE[100]/F");  //4e
+    Tree_->Branch("RECOELE_SIP_Std",&RECOELE_SIP_Std,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOELE_SIP_StdEEEE",&RECOELE_SIP_StdEEEE,"std::vector<float >");  //4e
     // Kin vertex
-    Tree_->Branch("RECOELE_SIP_Kin",RECOELE_SIP_Kin,"RECOELE_SIP_Kin[100]/F"); //2e2mu
-    Tree_->Branch("RECOELE_SIP_KinEEEE",RECOELE_SIP_KinEEEE,"RECOELE_SIP_KinEEEE[100]/F");  //4e
+    Tree_->Branch("RECOELE_SIP_Kin",&RECOELE_SIP_Kin,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOELE_SIP_KinEEEE",&RECOELE_SIP_KinEEEE,"std::vector<float >");  //4e
 
 
-    Tree_->Branch("RECOELE_STIP",RECOELE_STIP,"RECOELE_STIP[100]/F"); 
-    Tree_->Branch("RECOELE_SLIP",RECOELE_SLIP,"RECOELE_SLIP[100]/F"); 
-    Tree_->Branch("RECOELE_TIP",RECOELE_TIP,"RECOELE_TIP[100]/F"); 
-    Tree_->Branch("RECOELE_LIP",RECOELE_LIP,"RECOELE_LIP[100]/F"); 
-    Tree_->Branch("RECOELE_TIPERROR",RECOELE_TIPERROR,"RECOELE_TIPERROR[100]/F"); 
-    Tree_->Branch("RECOELE_LIPERROR",RECOELE_LIPERROR,"RECOELE_LIPERROR[100]/F"); 
+    Tree_->Branch("RECOELE_STIP",&RECOELE_STIP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_SLIP",&RECOELE_SLIP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_TIP",&RECOELE_TIP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_LIP",&RECOELE_LIP,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_TIPERROR",&RECOELE_TIPERROR,"std::vector<float >"); 
+    Tree_->Branch("RECOELE_LIPERROR",&RECOELE_LIPERROR,"std::vector<float >"); 
 
-    Tree_->Branch("RECOELE_sclRawE",ele_sclRawE,"RECOELE_sclRawE[100]/D") ;
-    Tree_->Branch("RECOELE_sclX",ele_sclX,"RECOELE_sclX[100]/D") ; 
-    Tree_->Branch("RECOELE_sclY",ele_sclY,"RECOELE_sclY[100]/D") ; 
-    Tree_->Branch("RECOELE_sclZ",ele_sclZ,"RECOELE_sclZ[100]/D") ;
-    Tree_->Branch("RECOELE_seedSubdet1",ele_seedSubdet1,"RECOELE_seedSubdet1[100]/D") ;
-    Tree_->Branch("RECOELE_seedDphi1",ele_seedDphi1,"RECOELE_seedDphi[100]/D") ; 
-    Tree_->Branch("RECOELE_seedDrz1",ele_seedDrz1,"RECOELE_seedDrz1[100]/D") ;
-    Tree_->Branch("RECOELE_seedSubdet2",ele_seedSubdet2,"RECOELE_seedSubdet2[100]/D") ;
-    Tree_->Branch("RECOELE_seedDphi2",ele_seedDphi2,"RECOELE_seedDphi2[100]/D") ; 
-    Tree_->Branch("RECOELE_seedDrz2",ele_seedDrz2,"RECOELE_seedDrz2[100]/D") ;
-    Tree_->Branch("RECOELE_eidVeryLoose",ele_eidVeryLoose,"RECOELE_eidVeryLoose[100]/D") ; 
-    Tree_->Branch("RECOELE_eidLoose",ele_eidLoose,"RECOELE_eidLoose[100]/D") ; 
-    Tree_->Branch("RECOELE_eidMedium",ele_eidMedium,"RECOELE_eidMedium[100]/D") ; 
-    Tree_->Branch("RECOELE_eidTight",ele_eidTight,"RECOELE_eidTight[100]/D") ; 
-    Tree_->Branch("RECOELE_eidHZZVeryLoose",ele_eidHZZVeryLoose,"RECOELE_eidHZZVeryLoose[100]/D") ; 
-    Tree_->Branch("RECOELE_eidHZZLoose",ele_eidHZZLoose,"RECOELE_eidHZZLoose[100]/D") ; 
-    Tree_->Branch("RECOELE_eidHZZMedium",ele_eidHZZMedium,"RECOELE_eidHZZMedium[100]/D") ; 
-    Tree_->Branch("RECOELE_eidHZZTight",ele_eidHZZTight,"RECOELE_eidHZZTight[100]/D") ; 
-    Tree_->Branch("RECOELE_mvaTrigV0",RECOELE_mvaTrigV0,"RECOELE_mvaTrigV0[100]/D") ;     
-    Tree_->Branch("RECOELE_mvaNonTrigV0",RECOELE_mvaNonTrigV0,"RECOELE_mvaNonTrigV0[100]/D") ; 
-    Tree_->Branch("RECOELE_COV",RECOELE_COV,"RECOELE_COV[100][3][3]/D"); 
+    Tree_->Branch("RECOELE_sclRawE",&ele_sclRawE,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_sclX",&ele_sclX,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_sclY",&ele_sclY,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_sclZ",&ele_sclZ,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_seedSubdet1",&ele_seedSubdet1,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_seedDphi1",&ele_seedDphi1,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_seedDrz1",&ele_seedDrz1,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_seedSubdet2",&ele_seedSubdet2,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_seedDphi2",&ele_seedDphi2,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_seedDrz2",&ele_seedDrz2,"std::vector<double >") ;
+    Tree_->Branch("RECOELE_eidVeryLoose",&ele_eidVeryLoose,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidLoose",&ele_eidLoose,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidMedium",&ele_eidMedium,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidTight",&ele_eidTight,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidHZZVeryLoose",&ele_eidHZZVeryLoose,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidHZZLoose",&ele_eidHZZLoose,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidHZZMedium",&ele_eidHZZMedium,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_eidHZZTight",&ele_eidHZZTight,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_mvaTrigV0",&RECOELE_mvaTrigV0,"std::vector<double >") ;     
+    Tree_->Branch("RECOELE_mvaNonTrigV0",&RECOELE_mvaNonTrigV0,"std::vector<double >") ; 
+    Tree_->Branch("RECOELE_COV",&RECOELE_COV,"std::vector<std::vector<std::vector<double > > >"); 
 
-    Tree_->Branch("RECOELE_TLE_ParentSC_X",RECOELE_TLE_ParentSC_X,"RECOELE_TLE_ParentSC_X[20]/F");
-    Tree_->Branch("RECOELE_TLE_ParentSC_Y",RECOELE_TLE_ParentSC_Y,"RECOELE_TLE_ParentSC_Y[20]/F");
-    Tree_->Branch("RECOELE_TLE_ParentSC_Z",RECOELE_TLE_ParentSC_Z,"RECOELE_TLE_ParentSC_Z[20]/F");
+    Tree_->Branch("RECOELE_TLE_ParentSC_X",&RECOELE_TLE_ParentSC_X,"std::vector<float >");
+    Tree_->Branch("RECOELE_TLE_ParentSC_Y",&RECOELE_TLE_ParentSC_Y,"std::vector<float >");
+    Tree_->Branch("RECOELE_TLE_ParentSC_Z",&RECOELE_TLE_ParentSC_Z,"std::vector<float >");
 
 
     //Reham Electron systematic variables
 
-    Tree_->Branch("RECOELE_ecalTrkEnergyPreCorr",RECOELE_ecalTrkEnergyPreCorr,"RECOELE_ecalTrkEnergyPreCorr[100]/F");
-    Tree_->Branch("RECOELE_ecalTrkEnergyErrPreCorr",RECOELE_ecalTrkEnergyErrPreCorr,"RECOELE_ecalTrkEnergyErrPreCorr[100]/F");
-    Tree_->Branch("RECOELE_ecalTrkEnergyErrPostCorr",RECOELE_ecalTrkEnergyErrPostCorr,"RECOELE_ecalTrkEnergyErrPostCorr[100]/F");
-    Tree_->Branch("RECOELE_energyScaleValue",RECOELE_energyScaleValue,"RECOELE_energyScaleValue[100]/F");       
-    Tree_->Branch("RECOELE_energySigmaValue",RECOELE_energySigmaValue, "RECOELE_energySigmaValue[100]/F");
-    Tree_->Branch("RECOELE_energyScaleUp",RECOELE_energyScaleUp,"RECOELE_energyScaleUp[100]/F");     
-    Tree_->Branch("RECOELE_energyScaleDown",RECOELE_energyScaleDown,"RECOELE_energyScaleDown[100]/F");       
-    Tree_->Branch("RECOELE_energyScaleStatUp",RECOELE_energyScaleStatUp,"RECOELE_energyScaleStatUp[100]/F");       
-    Tree_->Branch("RECOELE_energyScaleStatDown",RECOELE_energyScaleStatDown,"RECOELE_energyScaleStatDown[100]/F");        
-    Tree_->Branch("RECOELE_energyScaleSystUp",RECOELE_energyScaleSystUp,"RECOELE_energyScaleSystUp[100]/F");        
-    Tree_->Branch("RECOELE_energyScaleSystDown",RECOELE_energyScaleSystDown,"RECOELE_energyScaleSystDown[100]/F");        
-    Tree_->Branch("RECOELE_energyScaleGainUp",RECOELE_energyScaleGainUp,"RECOELE_energyScaleGainUp[100]/F");        
-    Tree_->Branch("RECOELE_energyScaleGainDown",RECOELE_energyScaleGainDown,"RECOELE_energyScaleGainDown[100]/F");      
-    Tree_->Branch("RECOELE_energyScaleEtUp",RECOELE_energyScaleEtUp,"RECOELE_energyScaleEtUp[100]/F");       
-    Tree_->Branch("RECOELE_energyScaleEtDown",RECOELE_energyScaleEtDown,"RECOELE_energyScaleEtDown[100]/F");       
-    Tree_->Branch("RECOELE_energySigmaUp",RECOELE_energySigmaUp,"RECOELE_energySigmaUp[100]/F");         
-    Tree_->Branch("RECOELE_energySigmaDown",RECOELE_energySigmaDown,"RECOELE_energySigmaDown[100]/F");       
-    Tree_->Branch("RECOELE_energySigmaPhiUp",RECOELE_energySigmaPhiUp,"RECOELE_energySigmaPhiUp[100]/F");        
-    Tree_->Branch("RECOELE_energySigmaPhiDown",RECOELE_energySigmaPhiDown,"RECOELE_energySigmaPhiDown[100]/F");     
-    Tree_->Branch("RECOELE_energySigmaRhoUp",RECOELE_energySigmaRhoUp,"RECOELE_energySigmaRhoUp[100]/F");        
-    Tree_->Branch("RECOELE_energySigmaRhoDown",RECOELE_energySigmaRhoDown,"RECOELE_energySigmaRhoDown[100]/F");      
+    Tree_->Branch("RECOELE_ecalTrkEnergyPreCorr",&RECOELE_ecalTrkEnergyPreCorr,"std::vector<float >");
+    Tree_->Branch("RECOELE_ecalTrkEnergyErrPreCorr",&RECOELE_ecalTrkEnergyErrPreCorr,"std::vector<float >");
+    Tree_->Branch("RECOELE_ecalTrkEnergyErrPostCorr",&RECOELE_ecalTrkEnergyErrPostCorr,"std::vector<float >");
+    Tree_->Branch("RECOELE_energyScaleValue",&RECOELE_energyScaleValue,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energySigmaValue",&RECOELE_energySigmaValue,"std::vector<float >");
+    Tree_->Branch("RECOELE_energyScaleUp",&RECOELE_energyScaleUp,"std::vector<float >");     
+    Tree_->Branch("RECOELE_energyScaleDown",&RECOELE_energyScaleDown,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energyScaleStatUp",&RECOELE_energyScaleStatUp,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energyScaleStatDown",&RECOELE_energyScaleStatDown,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energyScaleSystUp",&RECOELE_energyScaleSystUp,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energyScaleSystDown",&RECOELE_energyScaleSystDown,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energyScaleGainUp",&RECOELE_energyScaleGainUp,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energyScaleGainDown",&RECOELE_energyScaleGainDown,"std::vector<float >");      
+    Tree_->Branch("RECOELE_energyScaleEtUp",&RECOELE_energyScaleEtUp,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energyScaleEtDown",&RECOELE_energyScaleEtDown,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energySigmaUp",&RECOELE_energySigmaUp,"std::vector<float >");         
+    Tree_->Branch("RECOELE_energySigmaDown",&RECOELE_energySigmaDown,"std::vector<float >");       
+    Tree_->Branch("RECOELE_energySigmaPhiUp",&RECOELE_energySigmaPhiUp,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energySigmaPhiDown",&RECOELE_energySigmaPhiDown,"std::vector<float >");     
+    Tree_->Branch("RECOELE_energySigmaRhoUp",&RECOELE_energySigmaRhoUp,"std::vector<float >");        
+    Tree_->Branch("RECOELE_energySigmaRhoDown",&RECOELE_energySigmaRhoDown,"std::vector<float >");      
 
     // Muon block
-    Tree_->Branch("RECOMU_isPFMu", RECOMU_isPFMu, "RECOMU_isPFMu[100]/b");
-    Tree_->Branch("RECOMU_isGlobalMu", RECOMU_isGlobalMu, "RECOMU_isGlobalMu[100]/b");
-    Tree_->Branch("RECOMU_isStandAloneMu", RECOMU_isStandAloneMu, "RECOMU_isStandAloneMu[100]/b");
-    Tree_->Branch("RECOMU_isTrackerMu", RECOMU_isTrackerMu, "RECOMU_isTrackerMu[100]/b");
-    Tree_->Branch("RECOMU_isCaloMu", RECOMU_isCaloMu, "RECOMU_isCaloMu[100]/b");
-    Tree_->Branch("RECOMU_isTrackerHighPtMu", RECOMU_isTrackerHighPtMu, "RECOMU_isTrackerHighPtMu[100]/b");
-    Tree_->Branch("RECOMU_isME0Muon", RECOMU_isME0Muon, "RECOMU_isME0Muon[100]/b");
-    Tree_->Branch("RECOMU_E",RECOMU_E,"RECOMU_E[100]/F"); 
-    Tree_->Branch("RECOMU_PT",RECOMU_PT,"RECOMU_PT[100]/F");
-    Tree_->Branch("RECOMU_P",RECOMU_P,"RECOMU_P[100]/F"); 
-    Tree_->Branch("RECOMU_ETA",RECOMU_ETA,"RECOMU_ETA[100]/F"); 
-    Tree_->Branch("RECOMU_THETA",RECOMU_THETA,"RECOMU_THETA[100]/F"); 
-    Tree_->Branch("RECOMU_PHI",RECOMU_PHI,"RECOMU_PHI[100]/F"); 
-    Tree_->Branch("RECOMU_MASS",RECOMU_MASS,"RECOMU_MASS[100]/F"); 
-    Tree_->Branch("RECOMU_CHARGE",RECOMU_CHARGE,"RECOMU_CHARGE[100]/F");
-    // Tree_->Branch("RECOMU_Roch_calib_error",RECOMU_Roch_calib_error,"RECOMU_Roch_calib_error[100]/F");
-    Tree_->Branch("RECOMU_PT_uncorr",RECOMU_PT_uncorr,"RECOMU_PT_uncorr[100]/F");
+    Tree_->Branch("RECOMU_isPFMu",&RECOMU_isPFMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isGlobalMu",&RECOMU_isGlobalMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isStandAloneMu",&RECOMU_isStandAloneMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isTrackerMu",&RECOMU_isTrackerMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isCaloMu",&RECOMU_isCaloMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isTrackerHighPtMu",&RECOMU_isTrackerHighPtMu,"std::vector<int >");
+    Tree_->Branch("RECOMU_isME0Muon",&RECOMU_isME0Muon,"std::vector<int >");
+    Tree_->Branch("RECOMU_E",&RECOMU_E,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_PT",&RECOMU_PT,"std::vector<float >");
+    Tree_->Branch("RECOMU_P",&RECOMU_P,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_ETA",&RECOMU_ETA,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_THETA",&RECOMU_THETA,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_PHI",&RECOMU_PHI,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_MASS",&RECOMU_MASS,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_CHARGE",&RECOMU_CHARGE,"std::vector<float >");
+    // Tree_->Branch("RECOMU_Roch_calib_error",&RECOMU_Roch_calib_error,"std::vector<float >");
+    Tree_->Branch("RECOMU_PT_uncorr",&RECOMU_PT_uncorr,"std::vector<float >");
 
-    Tree_->Branch("RECOMU_COV",RECOMU_COV,"RECOMU_COV[100][3][3]/D"); 
+    Tree_->Branch("RECOMU_COV",&RECOMU_COV,"std::vector<std::vector<std::vector<double > > >"); 
 
-    Tree_->Branch("RECOMU_TRACKISO",RECOMU_TRACKISO,"RECOMU_TRACKISO[100]/F");  
-    Tree_->Branch("RECOMU_TRACKISO_SUMPT",RECOMU_TRACKISO_SUMPT,"RECOMU_TRACKISO_SUMPT[100]/F");  
-    Tree_->Branch("RECOMU_HCALISO",RECOMU_HCALISO,"RECOMU_HCALISO[100]/F");  
-    Tree_->Branch("RECOMU_ECALISO",RECOMU_ECALISO,"RECOMU_ECALISO[100]/F"); 
-    Tree_->Branch("RECOMU_X",RECOMU_X,"RECOMU_X[100]/F");
+    Tree_->Branch("RECOMU_TRACKISO",&RECOMU_TRACKISO,"std::vector<float >");  
+    Tree_->Branch("RECOMU_TRACKISO_SUMPT",&RECOMU_TRACKISO_SUMPT,"std::vector<float >");  
+    Tree_->Branch("RECOMU_HCALISO",&RECOMU_HCALISO,"std::vector<float >");  
+    Tree_->Branch("RECOMU_ECALISO",&RECOMU_ECALISO,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_X",&RECOMU_X,"std::vector<float >");
 
-    Tree_->Branch("RECOMU_PFchHad",  RECOMU_PFchHad,  "RECOMU_PFchHad[100]/D");
-    Tree_->Branch("RECOMU_PFneuHad", RECOMU_PFneuHad, "RECOMU_PFneuHad[100]/D");
-    Tree_->Branch("RECOMU_PFphoton", RECOMU_PFphoton, "RECOMU_PFphoton[100]/D");
-    Tree_->Branch("RECOMU_PFPUchAllPart",RECOMU_PFPUchAllPart,"RECOMU_PFPUchAllPart[100]/D");
-    Tree_->Branch("RECOMU_PFX_dB",   RECOMU_PFX_dB,   "RECOMU_PFX_dB[100]/D");
-    Tree_->Branch("RECOMU_PFX_rho",  RECOMU_PFX_rho,  "RECOMU_PFX_rho[100]/D");
+    Tree_->Branch("RECOMU_PFchHad",&RECOMU_PFchHad,"std::vector<double >");
+    Tree_->Branch("RECOMU_PFneuHad",&RECOMU_PFneuHad,"std::vector<double >");
+    Tree_->Branch("RECOMU_PFphoton",&RECOMU_PFphoton,"std::vector<double >");
+    Tree_->Branch("RECOMU_PFPUchAllPart",&RECOMU_PFPUchAllPart,"std::vector<double >");
+    Tree_->Branch("RECOMU_PFX_dB",&RECOMU_PFX_dB,"std::vector<double >");
+    Tree_->Branch("RECOMU_PFX_rho",&RECOMU_PFX_rho,"std::vector<double >");
 
 
     // photon
-    Tree_->Branch("RECOPFPHOT_PFchHad",  RECOPFPHOT_PFchHad,  "RECOPFPHOT_PFchHad[20]/D");
-    Tree_->Branch("RECOPFPHOT_PFneuHad", RECOPFPHOT_PFneuHad, "RECOPFPHOT_PFneuHad[20]/D");
-    Tree_->Branch("RECOPFPHOT_PFphoton", RECOPFPHOT_PFphoton, "RECOPFPHOT_PFphoton[20]/D");
-    Tree_->Branch("RECOPFPHOT_PFPUchAllPart",RECOPFPHOT_PFPUchAllPart,"RECOPFPHOT_PFPUchAllPart[20]/D");
-    Tree_->Branch("RECOPFPHOT_PFX_rho",  RECOPFPHOT_PFX_rho,  "RECOPFPHOT_PFX_rho[20]/D");
+    Tree_->Branch("RECOPFPHOT_PFchHad",&RECOPFPHOT_PFchHad,"std::vector<double >");
+    Tree_->Branch("RECOPFPHOT_PFneuHad",&RECOPFPHOT_PFneuHad,"std::vector<double >");
+    Tree_->Branch("RECOPFPHOT_PFphoton",&RECOPFPHOT_PFphoton,"std::vector<double >");
+    Tree_->Branch("RECOPFPHOT_PFPUchAllPart",&RECOPFPHOT_PFPUchAllPart,"std::vector<double >");
+    Tree_->Branch("RECOPFPHOT_PFX_rho",&RECOPFPHOT_PFX_rho,"std::vector<double >");
 
     // vertexing DA and KF
-    Tree_->Branch("RECOMU_SIP",RECOMU_SIP,"RECOMU_SIP[100]/F"); 
-    Tree_->Branch("RECOMU_IP",RECOMU_IP,"RECOMU_IP[100]/F"); 
-    Tree_->Branch("RECOMU_IPERROR",RECOMU_IPERROR,"RECOMU_IPERROR[100]/F"); 
-    Tree_->Branch("RECOMU_SIP_KF",RECOMU_SIP_KF,"RECOMU_SIP_KF[100]/F"); 
-    Tree_->Branch("RECOMU_IP_KF",RECOMU_IP_KF,"RECOMU_IP_KF[100]/F"); 
-    Tree_->Branch("RECOMU_IPERROR_KF",RECOMU_IPERROR_KF,"RECOMU_IPERROR_KF[100]/F"); 
+    Tree_->Branch("RECOMU_SIP",&RECOMU_SIP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_IP",&RECOMU_IP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_IPERROR",&RECOMU_IPERROR,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_SIP_KF",&RECOMU_SIP_KF,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_IP_KF",&RECOMU_IP_KF,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_IPERROR_KF",&RECOMU_IPERROR_KF,"std::vector<float >"); 
 
     // GD vertex
-    Tree_->Branch("RECOMU_SIP_GD",RECOMU_SIP_GD,"RECOMU_SIP_GD[100]/F"); //2e2mu
-    Tree_->Branch("RECOMU_SIP_GDMMMM",RECOMU_SIP_GDMMMM,"RECOMU_SIP_GDMMMM[100]/F");  //4mu
+    Tree_->Branch("RECOMU_SIP_GD",&RECOMU_SIP_GD,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOMU_SIP_GDMMMM",&RECOMU_SIP_GDMMMM,"std::vector<float >");  //4mu
     // Std vertex
-    Tree_->Branch("RECOMU_SIP_Std",RECOMU_SIP_Std,"RECOMU_SIP_Std[100]/F"); //2e2mu
-    Tree_->Branch("RECOMU_SIP_StdMMMM",RECOMU_SIP_StdMMMM,"RECOMU_SIP_StdMMMM[100]/F");  //4mu
+    Tree_->Branch("RECOMU_SIP_Std",&RECOMU_SIP_Std,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOMU_SIP_StdMMMM",&RECOMU_SIP_StdMMMM,"std::vector<float >");  //4mu
     // Kin vertex
-    Tree_->Branch("RECOMU_SIP_Kin",RECOMU_SIP_Kin,"RECOMU_SIP_Kin[100]/F"); //2e2mu
-    Tree_->Branch("RECOMU_SIP_KinMMMM",RECOMU_SIP_KinMMMM,"RECOMU_SIP_KinMMMM[100]/F");  //4mu
+    Tree_->Branch("RECOMU_SIP_Kin",&RECOMU_SIP_Kin,"std::vector<float >"); //2e2mu
+    Tree_->Branch("RECOMU_SIP_KinMMMM",&RECOMU_SIP_KinMMMM,"std::vector<float >");  //4mu
 
 
 
-    Tree_->Branch("RECOMU_STIP",RECOMU_STIP,"RECOMU_STIP[100]/F"); 
-    Tree_->Branch("RECOMU_SLIP",RECOMU_SLIP,"RECOMU_SLIP[100]/F"); 
-    Tree_->Branch("RECOMU_TIP",RECOMU_TIP,"RECOMU_TIP[100]/F"); 
-    Tree_->Branch("RECOMU_LIP",RECOMU_LIP,"RECOMU_LIP[100]/F"); 
-    Tree_->Branch("RECOMU_TIPERROR",RECOMU_TIPERROR,"RECOMU_TIPERROR[100]/F"); 
-    Tree_->Branch("RECOMU_LIPERROR",RECOMU_LIPERROR,"RECOMU_LIPERROR[100]/F"); 
+    Tree_->Branch("RECOMU_STIP",&RECOMU_STIP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_SLIP",&RECOMU_SLIP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_TIP",&RECOMU_TIP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_LIP",&RECOMU_LIP,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_TIPERROR",&RECOMU_TIPERROR,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_LIPERROR",&RECOMU_LIPERROR,"std::vector<float >"); 
     
  
 
-    Tree_->Branch("RECOMU_caloCompatibility",RECOMU_caloCompatibility,"RECOMU_caloCompatibility[100]/F");
-    Tree_->Branch("RECOMU_segmentCompatibility",RECOMU_segmentCompatibility,"RECOMU_segmentCompatibility[100]/F"); 
-    Tree_->Branch("RECOMU_numberOfMatches",RECOMU_numberOfMatches,"RECOMU_numberOfMatches[100]/i");
-    Tree_->Branch("RECOMU_numberOfMatchedStations",RECOMU_numberOfMatchedStations,"RECOMU_numberOfMatchedStations[100]/i");
-    Tree_->Branch("RECOMU_glbmuPromptTight",RECOMU_glbmuPromptTight,"RECOMU_glbmuPromptTight[100]/b");
+    Tree_->Branch("RECOMU_caloCompatibility",&RECOMU_caloCompatibility,"std::vector<float >");
+    Tree_->Branch("RECOMU_segmentCompatibility",&RECOMU_segmentCompatibility,"std::vector<float >"); 
+    Tree_->Branch("RECOMU_numberOfMatches",&RECOMU_numberOfMatches,"std::vector<int >");
+    Tree_->Branch("RECOMU_numberOfMatchedStations",&RECOMU_numberOfMatchedStations,"std::vector<int >");
+    Tree_->Branch("RECOMU_glbmuPromptTight",&RECOMU_glbmuPromptTight,"std::vector<int >");
  
     // track variables from muons:
-    Tree_->Branch( "RECOMU_trkmuArbitration", RECOMU_trkmuArbitration, "RECOMU_trkmuArbitration[100]/b");
-    Tree_->Branch( "RECOMU_trkmu2DCompatibilityLoose", RECOMU_trkmu2DCompatibilityLoose, "RECOMU_trkmu2DCompatibilityLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmu2DCompatibilityTight", RECOMU_trkmu2DCompatibilityTight, "RECOMU_trkmu2DCompatibilityTight[100]/b");
-    Tree_->Branch( "RECOMU_trkmuOneStationLoose", RECOMU_trkmuOneStationLoose, "RECOMU_trkmuOneStationLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmuOneStationTight", RECOMU_trkmuOneStationTight, "RECOMU_trkmuOneStationTight[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationLoose", RECOMU_trkmuLastStationLoose, "RECOMU_trkmuLastStationLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationTight", RECOMU_trkmuLastStationTight, "RECOMU_trkmuLastStationTight[100]/b");
-    Tree_->Branch( "RECOMU_trkmuOneStationAngLoose", RECOMU_trkmuOneStationAngLoose, "RECOMU_trkmuOneStationAngLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmuOneStationAngTight", RECOMU_trkmuOneStationAngTight, "RECOMU_trkmuOneStationAngTight[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationAngLoose", RECOMU_trkmuLastStationAngLoose, "RECOMU_trkmuLastStationAngLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationAngTight", RECOMU_trkmuLastStationAngTight, "RECOMU_trkmuLastStationAngTight[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtLoose",RECOMU_trkmuLastStationOptimizedLowPtLoose , "RECOMU_trkmuLastStationOptimizedLowPtLoose[100]/b");
-    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtTight",RECOMU_trkmuLastStationOptimizedLowPtTight , "RECOMU_trkmuLastStationOptimizedLowPtTight[100]/b");
+    Tree_->Branch( "RECOMU_trkmuArbitration",&RECOMU_trkmuArbitration,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmu2DCompatibilityLoose",&RECOMU_trkmu2DCompatibilityLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmu2DCompatibilityTight",&RECOMU_trkmu2DCompatibilityTight,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuOneStationLoose",&RECOMU_trkmuOneStationLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuOneStationTight",&RECOMU_trkmuOneStationTight,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationLoose",&RECOMU_trkmuLastStationLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationTight",&RECOMU_trkmuLastStationTight,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuOneStationAngLoose",&RECOMU_trkmuOneStationAngLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuOneStationAngTight",&RECOMU_trkmuOneStationAngTight,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationAngLoose",&RECOMU_trkmuLastStationAngLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationAngTight",&RECOMU_trkmuLastStationAngTight,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtLoose",&RECOMU_trkmuLastStationOptimizedLowPtLoose,"std::vector<int >");
+    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtTight",&RECOMU_trkmuLastStationOptimizedLowPtTight,"std::vector<int >");
 
-    Tree_->Branch( "RECOMU_mutrkPT", RECOMU_mutrkPT, "RECOMU_mutrkPT[100]/F");
-    Tree_->Branch( "RECOMU_mutrkPTError", RECOMU_mutrkPTError, "RECOMU_mutrkPTError[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDxy", RECOMU_mutrkDxy, "RECOMU_mutrkDxy[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDxyError", RECOMU_mutrkDxyError, "RECOMU_mutrkDxyError[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDxyB", RECOMU_mutrkDxyB, "RECOMU_mutrkDxyB[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDz", RECOMU_mutrkDz, "RECOMU_mutrkDz[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDzError", RECOMU_mutrkDzError, "RECOMU_mutrkDzError[100]/F");
-    Tree_->Branch( "RECOMU_mutrkDzB", RECOMU_mutrkDzB, "RECOMU_mutrkDzB[100]/F");
-    Tree_->Branch( "RECOMU_mutrkChi2PerNdof", RECOMU_mutrkChi2PerNdof, "RECOMU_mutrkChi2PerNdof[100]/F");
-    Tree_->Branch( "RECOMU_mutrkCharge", RECOMU_mutrkCharge, "RECOMU_mutrkCharge[100]/F");
-    Tree_->Branch( "RECOMU_mutrkNHits", RECOMU_mutrkNHits, "RECOMU_mutrkNHits[100]/F");
-    Tree_->Branch( "RECOMU_mutrkNStripHits", RECOMU_mutrkNStripHits, "RECOMU_mutrkNStripHits[100]/F");
-    Tree_->Branch( "RECOMU_mutrkNPixHits", RECOMU_mutrkNPixHits, "RECOMU_mutrkNPixHits[100]/F");
-    Tree_->Branch( "RECOMU_mutrkNMuonHits", RECOMU_mutrkNMuonHits, "RECOMU_mutrkNMuonHits[100]/F");
-    Tree_->Branch( "RECOMU_mutrktrackerLayersWithMeasurement",RECOMU_mutrktrackerLayersWithMeasurement,"RECOMU_mutrktrackerLayersWithMeasurement[100]/F");
+    Tree_->Branch( "RECOMU_mutrkPT",&RECOMU_mutrkPT,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkPTError",&RECOMU_mutrkPTError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDxy",&RECOMU_mutrkDxy,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDxyError",&RECOMU_mutrkDxyError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDxyB",&RECOMU_mutrkDxyB,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDz",&RECOMU_mutrkDz,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDzError",&RECOMU_mutrkDzError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkDzB",&RECOMU_mutrkDzB,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkChi2PerNdof",&RECOMU_mutrkChi2PerNdof,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkCharge",&RECOMU_mutrkCharge,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkNHits",&RECOMU_mutrkNHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkNStripHits",&RECOMU_mutrkNStripHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkNPixHits",&RECOMU_mutrkNPixHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrkNMuonHits",&RECOMU_mutrkNMuonHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mutrktrackerLayersWithMeasurement",&RECOMU_mutrktrackerLayersWithMeasurement,"std::vector<float >");
     
-    Tree_->Branch( "RECOMU_muInnertrkDxy", RECOMU_muInnertrkDxy, "RECOMU_muInnertrkDxy[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkDxyError", RECOMU_muInnertrkDxyError, "RECOMU_muInnertrkDxyError[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkDxyB", RECOMU_muInnertrkDxyB, "RECOMU_muInnertrkDxyB[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkDz", RECOMU_muInnertrkDz, "RECOMU_muInnertrkDz[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkDzError", RECOMU_muInnertrkDzError, "RECOMU_muInnertrkDzError[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkDzB", RECOMU_muInnertrkDzB, "RECOMU_muInnertrkDzB[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkChi2PerNdof", RECOMU_muInnertrkChi2PerNdof, "RECOMU_muInnertrkChi2PerNdof[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrktrackerLayersWithMeasurement",RECOMU_muInnertrktrackerLayersWithMeasurement,"RECOMU_muInnertrktrackerLayersWithMeasurement[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkPT", RECOMU_muInnertrkPT, "RECOMU_muInnertrkPT[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkPTError", RECOMU_muInnertrkPTError, "RECOMU_muInnertrkPTError[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkCharge", RECOMU_muInnertrkCharge, "RECOMU_muInnertrkCharge[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkNHits", RECOMU_muInnertrkNHits, "RECOMU_muInnertrkNHits[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkNStripHits", RECOMU_muInnertrkNStripHits, "RECOMU_muInnertrkNStripHits[100]/F");
-    Tree_->Branch( "RECOMU_muInnertrkNPixHits", RECOMU_muInnertrkNPixHits, "RECOMU_muInnertrkNPixHits[100]/F");
+    Tree_->Branch( "RECOMU_muInnertrkDxy",&RECOMU_muInnertrkDxy,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkDxyError",&RECOMU_muInnertrkDxyError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkDxyB",&RECOMU_muInnertrkDxyB,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkDz",&RECOMU_muInnertrkDz,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkDzError",&RECOMU_muInnertrkDzError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkDzB",&RECOMU_muInnertrkDzB,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkChi2PerNdof",&RECOMU_muInnertrkChi2PerNdof,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrktrackerLayersWithMeasurement",&RECOMU_muInnertrktrackerLayersWithMeasurement,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkPT",&RECOMU_muInnertrkPT,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkPTError",&RECOMU_muInnertrkPTError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkCharge",&RECOMU_muInnertrkCharge,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkNHits",&RECOMU_muInnertrkNHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkNStripHits",&RECOMU_muInnertrkNStripHits,"std::vector<float >");
+    Tree_->Branch( "RECOMU_muInnertrkNPixHits",&RECOMU_muInnertrkNPixHits,"std::vector<float >");
     // best tracks for 13 TeV analysis
-    Tree_->Branch( "RECOMU_mubesttrkType", RECOMU_mubesttrkType, "RECOMU_mubesttrkType[100]/I");
-    Tree_->Branch( "RECOMU_mubesttrkDxy", RECOMU_mubesttrkDxy, "RECOMU_mubesttrkDxy[100]/F");
-    Tree_->Branch( "RECOMU_mubesttrkDxyError", RECOMU_mubesttrkDxyError, "RECOMU_mubesttrkDxyError[100]/F");
-    Tree_->Branch( "RECOMU_mubesttrkDz", RECOMU_mubesttrkDz, "RECOMU_mubesttrkDz[100]/F");
-    Tree_->Branch( "RECOMU_mubesttrkDzError", RECOMU_mubesttrkDzError, "RECOMU_mubesttrkDzError[100]/F");
-    Tree_->Branch( "RECOMU_mubesttrkPTError", RECOMU_mubesttrkPTError, "RECOMU_mubesttrkPTError[100]/F");
-    Tree_->Branch( "RECOMU_Rochester_Error",  RECOMU_Rochester_Error, "RECOMU_Rochester_Error[100]/F");
+    Tree_->Branch( "RECOMU_mubesttrkType",&RECOMU_mubesttrkType,"std::vector<int >");
+    Tree_->Branch( "RECOMU_mubesttrkDxy",&RECOMU_mubesttrkDxy,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mubesttrkDxyError",&RECOMU_mubesttrkDxyError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mubesttrkDz",&RECOMU_mubesttrkDz,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mubesttrkDzError",&RECOMU_mubesttrkDzError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_mubesttrkPTError",&RECOMU_mubesttrkPTError,"std::vector<float >");
+    Tree_->Branch( "RECOMU_Rochester_Error",&RECOMU_Rochester_Error,"std::vector<float >");
 
 
     // Geom. Discri.
-    Tree_->Branch("ftsigma",        &ftsigma,        "ftsigma[100]/D");
-    Tree_->Branch("gdX",            &gdX,            "gdX[100]/D");
-    Tree_->Branch("gdY",            &gdY,            "gdY[100]/D");
-    Tree_->Branch("gdZ",            &gdZ,            "gdZ[100]/D");
-    Tree_->Branch("ftsigmalag",     &ftsigmalag,     "ftsigmalag[100]/D");
-    Tree_->Branch("gdlagX",         &gdlagX,         "gdlagX[100]/D");
-    Tree_->Branch("gdlagY",         &gdlagY,         "gdlagY[100]/D");
-    Tree_->Branch("gdlagZ",         &gdlagZ,         "gdlagZ[100]/D");
-    Tree_->Branch("gdlagProb",      &gdlagProb,      "gdlagProb[100]/D");
-    Tree_->Branch("gdlagNdof",      &gdlagNdof,      "gdlagNdof[100]/D");
-    Tree_->Branch("ftsigmaMMMM",    &ftsigmaMMMM,    "ftsigmaMMMM[100]/D");
-    Tree_->Branch("gdXMMMM",        &gdXMMMM,        "gdXMMMM[100]/D");
-    Tree_->Branch("gdYMMMM",        &gdYMMMM,        "gdYMMMM[100]/D");
-    Tree_->Branch("gdZMMMM",        &gdZMMMM,        "gdZMMMM[100]/D");
-    Tree_->Branch("ftsigmalagMMMM", &ftsigmalagMMMM, "ftsigmalagMMMM[100]/D");
-    Tree_->Branch("gdlagXMMMM",     &gdlagXMMMM,     "gdlagXMMMM[100]/D");
-    Tree_->Branch("gdlagYMMMM",     &gdlagYMMMM,     "gdlagYMMMM[100]/D");
-    Tree_->Branch("gdlagZMMMM",     &gdlagZMMMM,     "gdlagZMMMM[100]/D");
-    Tree_->Branch("gdlagProbMMMM",  &gdlagProbMMMM,  "gdlagProbMMMM[100]/D");
-    Tree_->Branch("gdlagNdofMMMM",  &gdlagNdofMMMM,  "gdlagNdofMMMM[100]/D");
-    Tree_->Branch("ftsigmaEEEE",    &ftsigmaEEEE,    "ftsigmaEEEE[100]/D");
-    Tree_->Branch("gdXEEEE",        &gdXEEEE,        "gdXEEEE[100]/D");
-    Tree_->Branch("gdYEEEE",        &gdYEEEE,        "gdYEEEE[100]/D");
-    Tree_->Branch("gdZEEEE",        &gdZEEEE,        "gdZEEEE[100]/D");
-    Tree_->Branch("ftsigmalagEEEE", &ftsigmalagEEEE, "ftsigmalagEEEE[100]/D");
-    Tree_->Branch("gdlagXEEEE",     &gdlagXEEEE,     "gdlagXEEEE[100]/D");
-    Tree_->Branch("gdlagYEEEE",     &gdlagYEEEE,     "gdlagYEEEE[100]/D");
-    Tree_->Branch("gdlagZEEEE",     &gdlagZEEEE,     "gdlagZEEEE[100]/D");
-    Tree_->Branch("gdlagProbEEEE",  &gdlagProbEEEE,  "gdlagProbEEEE[100]/D");
-    Tree_->Branch("gdlagNdofEEEE",  &gdlagNdofEEEE,  "gdlagNdofEEEE[100]/D");
+    Tree_->Branch("ftsigma",&ftsigma,"std::vector<double >");
+    Tree_->Branch("gdX",&gdX,"std::vector<double >");
+    Tree_->Branch("gdY",&gdY,"std::vector<double >");
+    Tree_->Branch("gdZ",&gdZ,"std::vector<double >");
+    Tree_->Branch("ftsigmalag",&ftsigmalag,"std::vector<double >");
+    Tree_->Branch("gdlagX",&gdlagX,"std::vector<double >");
+    Tree_->Branch("gdlagY",&gdlagY,"std::vector<double >");
+    Tree_->Branch("gdlagZ",&gdlagZ,"std::vector<double >");
+    Tree_->Branch("gdlagProb",&gdlagProb,"std::vector<double >");
+    Tree_->Branch("gdlagNdof",&gdlagNdof,"std::vector<double >");
+    Tree_->Branch("ftsigmaMMMM",&ftsigmaMMMM,"std::vector<double >");
+    Tree_->Branch("gdXMMMM",&gdXMMMM,"std::vector<double >");
+    Tree_->Branch("gdYMMMM",&gdYMMMM,"std::vector<double >");
+    Tree_->Branch("gdZMMMM",&gdZMMMM,"std::vector<double >");
+    Tree_->Branch("ftsigmalagMMMM",&ftsigmalagMMMM,"std::vector<double >");
+    Tree_->Branch("gdlagXMMMM",&gdlagXMMMM,"std::vector<double >");
+    Tree_->Branch("gdlagYMMMM",&gdlagYMMMM,"std::vector<double >");
+    Tree_->Branch("gdlagZMMMM",&gdlagZMMMM,"std::vector<double >");
+    Tree_->Branch("gdlagProbMMMM",&gdlagProbMMMM,"std::vector<double >");
+    Tree_->Branch("gdlagNdofMMMM",&gdlagNdofMMMM,"std::vector<double >");
+    Tree_->Branch("ftsigmaEEEE",&ftsigmaEEEE,"std::vector<double >");
+    Tree_->Branch("gdXEEEE",&gdXEEEE,"std::vector<double >");
+    Tree_->Branch("gdYEEEE",&gdYEEEE,"std::vector<double >");
+    Tree_->Branch("gdZEEEE",&gdZEEEE,"std::vector<double >");
+    Tree_->Branch("ftsigmalagEEEE",&ftsigmalagEEEE,"std::vector<double >");
+    Tree_->Branch("gdlagXEEEE",&gdlagXEEEE,"std::vector<double >");
+    Tree_->Branch("gdlagYEEEE",&gdlagYEEEE,"std::vector<double >");
+    Tree_->Branch("gdlagZEEEE",&gdlagZEEEE,"std::vector<double >");
+    Tree_->Branch("gdlagProbEEEE",&gdlagProbEEEE,"std::vector<double >");
+    Tree_->Branch("gdlagNdofEEEE",&gdlagNdofEEEE,"std::vector<double >");
     
     // ConstraintFit 4l
-    Tree_->Branch("StdFitVertexX",        StdFitVertexX,        "StdFitVertexX[100]/D");
-    Tree_->Branch("StdFitVertexY",        StdFitVertexY,        "StdFitVertexY[100]/D");
-    Tree_->Branch("StdFitVertexZ",        StdFitVertexZ,        "StdFitVertexZ[100]/D");
-    Tree_->Branch("StdFitVertexChi2r",    StdFitVertexChi2r,    "StdFitVertexChi2r[100]/D");
-    Tree_->Branch("StdFitVertexProb",     StdFitVertexProb,     "StdFitVertexProb[100]/D");
-    Tree_->Branch("StdFitVertexTrack_PT", StdFitVertexTrack_PT, "StdFitVertexTrack_PT[4][100]/F");
-    Tree_->Branch("StdFitVertexTrack_ETA",StdFitVertexTrack_ETA,"StdFitVertexTrack_ETA[4][100]/F");
-    Tree_->Branch("StdFitVertexTrack_PHI",StdFitVertexTrack_PHI,"StdFitVertexTrack_PHI[4][100]/F");
-    Tree_->Branch("KinFitVertexX",        KinFitVertexX,        "KinFitVertexX[100]/D");
-    Tree_->Branch("KinFitVertexY",        KinFitVertexY,        "KinFitVertexY[100]/D");
-    Tree_->Branch("KinFitVertexZ",        KinFitVertexZ,        "KinFitVertexZ[100]/D");
-    Tree_->Branch("KinFitVertexChi2r",    KinFitVertexChi2r,    "KinFitVertexChi2r[100]/D");
-    Tree_->Branch("KinFitVertexProb",     KinFitVertexProb,     "KinFitVertexProb[100]/D");
+    Tree_->Branch("StdFitVertexX",&StdFitVertexX,"std::vector<double >");
+    Tree_->Branch("StdFitVertexY",&StdFitVertexY,"std::vector<double >");
+    Tree_->Branch("StdFitVertexZ",&StdFitVertexZ,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2r",&StdFitVertexChi2r,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProb",&StdFitVertexProb,"std::vector<double >");
+    Tree_->Branch("StdFitVertexTrack_PT",&StdFitVertexTrack_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrack_ETA",&StdFitVertexTrack_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrack_PHI",&StdFitVertexTrack_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("KinFitVertexX",&KinFitVertexX,"std::vector<double >");
+    Tree_->Branch("KinFitVertexY",&KinFitVertexY,"std::vector<double >");
+    Tree_->Branch("KinFitVertexZ",&KinFitVertexZ,"std::vector<double >");
+    Tree_->Branch("KinFitVertexChi2r",&KinFitVertexChi2r,"std::vector<double >");
+    Tree_->Branch("KinFitVertexProb",&KinFitVertexProb,"std::vector<double >");
 
-    Tree_->Branch("StdFitVertexXMMMM",        StdFitVertexXMMMM,        "StdFitVertexXMMMM[100]/D");
-    Tree_->Branch("StdFitVertexYMMMM",        StdFitVertexYMMMM,        "StdFitVertexYMMMM[100]/D");
-    Tree_->Branch("StdFitVertexZMMMM",        StdFitVertexZMMMM,        "StdFitVertexZMMMM[100]/D");
-    Tree_->Branch("StdFitVertexChi2rMMMM",    StdFitVertexChi2rMMMM,    "StdFitVertexChi2rMMMM[100]/D");
-    Tree_->Branch("StdFitVertexProbMMMM",     StdFitVertexProbMMMM,     "StdFitVertexProbMMMM[100]/D");
-    Tree_->Branch("StdFitVertexTrackMMMM_PT", StdFitVertexTrackMMMM_PT, "StdFitVertexTrackMMMM_PT[4][100]/F");
-    Tree_->Branch("StdFitVertexTrackMMMM_ETA",StdFitVertexTrackMMMM_ETA,"StdFitVertexTrackMMMM_ETA[4][100]/F");
-    Tree_->Branch("StdFitVertexTrackMMMM_PHI",StdFitVertexTrackMMMM_PHI,"StdFitVertexTrackMMMM_PHI[4][100]/F");
-    Tree_->Branch("KinFitVertexXMMMM",        KinFitVertexXMMMM,        "KinFitVertexXMMMM[100]/D");
-    Tree_->Branch("KinFitVertexYMMMM",        KinFitVertexYMMMM,        "KinFitVertexYMMMM[100]/D");
-    Tree_->Branch("KinFitVertexZMMMM",        KinFitVertexZMMMM,        "KinFitVertexZMMMM[100]/D");
-    Tree_->Branch("KinFitVertexChi2rMMMM",    KinFitVertexChi2rMMMM,    "KinFitVertexChi2rMMMM[100]/D");
-    Tree_->Branch("KinFitVertexProbMMMM",     KinFitVertexProbMMMM,     "KinFitVertexProbMMMM[100]/D");
+    Tree_->Branch("StdFitVertexXMMMM",&StdFitVertexXMMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexYMMMM",&StdFitVertexYMMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexZMMMM",&StdFitVertexZMMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2rMMMM",&StdFitVertexChi2rMMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbMMMM",&StdFitVertexProbMMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexTrackMMMM_PT",&StdFitVertexTrackMMMM_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrackMMMM_ETA",&StdFitVertexTrackMMMM_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrackMMMM_PHI",&StdFitVertexTrackMMMM_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("KinFitVertexXMMMM",&KinFitVertexXMMMM,"std::vector<double >");
+    Tree_->Branch("KinFitVertexYMMMM",&KinFitVertexYMMMM,"std::vector<double >");
+    Tree_->Branch("KinFitVertexZMMMM",&KinFitVertexZMMMM,"std::vector<double >");
+    Tree_->Branch("KinFitVertexChi2rMMMM",&KinFitVertexChi2rMMMM,"std::vector<double >");
+    Tree_->Branch("KinFitVertexProbMMMM",&KinFitVertexProbMMMM,"std::vector<double >");
     
 
-    Tree_->Branch("StdFitVertexXEEEE",        StdFitVertexXEEEE,        "StdFitVertexXEEEE[100]/D");
-    Tree_->Branch("StdFitVertexYEEEE",        StdFitVertexYEEEE,        "StdFitVertexYEEEE[100]/D");
-    Tree_->Branch("StdFitVertexZEEEE",        StdFitVertexZEEEE,        "StdFitVertexZEEEE[100]/D");
-    Tree_->Branch("StdFitVertexChi2rEEEE",    StdFitVertexChi2rEEEE,    "StdFitVertexChi2rEEEE[100]/D");
-    Tree_->Branch("StdFitVertexProbEEEE",     StdFitVertexProbEEEE,     "StdFitVertexProbEEEE[100]/D");
-    Tree_->Branch("StdFitVertexTrackEEEE_PT", StdFitVertexTrackEEEE_PT, "StdFitVertexTrackEEEE_PT[4][100]/F");
-    Tree_->Branch("StdFitVertexTrackEEEE_ETA",StdFitVertexTrackEEEE_ETA,"StdFitVertexTrackEEEE_ETA[4][100]/F");
-    Tree_->Branch("StdFitVertexTrackEEEE_PHI",StdFitVertexTrackEEEE_PHI,"StdFitVertexTrackEEEE_PHI[4][100]/F");
-    Tree_->Branch("KinFitVertexXEEEE",        KinFitVertexXEEEE,        "KinFitVertexXEEEE[100]/D");
-    Tree_->Branch("KinFitVertexYEEEE",        KinFitVertexYEEEE,        "KinFitVertexYEEEE[100]/D");
-    Tree_->Branch("KinFitVertexZEEEE",        KinFitVertexZEEEE,        "KinFitVertexZEEEE[100]/D");
-    Tree_->Branch("KinFitVertexChi2rEEEE",    KinFitVertexChi2rEEEE,    "KinFitVertexChi2rEEEE[100]/D");
-    Tree_->Branch("KinFitVertexProbEEEE",     KinFitVertexProbEEEE,     "KinFitVertexProbEEEE[100]/D");
+    Tree_->Branch("StdFitVertexXEEEE",&StdFitVertexXEEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexYEEEE",&StdFitVertexYEEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexZEEEE",&StdFitVertexZEEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2rEEEE",&StdFitVertexChi2rEEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbEEEE",&StdFitVertexProbEEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexTrackEEEE_PT",&StdFitVertexTrackEEEE_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrackEEEE_ETA",&StdFitVertexTrackEEEE_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("StdFitVertexTrackEEEE_PHI",&StdFitVertexTrackEEEE_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("KinFitVertexXEEEE",&KinFitVertexXEEEE,"std::vector<double >");
+    Tree_->Branch("KinFitVertexYEEEE",&KinFitVertexYEEEE,"std::vector<double >");
+    Tree_->Branch("KinFitVertexZEEEE",&KinFitVertexZEEEE,"std::vector<double >");
+    Tree_->Branch("KinFitVertexChi2rEEEE",&KinFitVertexChi2rEEEE,"std::vector<double >");
+    Tree_->Branch("KinFitVertexProbEEEE",&KinFitVertexProbEEEE,"std::vector<double >");
 
     // constrintFit 3l
-    Tree_->Branch("StdFitVertexChi2rMMM",     StdFitVertexChi2rMMM,    "StdFitVertexChi2rMMM[50]/D");
-    Tree_->Branch("StdFitVertexProbMMM",      StdFitVertexProbMMM,     "StdFitVertexProbMMM[50]/D");
-    Tree_->Branch("StdFitVertexChi2rMME",     StdFitVertexChi2rMME,    "StdFitVertexChi2rMME[50]/D");
-    Tree_->Branch("StdFitVertexProbMME",      StdFitVertexProbMME,     "StdFitVertexProbMME[50]/D");
-    Tree_->Branch("StdFitVertexChi2rEEE",     StdFitVertexChi2rEEE,    "StdFitVertexChi2rEEE[50]/D");
-    Tree_->Branch("StdFitVertexProbEEE",      StdFitVertexProbEEE,     "StdFitVertexProbEEE[50]/D");
-    Tree_->Branch("StdFitVertexChi2rMEE",     StdFitVertexChi2rMEE,    "StdFitVertexChi2rMEE[50]/D");
-    Tree_->Branch("StdFitVertexProbMEE",      StdFitVertexProbMEE,     "StdFitVertexProbMEE[50]/D");
+    Tree_->Branch("StdFitVertexChi2rMMM",&StdFitVertexChi2rMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbMMM",&StdFitVertexProbMMM,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2rMME",&StdFitVertexChi2rMME,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbMME",&StdFitVertexProbMME,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2rEEE",&StdFitVertexChi2rEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbEEE",&StdFitVertexProbEEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexChi2rMEE",&StdFitVertexChi2rMEE,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbMEE",&StdFitVertexProbMEE,"std::vector<double >");
 
 
      // constrintFit Dileptons
-    Tree_->Branch("StdFitVertexChi2rDiLep",   StdFitVertexChi2rDiLep,    "StdFitVertexChi2rDiLep[40]/D");
-    Tree_->Branch("StdFitVertexProbDiLep",    StdFitVertexProbDiLep,     "StdFitVertexProbDiLep[40]/D");
+    Tree_->Branch("StdFitVertexChi2rDiLep",&StdFitVertexChi2rDiLep,"std::vector<double >");
+    Tree_->Branch("StdFitVertexProbDiLep",&StdFitVertexProbDiLep,"std::vector<double >");
 
     // Conversions
-    Tree_->Branch("ConvMapDist",              ConvMapDist,              "ConvMapDist[100]/F");
-    Tree_->Branch("ConvMapDcot",              ConvMapDcot,              "ConvMapDcot[100]/F");
+    Tree_->Branch("ConvMapDist",&ConvMapDist,"std::vector<float >");
+    Tree_->Branch("ConvMapDcot",&ConvMapDcot,"std::vector<float >");
 
 
 
     //MatchingMC:
     //Muons:
-    Tree_->Branch("RECOMU_MatchingMCTruth", RECOMU_MatchingMCTruth, "RECOMU_MatchingMCTruth[100]/b");
-    Tree_->Branch("RECOMU_MatchingMCpT", RECOMU_MatchingMCpT, "RECOMU_MatchingMCpT[100]/F");
-    Tree_->Branch("RECOMU_MatchingMCEta", RECOMU_MatchingMCEta, "RECOMU_MatchingMCEta[100]/F");
-    Tree_->Branch("RECOMU_MatchingMCPhi", RECOMU_MatchingMCPhi, "RECOMU_MatchingMCPhi[100]/F");
+    Tree_->Branch("RECOMU_MatchingMCTruth",&RECOMU_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOMU_MatchingMCpT",&RECOMU_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOMU_MatchingMCEta",&RECOMU_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOMU_MatchingMCPhi",&RECOMU_MatchingMCPhi,"std::vector<float >");
 
     //Electrons:
-    Tree_->Branch("RECOELE_MatchingMCTruth", RECOELE_MatchingMCTruth, "RECOELE_MatchingMCTruth[100]/b");
-    Tree_->Branch("RECOELE_MatchingMCpT", RECOELE_MatchingMCpT, "RECOELE_MatchingMCpT[100]/F");
-    Tree_->Branch("RECOELE_MatchingMCEta", RECOELE_MatchingMCEta, "RECOELE_MatchingMCEta[100]/F");
-    Tree_->Branch("RECOELE_MatchingMCPhi", RECOELE_MatchingMCPhi, "RECOELE_MatchingMCPhi[100]/F");
+    Tree_->Branch("RECOELE_MatchingMCTruth",&RECOELE_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOELE_MatchingMCpT",&RECOELE_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOELE_MatchingMCEta",&RECOELE_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOELE_MatchingMCPhi",&RECOELE_MatchingMCPhi,"std::vector<float >");
 
     //Gamma:
-    Tree_->Branch("RECOPHOT_MatchingMCTruth", RECOPHOT_MatchingMCTruth, "RECOPHOT_MatchingMCTruth[50]/b");
-    Tree_->Branch("RECOPHOT_MatchingMCpT", RECOPHOT_MatchingMCpT, "RECOPHOT_MatchingMCpT[50]/F");
-    Tree_->Branch("RECOPHOT_MatchingMCEta", RECOPHOT_MatchingMCEta, "RECOPHOT_MatchingMCEta[50]/F");
-    Tree_->Branch("RECOPHOT_MatchingMCPhi", RECOPHOT_MatchingMCPhi, "RECOPHOT_MatchingMCPhi[50]/F");
+    Tree_->Branch("RECOPHOT_MatchingMCTruth",&RECOPHOT_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOPHOT_MatchingMCpT",&RECOPHOT_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOPHOT_MatchingMCEta",&RECOPHOT_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOPHOT_MatchingMCPhi",&RECOPHOT_MatchingMCPhi,"std::vector<float >");
 
     //ZtoMuMu:
-    Tree_->Branch("RECOzMuMu_MatchingMCTruth", RECOzMuMu_MatchingMCTruth, "RECOzMuMu_MatchingMCTruth[50]/b");
-    Tree_->Branch("RECOzMuMu_MatchingMCpT", RECOzMuMu_MatchingMCpT, "RECOzMuMu_MatchingMCpT[50]/F");
-    Tree_->Branch("RECOzMuMu_MatchingMCmass", RECOzMuMu_MatchingMCmass, "RECOzMuMu_MatchingMCmass[50]/F");
-    Tree_->Branch("RECOzMuMu_MatchingMCEta", RECOzMuMu_MatchingMCEta, "RECOzMuMu_MatchingMCEta[50]/F");
-    Tree_->Branch("RECOzMuMu_MatchingMCPhi", RECOzMuMu_MatchingMCPhi, "RECOzMuMu_MatchingMCPhi[50]/F");
+    Tree_->Branch("RECOzMuMu_MatchingMCTruth",&RECOzMuMu_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOzMuMu_MatchingMCpT",&RECOzMuMu_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOzMuMu_MatchingMCmass",&RECOzMuMu_MatchingMCmass,"std::vector<float >");
+    Tree_->Branch("RECOzMuMu_MatchingMCEta",&RECOzMuMu_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOzMuMu_MatchingMCPhi",&RECOzMuMu_MatchingMCPhi,"std::vector<float >");
 
     //ZtoEE:
-    Tree_->Branch("RECOzEE_MatchingMCTruth", RECOzEE_MatchingMCTruth, "RECOzEE_MatchingMCTruth[50]/b");
-    Tree_->Branch("RECOzEE_MatchingMCpT", RECOzEE_MatchingMCpT, "RECOzEE_MatchingMCpT[50]/F");
-    Tree_->Branch("RECOzEE_MatchingMCmass", RECOzEE_MatchingMCmass, "RECOzEE_MatchingMCmass[50]/F");
-    Tree_->Branch("RECOzEE_MatchingMCEta", RECOzEE_MatchingMCEta, "RECOzEE_MatchingMCEta[50]/F");
-    Tree_->Branch("RECOzEE_MatchingMCPhi", RECOzEE_MatchingMCPhi, "RECOzEE_MatchingMCPhi[50]/F");
+    Tree_->Branch("RECOzEE_MatchingMCTruth",&RECOzEE_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOzEE_MatchingMCpT",&RECOzEE_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOzEE_MatchingMCmass",&RECOzEE_MatchingMCmass,"std::vector<float >");
+    Tree_->Branch("RECOzEE_MatchingMCEta",&RECOzEE_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOzEE_MatchingMCPhi",&RECOzEE_MatchingMCPhi,"std::vector<float >");
 
     //HtoZtoEEEE:
-    Tree_->Branch("RECOHzzEEEE_MatchingMCTruth", RECOHzzEEEE_MatchingMCTruth, "RECOHzzEEEE_MatchingMCTruth[100]/b");
-    Tree_->Branch("RECOHzzEEEE_MatchingMCpT", RECOHzzEEEE_MatchingMCpT, "RECOHzzEEEE_MatchingMCpT[100]/F");
-    Tree_->Branch("RECOHzzEEEE_MatchingMCmass", RECOHzzEEEE_MatchingMCmass, "RECOHzzEEEE_MatchingMCmass[100]/F");
-    Tree_->Branch("RECOHzzEEEE_MatchingMCEta", RECOHzzEEEE_MatchingMCEta, "RECOHzzEEEE_MatchingMCEta[100]/F");
-    Tree_->Branch("RECOHzzEEEE_MatchingMCPhi", RECOHzzEEEE_MatchingMCPhi, "RECOHzzEEEE_MatchingMCPhi[100]/F");
+    Tree_->Branch("RECOHzzEEEE_MatchingMCTruth",&RECOHzzEEEE_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOHzzEEEE_MatchingMCpT",&RECOHzzEEEE_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEEE_MatchingMCmass",&RECOHzzEEEE_MatchingMCmass,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEEE_MatchingMCEta",&RECOHzzEEEE_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEEE_MatchingMCPhi",&RECOHzzEEEE_MatchingMCPhi,"std::vector<float >");
 
     //HtoZtoEEMM:
-    Tree_->Branch("RECOHzzEEMM_MatchingMCTruth", RECOHzzEEMM_MatchingMCTruth, "RECOHzzEEMM_MatchingMCTruth[100]/b");
-    Tree_->Branch("RECOHzzEEMM_MatchingMCpT", RECOHzzEEMM_MatchingMCpT, "RECOHzzEEMM_MatchingMCpT[100]/F");
-    Tree_->Branch("RECOHzzEEMM_MatchingMCmass", RECOHzzEEMM_MatchingMCmass, "RECOHzzEEMM_MatchingMCmass[100]/F");
-    Tree_->Branch("RECOHzzEEMM_MatchingMCEta", RECOHzzEEMM_MatchingMCEta, "RECOHzzEEMM_MatchingMCEta[100]/F");
-    Tree_->Branch("RECOHzzEEMM_MatchingMCPhi", RECOHzzEEMM_MatchingMCPhi, "RECOHzzEEMM_MatchingMCPhi[100]/F");
+    Tree_->Branch("RECOHzzEEMM_MatchingMCTruth",&RECOHzzEEMM_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOHzzEEMM_MatchingMCpT",&RECOHzzEEMM_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEMM_MatchingMCmass",&RECOHzzEEMM_MatchingMCmass,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEMM_MatchingMCEta",&RECOHzzEEMM_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOHzzEEMM_MatchingMCPhi",&RECOHzzEEMM_MatchingMCPhi,"std::vector<float >");
 
     //HtoZtoMMMM:
-    Tree_->Branch("RECOHzzMMMM_MatchingMCTruth", RECOHzzMMMM_MatchingMCTruth, "RECOHzzMMMM_MatchingMCTruth[100]/b");
-    Tree_->Branch("RECOHzzMMMM_MatchingMCpT", RECOHzzMMMM_MatchingMCpT, "RECOHzzMMMM_MatchingMCpT[100]/F");
-    Tree_->Branch("RECOHzzMMMM_MatchingMCmass", RECOHzzMMMM_MatchingMCmass, "RECOHzzMMMM_MatchingMCmass[100]/F");
-    Tree_->Branch("RECOHzzMMMM_MatchingMCEta", RECOHzzMMMM_MatchingMCEta, "RECOHzzMMMM_MatchingMCEta[100]/F");
-    Tree_->Branch("RECOHzzMMMM_MatchingMCPhi", RECOHzzMMMM_MatchingMCPhi, "RECOHzzMMMM_MatchingMCPhi[100]/F");
+    Tree_->Branch("RECOHzzMMMM_MatchingMCTruth",&RECOHzzMMMM_MatchingMCTruth,"std::vector<int >");
+    Tree_->Branch("RECOHzzMMMM_MatchingMCpT",&RECOHzzMMMM_MatchingMCpT,"std::vector<float >");
+    Tree_->Branch("RECOHzzMMMM_MatchingMCmass",&RECOHzzMMMM_MatchingMCmass,"std::vector<float >");
+    Tree_->Branch("RECOHzzMMMM_MatchingMCEta",&RECOHzzMMMM_MatchingMCEta,"std::vector<float >");
+    Tree_->Branch("RECOHzzMMMM_MatchingMCPhi",&RECOHzzMMMM_MatchingMCPhi,"std::vector<float >");
 
 
 
@@ -1031,62 +1031,62 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // Tracks
     Tree_->Branch( "RECO_NTRACK", &RECO_NTRACK, "RECO_NTRACK/I");
-    Tree_->Branch( "RECO_TRACK_PT", &RECO_TRACK_PT, "RECO_TRACK_PT[200]/F");
-    Tree_->Branch( "RECO_TRACK_ETA", &RECO_TRACK_ETA, "RECO_TRACK_ETA[200]/F");
-    Tree_->Branch( "RECO_TRACK_PHI", &RECO_TRACK_PHI, "RECO_TRACK_PHI[200]/F");
-    Tree_->Branch( "RECO_TRACK_CHI2", &RECO_TRACK_CHI2, "RECO_TRACK_CHI2[200]/F");
-    Tree_->Branch( "RECO_TRACK_CHI2RED", &RECO_TRACK_CHI2RED, "RECO_TRACK_CHI2RED[200]/F");
-    Tree_->Branch( "RECO_TRACK_CHI2PROB", &RECO_TRACK_CHI2PROB, "RECO_TRACK_CHI2PROB[200]/F");
-    Tree_->Branch( "RECO_TRACK_NHITS", &RECO_TRACK_NHITS, "RECO_TRACK_NHITS[200]/I");
-    Tree_->Branch( "RECO_TRACK_DXY", &RECO_TRACK_DXY, "RECO_TRACK_DXY[200]/F");
-    Tree_->Branch( "RECO_TRACK_DXYERR", &RECO_TRACK_DXYERR, "RECO_TRACK_DXYERR[200]/F");
-    Tree_->Branch( "RECO_TRACK_DZ", &RECO_TRACK_DZ, "RECO_TRACK_DZ[200]/F");
-    Tree_->Branch( "RECO_TRACK_DZERR", &RECO_TRACK_DZERR, "RECO_TRACK_DZERR[200]/F");
+    Tree_->Branch( "RECO_TRACK_PT",&RECO_TRACK_PT,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_ETA",&RECO_TRACK_ETA,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_PHI",&RECO_TRACK_PHI,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_CHI2",&RECO_TRACK_CHI2,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_CHI2RED",&RECO_TRACK_CHI2RED,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_CHI2PROB",&RECO_TRACK_CHI2PROB,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_NHITS",&RECO_TRACK_NHITS,"std::vector<int >");
+    Tree_->Branch( "RECO_TRACK_DXY",&RECO_TRACK_DXY,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_DXYERR",&RECO_TRACK_DXYERR,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_DZ",&RECO_TRACK_DZ,"std::vector<float >");
+    Tree_->Branch( "RECO_TRACK_DZERR",&RECO_TRACK_DZERR,"std::vector<float >");
     
     // Photons
     Tree_->Branch("RECO_NPHOT", &RECO_NPHOT, "RECO_NPHOT/I");
-    Tree_->Branch("RECOPHOT_PT",RECOPHOT_PT,"RECOPHOT_PT[20]/F"); 
-    Tree_->Branch("RECOPHOT_ETA",RECOPHOT_ETA,"RECOPHOT_ETA[20]/F"); 
-    Tree_->Branch("RECOPHOT_PHI",RECOPHOT_PHI,"RECOPHOT_PHI[20]/F"); 
-    Tree_->Branch("RECOPHOT_THETA",RECOPHOT_THETA,"RECOPHOT_THETA[20]/F"); 
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_X",RECOPHOT_TLE_ParentSC_X,"RECOPHOT_TLE_ParentSC_X[20]/F");
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_Y",RECOPHOT_TLE_ParentSC_Y,"RECOPHOT_TLE_ParentSC_Y[20]/F");
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_Z",RECOPHOT_TLE_ParentSC_Z,"RECOPHOT_TLE_ParentSC_Z[20]/F");
+    Tree_->Branch("RECOPHOT_PT",&RECOPHOT_PT,"std::vector<float >"); 
+    Tree_->Branch("RECOPHOT_ETA",&RECOPHOT_ETA,"std::vector<float >"); 
+    Tree_->Branch("RECOPHOT_PHI",&RECOPHOT_PHI,"std::vector<float >"); 
+    Tree_->Branch("RECOPHOT_THETA",&RECOPHOT_THETA,"std::vector<float >"); 
+    Tree_->Branch("RECOPHOT_TLE_ParentSC_X",&RECOPHOT_TLE_ParentSC_X,"std::vector<float >");
+    Tree_->Branch("RECOPHOT_TLE_ParentSC_Y",&RECOPHOT_TLE_ParentSC_Y,"std::vector<float >");
+    Tree_->Branch("RECOPHOT_TLE_ParentSC_Z",&RECOPHOT_TLE_ParentSC_Z,"std::vector<float >");
 
     Tree_->Branch("RECO_NPFPHOT", &RECO_NPFPHOT, "RECO_NPFPHOT/I");
-    Tree_->Branch("RECOPFPHOT_PT",RECOPFPHOT_PT,"RECOPFPHOT_PT[20]/F"); 
-    Tree_->Branch("RECOPFPHOT_PTError",RECOPFPHOT_PTError,"RECOPFPHOT_PTError[20]/F");  
-    Tree_->Branch("RECOPFPHOT_ETA",RECOPFPHOT_ETA,"RECOPFPHOT_ETA[20]/F"); 
-    Tree_->Branch("RECOPFPHOT_PHI",RECOPFPHOT_PHI,"RECOPFPHOT_PHI[20]/F"); 
-    Tree_->Branch("RECOPFPHOT_THETA",RECOPFPHOT_THETA,"RECOPFPHOT_THETA[20]/F"); 
+    Tree_->Branch("RECOPFPHOT_PT",&RECOPFPHOT_PT,"std::vector<float >"); 
+    Tree_->Branch("RECOPFPHOT_PTError",&RECOPFPHOT_PTError,"std::vector<float >");  
+    Tree_->Branch("RECOPFPHOT_ETA",&RECOPFPHOT_ETA,"std::vector<float >"); 
+    Tree_->Branch("RECOPFPHOT_PHI",&RECOPFPHOT_PHI,"std::vector<float >"); 
+    Tree_->Branch("RECOPFPHOT_THETA",&RECOPFPHOT_THETA,"std::vector<float >"); 
     
     //Reham
 
-     Tree_->Branch("RECOPFPHOT_PT_uncorr",RECOPFPHOT_PT_uncorr,"RECOPFPHOT_PT_uncorr[20]/F");
+     Tree_->Branch("RECOPFPHOT_PT_uncorr",&RECOPFPHOT_PT_uncorr,"std::vector<float >");
 
     //Reham photn systematic variables
 
-    Tree_->Branch("RECOPFPHOT_ecalEnergyPreCorr",RECOPFPHOT_ecalEnergyPreCorr,"RECOPFPHOT_ecalEnergyPreCorr[20]/F");
-    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPreCorr",RECOPFPHOT_ecalEnergyErrPreCorr,"RECOPFPHOT_ecalEnergyErrPreCorr[20]/F");   
-    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPostCorr",RECOPFPHOT_ecalEnergyErrPostCorr,"RECOPFPHOT_ecalEnergyErrPostCorr[20]/F");
-    Tree_->Branch("RECOPFPHOT_energyScaleValue",RECOPFPHOT_energyScaleValue,"RECOPFPHOT_energyScaleValue[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energySigmaValue",RECOPFPHOT_energySigmaValue, "RECOPFPHOT_energySigmaValue[20]/F");
-    Tree_->Branch("RECOPFPHOT_energyScaleUp",RECOPFPHOT_energyScaleUp,"RECOPFPHOT_energyScaleUp[20]/F");     
-    Tree_->Branch("RECOPFPHOT_energyScaleDown",RECOPFPHOT_energyScaleDown,"RECOPFPHOT_energyScaleDown[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energyScaleStatUp",RECOPFPHOT_energyScaleStatUp,"RECOPFPHOT_energyScaleStatUp[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energyScaleStatDown",RECOPFPHOT_energyScaleStatDown,"RECOPFPHOT_energyScaleStatDown[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energyScaleSystUp",RECOPFPHOT_energyScaleSystUp,"RECOPFPHOT_energyScaleSystUp[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energyScaleSystDown",RECOPFPHOT_energyScaleSystDown,"RECOPFPHOT_energyScaleSystDown[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energyScaleGainUp",RECOPFPHOT_energyScaleGainUp,"RECOPFPHOT_energyScaleGainUp[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energyScaleGainDown",RECOPFPHOT_energyScaleGainDown,"RECOPFPHOT_energyScaleGainDown[20]/F");      
-    Tree_->Branch("RECOPFPHOT_energyScaleEtUp",RECOPFPHOT_energyScaleEtUp,"RECOPFPHOT_energyScaleEtUp[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energyScaleEtDown",RECOPFPHOT_energyScaleEtDown,"RECOPFPHOT_energyScaleEtDown[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energySigmaUp",RECOPFPHOT_energySigmaUp,"RECOPFPHOT_energySigmaUp[20]/F");         
-    Tree_->Branch("RECOPFPHOT_energySigmaDown",RECOPFPHOT_energySigmaDown,"RECOPFPHOT_energySigmaDown[20]/F");       
-    Tree_->Branch("RECOPFPHOT_energySigmaPhiUp",RECOPFPHOT_energySigmaPhiUp,"RECOPFPHOT_energySigmaPhiUp[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energySigmaPhiDown",RECOPFPHOT_energySigmaPhiDown,"RECOPFPHOT_energySigmaPhiDown[20]/F");     
-    Tree_->Branch("RECOPFPHOT_energySigmaRhoUp",RECOPFPHOT_energySigmaRhoUp,"RECOPFPHOT_energySigmaRhoUp[20]/F");        
-    Tree_->Branch("RECOPFPHOT_energySigmaRhoDown",RECOPFPHOT_energySigmaRhoDown,"RECOPFPHOT_energySigmaRhoDown[20]/F"); 
+    Tree_->Branch("RECOPFPHOT_ecalEnergyPreCorr",&RECOPFPHOT_ecalEnergyPreCorr,"std::vector<float >");
+    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPreCorr",&RECOPFPHOT_ecalEnergyErrPreCorr,"std::vector<float >");   
+    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPostCorr",&RECOPFPHOT_ecalEnergyErrPostCorr,"std::vector<float >");
+    Tree_->Branch("RECOPFPHOT_energyScaleValue",&RECOPFPHOT_energyScaleValue,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energySigmaValue",&RECOPFPHOT_energySigmaValue,"std::vector<float >");
+    Tree_->Branch("RECOPFPHOT_energyScaleUp",&RECOPFPHOT_energyScaleUp,"std::vector<float >");     
+    Tree_->Branch("RECOPFPHOT_energyScaleDown",&RECOPFPHOT_energyScaleDown,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energyScaleStatUp",&RECOPFPHOT_energyScaleStatUp,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energyScaleStatDown",&RECOPFPHOT_energyScaleStatDown,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energyScaleSystUp",&RECOPFPHOT_energyScaleSystUp,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energyScaleSystDown",&RECOPFPHOT_energyScaleSystDown,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energyScaleGainUp",&RECOPFPHOT_energyScaleGainUp,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energyScaleGainDown",&RECOPFPHOT_energyScaleGainDown,"std::vector<float >");      
+    Tree_->Branch("RECOPFPHOT_energyScaleEtUp",&RECOPFPHOT_energyScaleEtUp,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energyScaleEtDown",&RECOPFPHOT_energyScaleEtDown,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energySigmaUp",&RECOPFPHOT_energySigmaUp,"std::vector<float >");         
+    Tree_->Branch("RECOPFPHOT_energySigmaDown",&RECOPFPHOT_energySigmaDown,"std::vector<float >");       
+    Tree_->Branch("RECOPFPHOT_energySigmaPhiUp",&RECOPFPHOT_energySigmaPhiUp,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energySigmaPhiDown",&RECOPFPHOT_energySigmaPhiDown,"std::vector<float >");     
+    Tree_->Branch("RECOPFPHOT_energySigmaRhoUp",&RECOPFPHOT_energySigmaRhoUp,"std::vector<float >");        
+    Tree_->Branch("RECOPFPHOT_energySigmaRhoDown",&RECOPFPHOT_energySigmaRhoDown,"std::vector<float >"); 
     
     //Beam Spot position
     Tree_->Branch("BeamSpot_X",&BeamSpot_X,"BeamSpot_X/D");
@@ -1094,77 +1094,77 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("BeamSpot_Z",&BeamSpot_Z,"BeamSpot_Z/D");
     // Vertices
     Tree_->Branch( "RECO_NVTX", &RECO_NVTX, "RECO_NVTX/I");
-    Tree_->Branch( "RECO_VERTEX_x", RECO_VERTEX_x, "RECO_VERTEX_x[15]/F");
-    Tree_->Branch( "RECO_VERTEX_y", RECO_VERTEX_y, "RECO_VERTEX_y[15]/F");
-    Tree_->Branch( "RECO_VERTEX_z", RECO_VERTEX_z, "RECO_VERTEX_z[15]/F");
-    Tree_->Branch( "RECO_VERTEX_ndof", RECO_VERTEX_ndof, "RECO_VERTEX_ndof[15]/F");
-    Tree_->Branch( "RECO_VERTEX_chi2", RECO_VERTEX_chi2, "RECO_VERTEX_chi2[15]/F");
-    Tree_->Branch( "RECO_VERTEX_ntracks", RECO_VERTEX_ntracks, "RECO_VERTEX_ntracks[15]/I");
-    Tree_->Branch( "RECO_VERTEXPROB", RECO_VERTEXPROB, "RECO_VERTEXPROB[15]/F");
-    Tree_->Branch( "RECO_VERTEX_isValid", RECO_VERTEX_isValid, "RECO_VERTEX_isValid[15]/b");
-    Tree_->Branch( "RECO_VERTEX_TRACK_PT",RECO_VERTEX_TRACK_PT,"RECO_VERTEX_TRACK_PT[15][100]/F");
+    Tree_->Branch( "RECO_VERTEX_x",&RECO_VERTEX_x,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_y",&RECO_VERTEX_y,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_z",&RECO_VERTEX_z,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_ndof",&RECO_VERTEX_ndof,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_chi2",&RECO_VERTEX_chi2,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_ntracks",&RECO_VERTEX_ntracks,"std::vector<int >");
+    Tree_->Branch( "RECO_VERTEXPROB",&RECO_VERTEXPROB,"std::vector<float >");
+    Tree_->Branch( "RECO_VERTEX_isValid",&RECO_VERTEX_isValid,"std::vector<int >");
+    Tree_->Branch( "RECO_VERTEX_TRACK_PT",&RECO_VERTEX_TRACK_PT,"std::vector<std::vector<float > >");
     
     // PFJets
     Tree_->Branch( "RECO_PFJET_N",   &RECO_PFJET_N,   "RECO_PFJET_N/I");
-    Tree_->Branch( "RECO_PFJET_CHARGE",  RECO_PFJET_CHARGE,  "RECO_PFJET_CHARGE[200]/I");
-    Tree_->Branch( "RECO_PFJET_ET",  RECO_PFJET_ET,  "RECO_PFJET_ET[200]/F");
-    Tree_->Branch( "RECO_PFJET_PT",  RECO_PFJET_PT,  "RECO_PFJET_PT[200]/F");
-    Tree_->Branch( "RECO_PFJET_ETA", RECO_PFJET_ETA, "RECO_PFJET_ETA[200]/F");
-    Tree_->Branch( "RECO_PFJET_PHI", RECO_PFJET_PHI, "RECO_PFJET_PHI[200]/F");
-    Tree_->Branch( "RECO_PFJET_PUID_loose", RECO_PFJET_PUID_loose, "RECO_PFJET_PUID_loose[200]/I");
-    Tree_->Branch( "RECO_PFJET_PUID_medium", RECO_PFJET_PUID_medium, "RECO_PFJET_PUID_medium[200]/I");
-    Tree_->Branch( "RECO_PFJET_PUID", RECO_PFJET_PUID, "RECO_PFJET_PUID[200]/I");
-    Tree_->Branch( "RECO_PFJET_PUID_MVA", RECO_PFJET_PUID_MVA, "RECO_PFJET_PUID_MVA[200]/F");
-    Tree_->Branch( "RECO_PFJET_QG_Likelihood", RECO_PFJET_QG_Likelihood, "RECO_PFJET_QG_Likelihood[200]/F");//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_axis2", RECO_PFJET_QG_axis2, "RECO_PFJET_QG_axis2[200]/F");//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_ptd", RECO_PFJET_QG_ptd, "RECO_PFJET_QG_ptd[200]/F");//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_mult", RECO_PFJET_QG_mult, "RECO_PFJET_QG_mult[200]/I");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_CHARGE",&RECO_PFJET_CHARGE,"std::vector<int >");
+    Tree_->Branch( "RECO_PFJET_ET",&RECO_PFJET_ET,"std::vector<float >");
+    Tree_->Branch( "RECO_PFJET_PT",&RECO_PFJET_PT,"std::vector<float >");
+    Tree_->Branch( "RECO_PFJET_ETA",&RECO_PFJET_ETA,"std::vector<float >");
+    Tree_->Branch( "RECO_PFJET_PHI",&RECO_PFJET_PHI,"std::vector<float >");
+    Tree_->Branch( "RECO_PFJET_PUID_loose",&RECO_PFJET_PUID_loose,"std::vector<int >");
+    Tree_->Branch( "RECO_PFJET_PUID_medium",&RECO_PFJET_PUID_medium,"std::vector<int >");
+    Tree_->Branch( "RECO_PFJET_PUID",&RECO_PFJET_PUID,"std::vector<int >");
+    Tree_->Branch( "RECO_PFJET_PUID_MVA",&RECO_PFJET_PUID_MVA,"std::vector<float >");
+    Tree_->Branch( "RECO_PFJET_QG_Likelihood",&RECO_PFJET_QG_Likelihood,"std::vector<float >");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_axis2",&RECO_PFJET_QG_axis2,"std::vector<float >");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_ptd",&RECO_PFJET_QG_ptd,"std::vector<float >");//REHAM QG tagger
+    Tree_->Branch( "RECO_PFJET_QG_mult",&RECO_PFJET_QG_mult,"std::vector<int >");//REHAM QG tagger
     Tree_->Branch( "RHO_ele", &RHO_ele, "RHO_ele/D");
     Tree_->Branch( "RHO_mu", &RHO_mu, "RHO_mu/D");
 
  //@
     Tree_->Branch("LHE_PARTON_N", &LHE_PARTON_N, "LHE_PARTON_N/I");
-    Tree_->Branch("LHE_PARTON_CLEAR", LHE_PARTON_CLEAR, "LHE_PARTON_CLEAR[10]/b");
-    Tree_->Branch("LHE_PARTON_PDGID", LHE_PARTON_PDGID, "LHE_PARTON_PDGID[10]/I");
-    Tree_->Branch("LHE_PARTON_PT", LHE_PARTON_PT, "LHE_PARTON_PT[10]/F");
-    Tree_->Branch("LHE_PARTON_ETA", LHE_PARTON_ETA, "LHE_PARTON_ETA[10]/F");
-    Tree_->Branch("LHE_PARTON_PHI", LHE_PARTON_PHI, "LHE_PARTON_PHI[10]/F");
-    Tree_->Branch("LHE_PARTON_E", LHE_PARTON_E, "LHE_PARTON_E[10]/F");
-    Tree_->Branch("RECO_PFJET_PT_UncUp", RECO_PFJET_PT_UncUp, "RECO_PFJET_PT_UncUp[200]/F");
-    Tree_->Branch("RECO_PFJET_PT_UncDn", RECO_PFJET_PT_UncDn, "RECO_PFJET_PT_UncDn[200]/F");
-    Tree_->Branch("RECO_PFJET_AREA", RECO_PFJET_AREA, "RECO_PFJET_AREA[200]/F");
-    Tree_->Branch("RECO_PFJET_PTD", RECO_PFJET_PTD, "RECO_PFJET_PTD[200]/F");
-    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_ENERGY", RECO_PFJET_CHARGED_HADRON_ENERGY, "RECO_PFJET_CHARGED_HADRON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_ENERGY", RECO_PFJET_NEUTRAL_HADRON_ENERGY, "RECO_PFJET_NEUTRAL_HADRON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_PHOTON_ENERGY", RECO_PFJET_PHOTON_ENERGY, "RECO_PFJET_PHOTON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_ELECTRON_ENERGY", RECO_PFJET_ELECTRON_ENERGY, "RECO_PFJET_ELECTRON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_MUON_ENERGY", RECO_PFJET_MUON_ENERGY, "RECO_PFJET_MUON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_HF_HADRON_ENERGY", RECO_PFJET_HF_HADRON_ENERGY, "RECO_PFJET_HF_HADRON_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_HF_EM_ENERGY", RECO_PFJET_HF_EM_ENERGY, "RECO_PFJET_HF_EM_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_CHARGED_EM_ENERGY", RECO_PFJET_CHARGED_EM_ENERGY, "RECO_PFJET_CHARGED_EM_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_CHARGED_MU_ENERGY", RECO_PFJET_CHARGED_MU_ENERGY, "RECO_PFJET_CHARGED_MU_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_NEUTRAL_EM_ENERGY", RECO_PFJET_NEUTRAL_EM_ENERGY, "RECO_PFJET_NEUTRAL_EM_ENERGY[200]/F");
-    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_MULTIPLICITY", RECO_PFJET_CHARGED_HADRON_MULTIPLICITY, "RECO_PFJET_CHARGED_HADRON_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY", RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY, "RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_PHOTON_MULTIPLICITY", RECO_PFJET_PHOTON_MULTIPLICITY, "RECO_PFJET_PHOTON_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_ELECTRON_MULTIPLICITY", RECO_PFJET_ELECTRON_MULTIPLICITY, "RECO_PFJET_ELECTRON_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_MUON_MULTIPLICITY", RECO_PFJET_MUON_MULTIPLICITY, "RECO_PFJET_MUON_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_HF_HADRON_MULTIPLICTY", RECO_PFJET_HF_HADRON_MULTIPLICTY, "RECO_PFJET_HF_HADRON_MULTIPLICTY[200]/I");
-    Tree_->Branch("RECO_PFJET_HF_EM_MULTIPLICITY", RECO_PFJET_HF_EM_MULTIPLICITY, "RECO_PFJET_HF_EM_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_CHARGED_MULTIPLICITY", RECO_PFJET_CHARGED_MULTIPLICITY, "RECO_PFJET_CHARGED_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_NEUTRAL_MULTIPLICITY", RECO_PFJET_NEUTRAL_MULTIPLICITY, "RECO_PFJET_NEUTRAL_MULTIPLICITY[200]/I");
-    Tree_->Branch("RECO_PFJET_NCOMPONENTS", RECO_PFJET_NCOMPONENTS, "RECO_PFJET_NCOMPONENTS[200]/I");
-    Tree_->Branch("RECO_PFJET_COMPONENT_PDGID", RECO_PFJET_COMPONENT_PDGID, "RECO_PFJET_COMPONENT_PDGID[200][100]/I");
-    Tree_->Branch("RECO_PFJET_COMPONENT_PT", RECO_PFJET_COMPONENT_PT, "RECO_PFJET_COMPONENT_PT[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_ETA", RECO_PFJET_COMPONENT_ETA, "RECO_PFJET_COMPONENT_ETA[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_PHI", RECO_PFJET_COMPONENT_PHI, "RECO_PFJET_COMPONENT_PHI[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_E", RECO_PFJET_COMPONENT_E, "RECO_PFJET_COMPONENT_E[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_CHARGE", RECO_PFJET_COMPONENT_CHARGE, "RECO_PFJET_COMPONENT_CHARGE[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_TRANSVERSE_MASS", RECO_PFJET_COMPONENT_TRANSVERSE_MASS, "RECO_PFJET_COMPONENT_TRANSVERSE_MASS[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_XVERTEX", RECO_PFJET_COMPONENT_XVERTEX, "RECO_PFJET_COMPONENT_XVERTEX[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_YVERTEX", RECO_PFJET_COMPONENT_YVERTEX, "RECO_PFJET_COMPONENT_YVERTEX[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_ZVERTEX", RECO_PFJET_COMPONENT_ZVERTEX, "RECO_PFJET_COMPONENT_ZVERTEX[200][100]/F");
-    Tree_->Branch("RECO_PFJET_COMPONENT_VERTEX_CHI2", RECO_PFJET_COMPONENT_VERTEX_CHI2, "RECO_PFJET_COMPONENT_VERTEX_CHI2[200][100]/F");
+    Tree_->Branch("LHE_PARTON_CLEAR",&LHE_PARTON_CLEAR,"std::vector<int >");
+    Tree_->Branch("LHE_PARTON_PDGID",&LHE_PARTON_PDGID,"std::vector<int >");
+    Tree_->Branch("LHE_PARTON_PT",&LHE_PARTON_PT,"std::vector<float >");
+    Tree_->Branch("LHE_PARTON_ETA",&LHE_PARTON_ETA,"std::vector<float >");
+    Tree_->Branch("LHE_PARTON_PHI",&LHE_PARTON_PHI,"std::vector<float >");
+    Tree_->Branch("LHE_PARTON_E",&LHE_PARTON_E,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_PT_UncUp",&RECO_PFJET_PT_UncUp,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_PT_UncDn",&RECO_PFJET_PT_UncDn,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_AREA",&RECO_PFJET_AREA,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_PTD",&RECO_PFJET_PTD,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_ENERGY",&RECO_PFJET_CHARGED_HADRON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_ENERGY",&RECO_PFJET_NEUTRAL_HADRON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_PHOTON_ENERGY",&RECO_PFJET_PHOTON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_ELECTRON_ENERGY",&RECO_PFJET_ELECTRON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_MUON_ENERGY",&RECO_PFJET_MUON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_HF_HADRON_ENERGY",&RECO_PFJET_HF_HADRON_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_HF_EM_ENERGY",&RECO_PFJET_HF_EM_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_CHARGED_EM_ENERGY",&RECO_PFJET_CHARGED_EM_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_CHARGED_MU_ENERGY",&RECO_PFJET_CHARGED_MU_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_EM_ENERGY",&RECO_PFJET_NEUTRAL_EM_ENERGY,"std::vector<float >");
+    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_MULTIPLICITY",&RECO_PFJET_CHARGED_HADRON_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY",&RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_PHOTON_MULTIPLICITY",&RECO_PFJET_PHOTON_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_ELECTRON_MULTIPLICITY",&RECO_PFJET_ELECTRON_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_MUON_MULTIPLICITY",&RECO_PFJET_MUON_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_HF_HADRON_MULTIPLICTY",&RECO_PFJET_HF_HADRON_MULTIPLICTY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_HF_EM_MULTIPLICITY",&RECO_PFJET_HF_EM_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_CHARGED_MULTIPLICITY",&RECO_PFJET_CHARGED_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_NEUTRAL_MULTIPLICITY",&RECO_PFJET_NEUTRAL_MULTIPLICITY,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_NCOMPONENTS",&RECO_PFJET_NCOMPONENTS,"std::vector<int >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PDGID",&RECO_PFJET_COMPONENT_PDGID,"std::vector<std::vector<int > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PT",&RECO_PFJET_COMPONENT_PT,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_ETA",&RECO_PFJET_COMPONENT_ETA,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_PHI",&RECO_PFJET_COMPONENT_PHI,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_E",&RECO_PFJET_COMPONENT_E,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_CHARGE",&RECO_PFJET_COMPONENT_CHARGE,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_TRANSVERSE_MASS",&RECO_PFJET_COMPONENT_TRANSVERSE_MASS,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_XVERTEX",&RECO_PFJET_COMPONENT_XVERTEX,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_YVERTEX",&RECO_PFJET_COMPONENT_YVERTEX,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_ZVERTEX",&RECO_PFJET_COMPONENT_ZVERTEX,"std::vector<std::vector<float > >");
+    Tree_->Branch("RECO_PFJET_COMPONENT_VERTEX_CHI2",&RECO_PFJET_COMPONENT_VERTEX_CHI2,"std::vector<std::vector<float > >");
     
     
     //CaloMET
@@ -1233,879 +1233,23 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
    
 
     // Btagging jets and discriminators
-    Tree_->Branch("tCHighEff_BTagJet_PT",tCHighEff_BTagJet_PT,"tCHighEff_BTagJet_PT[50]/F");
-    Tree_->Branch("tCHighPur_BTagJet_PT", tCHighPur_BTagJet_PT,"tCHighPur_BTagJet_PT[50]/F");
-    Tree_->Branch("cSV_BTagJet_PT",cSV_BTagJet_PT,"cSV_BTagJet_PT[50]/F");
-    Tree_->Branch("tCHighEff_BTagJet_ETA",tCHighEff_BTagJet_ETA,"tCHighEff_BTagJet_ETA[50]/F");
-    Tree_->Branch("tCHighPur_BTagJet_ETA", tCHighPur_BTagJet_ETA,"tCHighPur_BTagJet_ETA[50]/F");
-    Tree_->Branch("cSV_BTagJet_ETA",cSV_BTagJet_ETA,"cSV_BTagJet_ETA[50]/F");
-    Tree_->Branch("tCHighEff_BTagJet_PHI",tCHighEff_BTagJet_PHI,"tCHighEff_BTagJet_PHI[50]/F");
-    Tree_->Branch("tCHighPur_BTagJet_PHI", tCHighPur_BTagJet_PHI,"tCHighPur_BTagJet_PHI[50]/F");
-    Tree_->Branch("cSV_BTagJet_PHI",cSV_BTagJet_PHI,"cSV_BTagJet_PHI[50]/F");
-    Tree_->Branch("cSV_BTagJet_ET",cSV_BTagJet_ET,"cSV_BTagJet_ET[50]/F");
-    Tree_->Branch("tCHighEff_BTagJet_DISCR",tCHighEff_BTagJet_DISCR,"tCHighEff_BTagJet_DISCR[50]/F");
-    Tree_->Branch("tCHighPur_BTagJet_DISCR", tCHighPur_BTagJet_DISCR,"tCHighPur_BTagJet_DISCR[50]/F");
-    Tree_->Branch("cSV_BTagJet_DISCR",cSV_BTagJet_DISCR,"cSV_BTagJet_DISCR[50]/F");     
+    Tree_->Branch("tCHighEff_BTagJet_PT",&tCHighEff_BTagJet_PT,"std::vector<float >");
+    Tree_->Branch("tCHighPur_BTagJet_PT",&tCHighPur_BTagJet_PT,"std::vector<float >");
+    Tree_->Branch("cSV_BTagJet_PT",&cSV_BTagJet_PT,"std::vector<float >");
+    Tree_->Branch("tCHighEff_BTagJet_ETA",&tCHighEff_BTagJet_ETA,"std::vector<float >");
+    Tree_->Branch("tCHighPur_BTagJet_ETA",&tCHighPur_BTagJet_ETA,"std::vector<float >");
+    Tree_->Branch("cSV_BTagJet_ETA",&cSV_BTagJet_ETA,"std::vector<float >");
+    Tree_->Branch("tCHighEff_BTagJet_PHI",&tCHighEff_BTagJet_PHI,"std::vector<float >");
+    Tree_->Branch("tCHighPur_BTagJet_PHI",&tCHighPur_BTagJet_PHI,"std::vector<float >");
+    Tree_->Branch("cSV_BTagJet_PHI",&cSV_BTagJet_PHI,"std::vector<float >");
+    Tree_->Branch("cSV_BTagJet_ET",&cSV_BTagJet_ET,"std::vector<float >");
+    Tree_->Branch("tCHighEff_BTagJet_DISCR",&tCHighEff_BTagJet_DISCR,"std::vector<float >");
+    Tree_->Branch("tCHighPur_BTagJet_DISCR",&tCHighPur_BTagJet_DISCR,"std::vector<float >");
+    Tree_->Branch("cSV_BTagJet_DISCR",&cSV_BTagJet_DISCR,"std::vector<float >");     
   }
   
   
-  void Initialize(){
-    
-    Avginstlumi=-999.;
-    RHO=-999.,RHO_ele=-999.,RHO_mu=-999.;
-
-    // PU
-    num_PU_vertices=-999;
-    PU_BunchCrossing=-999;
-
-    
-    // HLT flags   
-
-    RECO_nMuHLTMatch=0;
-    RECO_nEleHLTMatch=0;
-    
-    //for (int ii=0;ii<200;ii++){
-    //  HLTPathsFired[ii]="";
-    //}
-
-    for  (int i=0; i<4;i++){ 
-      MC_LEPT_PT[i]=-999.;
-      MC_LEPT_ETA[i]=-999.;
-      MC_LEPT_PHI[i]=-999.;
-      MC_LEPT_THETA[i]=-999.;
-      MC_LEPT_PDGID[i]=-999.;
-    }
-    for  (int i=0; i<4;i++){ 
-      for  (int j=0; j<7;j++){ 
-	MC_ZZ_MASS[i][j]=-999.;
-	MC_ZZ_PT[i][j]=-999.;
-	MC_ZZ_ETA[i][j]=-999.;
-	MC_ZZ_PHI[i][j]=-999.;
-	MC_ZZ_THETA[i][j]=-999.;
-	MC_ZZ_PDGID[i][j]=-999.;
-      }
-    }
-
-    for(int i=0; i<2; ++i) {
-      for(int j=0; j<5; ++j) {
-	MC_Z_PT[i][j]=-999;
-	MC_Z_ETA[i][j]=-999;
-	MC_Z_PHI[i][j]=-999;
-	MC_Z_THETA[i][j]=-999;
-	MC_Z_MASS[i][j]=-999;
-	MC_Z_PDGID[i][j]=-999;
-      }
-    }
-
-    for  (int i=0; i<50;i++){ 
-      for  (int j=0; j<5;j++){ 
-	MC_fourl_MASS[i][j]=-999.;
-	MC_fourl_PT[i][j]=-999.;
-	MC_fourl_PDGID[i][j]=-999.;
-      }
-    }
-
-    for (int i=0; i<7;i++){
-      MC_E[i]=-999.;
-      MC_PT[i]=-999.;
-      MC_ETA[i]=-999.;
-      MC_THETA[i]=-999.;
-      MC_PHI[i]=-999.;
-      MC_MASS[i]=-999.;
-      MC_PDGID[i]=-999.;
-      
-
-
-  
-
-    }
-
-   
-    for (int i=0; i<100;i++){
-      RECORF_2e2mu_cosTheta1_spin[i]=-999.;
-      RECORF_2e2mu_cosTheta2_spin[i]=-999.;
-      RECORF_2e2mu_cosThetaStar_spin[i]=-999.;
-      RECORF_2e2mu_Phi_spin[i]=-999.;
-      RECORF_2e2mu_Phi1_spin[i]=-999.;
-      RECORF_2e2mu_Phi2_spin[i]=-999.;
-      RECORF_2e2mu_phi1RF_spin[i]=-999.;
-      RECORF_2e2mu_phi2RF_spin[i]=-999.;
-      RECORF_2e2mu_MELA[i]=-999.;
-      
-      RECORF_4mu_cosTheta1_spin[i]=-999.;
-      RECORF_4mu_cosTheta2_spin[i]=-999.;
-      RECORF_4mu_cosThetaStar_spin[i]=-999.;
-      RECORF_4mu_Phi_spin[i]=-999.;
-      RECORF_4mu_Phi1_spin[i]=-999.;
-      RECORF_4mu_Phi2_spin[i]=-999.;
-      RECORF_4mu_phi1RF_spin[i]=-999.;
-      RECORF_4mu_phi2RF_spin[i]=-999.;
-      RECORF_4mu_MELA[i]=-999.;
-
-      RECORF_4e_cosTheta1_spin[i]=-999.;
-      RECORF_4e_cosTheta2_spin[i]=-999.;
-      RECORF_4e_cosThetaStar_spin[i]=-999.;
-      RECORF_4e_Phi_spin[i]=-999.;
-      RECORF_4e_Phi1_spin[i]=-999.;
-      RECORF_4e_Phi2_spin[i]=-999.;
-      RECORF_4e_phi1RF_spin[i]=-999.;
-      RECORF_4e_phi2RF_spin[i]=-999.;
-      RECORF_4e_MELA[i]=-999.;
-   
-    }
-
-    for (int i=0; i<10;i++){
-      MCRF_cosTheta1_spin[i]=-999.;
-      MCRF_cosTheta2_spin[i]=-999.;
-      MCRF_cosThetaStar_spin[i]=-999.;
-      MCRF_Phi_spin[i]=-999.;
-      MCRF_Phi1_spin[i]=-999.;
-      MCRF_Phi2_spin[i]=-999.;
-      MCRF_phi1RF_spin[i]=-999.;
-      MCRF_phi2RF_spin[i]=-999.;          	       
-      MCRF_MELA[i]=-999.; 
-   
-    }
-
-    genmet=-999.,calomet=-999.;  
-    RECO_NMU=0,RECO_NELE=0;
-    RECO_NTRACK=0;
-    
-    
-    RECO_NPHOT=0,RECO_NJET=0,RECO_NVTX=0;
-    RECO_NPFPHOT=0;
-
-    for (int i=0; i<20;i++){
-      RECOPHOT_PT[i]=-999.;
-      RECOPHOT_ETA[i]=-999.;
-      RECOPHOT_PHI[i]=-999.;
-      RECOPHOT_THETA[i]=-999.;
-      RECOPHOT_TLE_ParentSC_X[i]=-999.;
-      RECOPHOT_TLE_ParentSC_Y[i]=-999.;
-      RECOPHOT_TLE_ParentSC_Z[i]=-999.;
-      RECOPFPHOT_PT[i]=-999.;
-      RECOPFPHOT_PTError[i]=-999.;
-      RECOPFPHOT_ETA[i]=-999.;
-      RECOPFPHOT_PHI[i]=-999.;
-      RECOPFPHOT_THETA[i]=-999.;
-
-      RECOPFPHOT_PFX_rho[i]=-999.;
-
-      RECOPFPHOT_PFchAllPart[i]=-999.;
-      RECOPFPHOT_PFchHad[i]=-999.;
-      RECOPFPHOT_PFneuHad[i]=999.;
-      RECOPFPHOT_PFphoton[i]=-999.;
-      RECOPFPHOT_PFPUchAllPart[i]=-999.;
-      RECOPFPHOT_PFX_rho[i]=-999.;
-
-       RECOPFPHOT_PT_uncorr[i]=-999.;
-
-      //Reham sys variables
-
-      RECOPFPHOT_ecalEnergyPreCorr[i] =-999.;
-      RECOPFPHOT_ecalEnergyErrPreCorr[i]=-999.;
-      RECOPFPHOT_ecalEnergyErrPostCorr[i]=-999.;
-      RECOPFPHOT_energyScaleValue[i]=-999.;       
-      RECOPFPHOT_energySigmaValue[i]=-999.;
-      RECOPFPHOT_energyScaleUp[i]=-999.;    
-      RECOPFPHOT_energyScaleDown[i]=-999.;       
-      RECOPFPHOT_energyScaleStatUp[i]=-999.;       
-      RECOPFPHOT_energyScaleStatDown[i]=-999.;        
-      RECOPFPHOT_energyScaleSystUp[i]=-999.;        
-      RECOPFPHOT_energyScaleSystDown[i]=-999.;        
-      RECOPFPHOT_energyScaleGainUp[i]=-999.;        
-      RECOPFPHOT_energyScaleGainDown[i]=-999.;      
-      RECOPFPHOT_energyScaleEtUp[i]=-999.;       
-      RECOPFPHOT_energyScaleEtDown[i]=-999.;       
-      RECOPFPHOT_energySigmaUp[i]=-999.;         
-      RECOPFPHOT_energySigmaDown[i]=-999.;       
-      RECOPFPHOT_energySigmaPhiUp[i]=-999.;        
-      RECOPFPHOT_energySigmaPhiDown[i]=-999.;     
-      RECOPFPHOT_energySigmaRhoUp[i]=-999.;        
-      RECOPFPHOT_energySigmaRhoDown[i]=-999.; 
-
-    }
-		
-    for(int ivtx=0;ivtx<15;ivtx++) {
-      RECO_VERTEX_x[ivtx] = -999;
-      RECO_VERTEX_y[ivtx] = -999;
-      RECO_VERTEX_z[ivtx] = -999;
-      RECO_VERTEXPROB[ivtx]=-999.;
-      RECO_VERTEX_ndof[ivtx] = -999;
-      RECO_VERTEX_chi2[ivtx] = -999;
-      RECO_VERTEX_ntracks[ivtx]=-999;
-      for (int i=0;i<100;i++){
-	RECO_VERTEX_TRACK_PT[ivtx][i]=-999;
-      }
-    }
-    
-    RECO_PFJET_N = 0;
-    for (int ijets=0;ijets<200;ijets++) {
-      RECO_PFJET_CHARGE[ijets]   = -999.; 
-      RECO_PFJET_ET[ijets]   = -999.; 
-      RECO_PFJET_PT[ijets]  = -999.; 
-      RECO_PFJET_ETA[ijets] = -999.; 
-      RECO_PFJET_PHI[ijets] = -999.;
-      RECO_PFJET_PUID[ijets] = -999;
-      RECO_PFJET_PUID_loose[ijets] = -999;
-      RECO_PFJET_PUID_medium[ijets] = -999;
-      RECO_PFJET_PUID_MVA[ijets] = -999.;
-      RECO_PFJET_QG_Likelihood[ijets] = -999.;
-      RECO_PFJET_QG_axis2[ijets] = -999.;
-      RECO_PFJET_QG_ptd[ijets] = -999.;
-      RECO_PFJET_QG_mult[ijets] = -999.;
-    }
-    
-
-
-    pfmet=-999.;
-    pfmet_x=-999.;
-    pfmet_y=-999.;
-    pfmet_phi=-999.;
-    pfmet_theta=-999.;
-
-    pfmet_uncorr=-999.;
-    pfmet_x_uncorr=-999.;
-    pfmet_y_uncorr=-999.;
-    pfmet_phi_uncorr=-999.;
-    pfmet_theta_uncorr=-999.;
-
-    PassecalBadCalibFilterUpdated =-999;
-    //filterbadChCandidate=-999;
-    //filterbadPFMuon=-999;
-
-    //MET Filters decisions
-
-    passFilterGoodVtxNoise = -999;
-    passFilterGlobalSuperTightHalo2016NoiseFilter = -999;
-    passFilterHBHENoise = -999;
-      passFilterHBHENoiseIso = -999; 
-    passFilterEcalDeadCellTriggerPrimitiveNoise = -999;
-    passFilterBadPFMuon = -999;
-    passFilterBadChargedCandidate = -999;
-    passFilterEEBadScNoise = -999;
-    passFilterEcalBadCalib = -999;
-    
-    tcmet=-999.;
-    cormetmuons=-999.;
-    
-    BeamSpot_X=-999.;
-    BeamSpot_Y=-999.;
-    BeamSpot_Z=-999.;
-    
-    
-    for (int i=0; i<100;i++){
-      MC_GENJET_PT[i]=-999;
-      MC_GENJET_ETA[i]=-999;
-      MC_GENJET_PHI[i]=-999;
-
-      ftsigma[i]=-999.;
-      ftsigmalag[i]=-999.;
-      gdX[i]=-999.;
-      gdY[i]=-999.;
-      gdZ[i]=-999.;
-      gdlagX[i]=-999.;
-      gdlagY[i]=-999.;
-      gdlagZ[i]=-999.;
-      gdlagProb[i]=-999.;
-      gdlagNdof[i]=-999.;
-      ftsigmaMMMM[i]=-999.;
-      ftsigmalagMMMM[i]=-999.;
-      gdXMMMM[i]=-999.;
-      gdYMMMM[i]=-999.;
-      gdZMMMM[i]=-999.;
-      gdlagXMMMM[i]=-999.;
-      gdlagYMMMM[i]=-999.;
-      gdlagZMMMM[i]=-999.;
-      gdlagProbMMMM[i]=-999.;
-      gdlagNdofMMMM[i]=-999.;
-      ftsigmaEEEE[i]=-999.;
-      ftsigmalagEEEE[i]=-999.;
-      gdXEEEE[i]=-999.;
-      gdYEEEE[i]=-999.;
-      gdZEEEE[i]=-999.;
-      gdlagXEEEE[i]=-999.;
-      gdlagYEEEE[i]=-999.;
-      gdlagZEEEE[i]=-999.;
-      gdlagProbEEEE[i]=-999.;
-      gdlagNdofEEEE[i]=-999.;
-
-      StdFitVertexX[i]=-999.;
-      StdFitVertexY[i]=-999.;
-      StdFitVertexZ[i]=-999.;
-      StdFitVertexChi2r[i]=-999.;
-      StdFitVertexProb[i]=-999.;
-      KinFitVertexX[i]=-999.;
-      KinFitVertexY[i]=-999.;
-      KinFitVertexZ[i]=-999.;
-      KinFitVertexChi2r[i]=-999.;
-      KinFitVertexProb[i]=-999.;
-
-      StdFitVertexXMMMM[i]=-999.;
-      StdFitVertexYMMMM[i]=-999.;
-      StdFitVertexZMMMM[i]=-999.;
-      StdFitVertexChi2rMMMM[i]=-999.;
-      StdFitVertexProbMMMM[i]=-999.;
-      KinFitVertexXMMMM[i]=-999.;
-      KinFitVertexYMMMM[i]=-999.;
-      KinFitVertexZMMMM[i]=-999.;
-      KinFitVertexChi2rMMMM[i]=-999.;
-      KinFitVertexProbMMMM[i]=-999.;
-
-      StdFitVertexXEEEE[i]=-999.;
-      StdFitVertexYEEEE[i]=-999.;
-      StdFitVertexZEEEE[i]=-999.;
-      StdFitVertexChi2rEEEE[i]=-999.;
-      StdFitVertexProbEEEE[i]=-999.;
-      KinFitVertexXEEEE[i]=-999.;
-      KinFitVertexYEEEE[i]=-999.;
-      KinFitVertexZEEEE[i]=-999.;
-      KinFitVertexChi2rEEEE[i]=-999.;
-      KinFitVertexProbEEEE[i]=-999.;
-
-      StdFitVertexChi2rMMM[i]=-999.;
-      StdFitVertexProbMMM[i]=-999.;
-      StdFitVertexChi2rMME[i]=-999.;
-      StdFitVertexProbMME[i]=-999.;
-      StdFitVertexChi2rEEE[i]=-999.;
-      StdFitVertexProbEEE[i]=-999.;
-      StdFitVertexChi2rMEE[i]=-999.;
-      StdFitVertexProbMEE[i]=-999.;
-
-      RECO_MMMM_MASS_REFIT[i]=-999.;
-      RECO_EEMM_MASS_REFIT[i]=-999.;
-      RECO_EEEE_MASS_REFIT[i]=-999.;
-
-      for (int k=0;k<4;k++){
-	StdFitVertexTrack_PT[k][i]=-999.;
-	StdFitVertexTrack_ETA[k][i]=-999.;
-	StdFitVertexTrack_PHI[k][i]=-999.;
-	
-	StdFitVertexTrackMMMM_PT[k][i]=-999.;
-	StdFitVertexTrackMMMM_ETA[k][i]=-999.;
-	StdFitVertexTrackMMMM_PHI[k][i]=-999.;
-	
-	StdFitVertexTrackEEEE_PT[k][i]=-999.;
-	StdFitVertexTrackEEEE_ETA[k][i]=-999.;
-	StdFitVertexTrackEEEE_PHI[k][i]=-999.;
-      }
-    }
-    
-
-    for (int i=0; i<40;i++){
-      StdFitVertexChi2rDiLep[i]=-999.;
-      StdFitVertexProbDiLep[i]=-999.;
-    }
-    
-    for (int j=0; j<7;j++){
-      for (int i=0; i<100;i++){
-	RECO_MMMM_MASS[j][i]=-999.;
-	RECO_MMMM_PT[j][i]=-999.;	
-	RECO_EEMM_MASS[j][i]=-999.;
-	RECO_EEMM_PT[j][i]=-999.;
-	RECO_EEEE_MASS[j][i]=-999.;
-	RECO_EEEE_PT[j][i]=-999.;
-
-	RECO_MMMM_ETA[j][i]=-999.;
-	RECO_MMMM_PHI[j][i]=-999.;
-	RECO_EEMM_ETA[j][i]=-999.;
-	RECO_EEMM_PHI[j][i]=-999.;
-	RECO_EEEE_ETA[j][i]=-999.;
-	RECO_EEEE_PHI[j][i]=-999.;
-
-      }
-    }
-
-    for (int i=0; i<50;i++){
-
-      RECO_ZMM_MASS[i]=-999.;
-      RECO_ZMM_PT[0][i]=-999.;
-      RECO_ZMM_PT[1][i]=-999.;
-      RECO_ZMM_PT[2][i]=-999.;
-      RECO_ZMM_ETA[0][i]=-999.;
-      RECO_ZMM_ETA[1][i]=-999.;
-      RECO_ZMM_ETA[2][i]=-999.;
-      RECO_ZMM_PHI[0][i]=-999.;
-      RECO_ZMM_PHI[1][i]=-999.;
-      RECO_ZMM_PHI[2][i]=-999.;
-      
-      RECO_ZEE_MASS[i]=-999.;
-      RECO_ZEE_PT[0][i]=-999.;
-      RECO_ZEE_PT[1][i]=-999.;
-      RECO_ZEE_PT[2][i]=-999.;
-      RECO_ZEE_ETA[0][i]=-999.;
-      RECO_ZEE_ETA[1][i]=-999.;
-      RECO_ZEE_ETA[2][i]=-999.;
-      RECO_ZEE_PHI[0][i]=-999.;
-      RECO_ZEE_PHI[1][i]=-999.;
-      RECO_ZEE_PHI[2][i]=-999.;
-      
-      RECO_ZMMss_MASS[i]=-999.;
-      RECO_ZMMss_PT[0][i]=-999.;
-      RECO_ZMMss_PT[1][i]=-999.;
-      RECO_ZMMss_PT[2][i]=-999.;
-      RECO_ZMMss_ETA[0][i]=-999.;
-      RECO_ZMMss_ETA[1][i]=-999.;
-      RECO_ZMMss_ETA[2][i]=-999.;
-      RECO_ZMMss_PHI[0][i]=-999.;
-      RECO_ZMMss_PHI[1][i]=-999.;
-      RECO_ZMMss_PHI[2][i]=-999.;
-      
-
-      RECO_ZEEss_MASS[i]=-999.;
-      RECO_ZEEss_PT[0][i]=-999.;
-      RECO_ZEEss_PT[1][i]=-999.;
-      RECO_ZEEss_PT[2][i]=-999.;
-      RECO_ZEEss_ETA[0][i]=-999.;
-      RECO_ZEEss_ETA[1][i]=-999.;
-      RECO_ZEEss_ETA[2][i]=-999.;
-      RECO_ZEEss_PHI[0][i]=-999.;
-      RECO_ZEEss_PHI[1][i]=-999.;
-      RECO_ZEEss_PHI[2][i]=-999.;
-
-
-      RECO_ZEM_MASS[i]=-999.;
-      RECO_ZEM_PT[0][i]=-999.;
-      RECO_ZEM_PT[1][i]=-999.;
-      RECO_ZEM_PT[2][i]=-999.;
-      RECO_ZEM_ETA[0][i]=-999.;
-      RECO_ZEM_ETA[1][i]=-999.;
-      RECO_ZEM_ETA[2][i]=-999.;
-      RECO_ZEM_PHI[0][i]=-999.;
-      RECO_ZEM_PHI[1][i]=-999.;
-      RECO_ZEM_PHI[2][i]=-999.;
-
-      RECO_DiLep_MASS[i]=-999.;
-      RECO_DiLep_PT[0][i]=-999.;
-      RECO_DiLep_PT[1][i]=-999.;
-      RECO_DiLep_PT[2][i]=-999.;
-      RECO_DiLep_ETA[0][i]=-999.;
-      RECO_DiLep_ETA[1][i]=-999.;
-      RECO_DiLep_ETA[2][i]=-999.;
-      RECO_DiLep_PHI[0][i]=-999.;
-      RECO_DiLep_PHI[1][i]=-999.;
-      RECO_DiLep_PHI[2][i]=-999.;
-     
-      RECO_LLL0_MASS[i]=-999;
-      RECO_LLL1_MASS[i]=-999;
-      RECO_LLL2_MASS[i]=-999;
-      RECO_LLL3_MASS[i]=-999;
-      for (int j=0; j<4;j++){
-	RECO_LLL0_PT[j][i]=-999;
-	RECO_LLL1_PT[j][i]=-999;
-	RECO_LLL2_PT[j][i]=-999;
-	RECO_LLL3_PT[j][i]=-999;
-      }
-      
-    }
-
-    for (int i=0; i<20;i++){
-      RECO_LLLL0ss_MASS[i]=-999;
-      RECO_LLLL1ss_MASS[i]=-999;
-      RECO_LLLL2ss_MASS[i]=-999;
-
-      RECO_LLLl0_MASS[i]=-999;
-      RECO_LLLl1_MASS[i]=-999;
-      
-      for (int j=0; j<4;j++){
-	RECO_LLLL1ss_PT[j][i]=-999;
-	RECO_LLLL1ss_PT[j][i]=-999;
-	RECO_LLLL2ss_PT[j][i]=-999;
-	RECO_LLLl0_PT[j][i]=-999;
-	RECO_LLLl1_PT[j][i]=-999;
-      }
-    }
-    
-    
-    for (int j=0; j<7;j++){
-      for (int i=0; i<50;i++){
-	RECO_LLLL_MASS[j][i]=-999.;
-	RECO_LLLL_PT[j][i]=-999.;
-	RECO_LLLL_ETA[j][i]=-999.;
-	RECO_LLLL_PHI[j][i]=-999.;
-      }
-    }
-
-    for (int i=0; i<100;i++){
-      RECOELE_E[i]     = -999.;
-      RECOELE_PT[i]=-999.;
-      RECOELE_PTError[i]=-999.;
-      RECOELE_P[i]=-999.;
-      RECOELE_PHI[i]=-999.;
-      RECOELE_ETA[i]=-999.;
-      RECOELE_THETA[i]=-999.;
-      RECOELE_MASS[i]=-999.;
-      RECOELE_CHARGE[i]=-999.;
-      RECOELE_ID[i]=-999.;
-      RECOELE_PT_uncorr[i]=-999.;
-  
-      //Reham sys variables
-
-      RECOELE_ecalTrkEnergyPreCorr[i] =-999.;
-      RECOELE_ecalTrkEnergyErrPreCorr[i]=-999.;
-      RECOELE_ecalTrkEnergyErrPostCorr[i]=-999.;
-      RECOELE_energyScaleValue[i]=-999.;       
-      RECOELE_energySigmaValue[i]=-999.;
-      RECOELE_energyScaleUp[i]=-999.;    
-      RECOELE_energyScaleDown[i]=-999.;       
-      RECOELE_energyScaleStatUp[i]=-999.;       
-      RECOELE_energyScaleStatDown[i]=-999.;        
-      RECOELE_energyScaleSystUp[i]=-999.;        
-      RECOELE_energyScaleSystDown[i]=-999.;        
-      RECOELE_energyScaleGainUp[i]=-999.;        
-      RECOELE_energyScaleGainDown[i]=-999.;      
-      RECOELE_energyScaleEtUp[i]=-999.;       
-      RECOELE_energyScaleEtDown[i]=-999.;       
-      RECOELE_energySigmaUp[i]=-999.;         
-      RECOELE_energySigmaDown[i]=-999.;       
-      RECOELE_energySigmaPhiUp[i]=-999.;        
-      RECOELE_energySigmaPhiDown[i]=-999.;     
-      RECOELE_energySigmaRhoUp[i]=-999.;        
-      RECOELE_energySigmaRhoDown[i]=-999.;  
-      
-      // Core attributes
-      RECOELE_isEcalDriven[i]    = false;
-      RECOELE_isTrackerDriven[i] = false;
-      RECOELE_gsftrack_NPixHits[i]=-999.;
-      RECOELE_gsftrack_NStripHits[i]=-999.;
-      RECOELE_gsftrack_chi2[i]   = -999;
-      RECOELE_gsftrack_dxyB[i]   = -999;
-      RECOELE_gsftrack_dxy[i]    = -999;
-      RECOELE_gsftrack_dxyError[i]    = -999;
-      RECOELE_gsftrack_dzB[i]    = -999;
-      RECOELE_gsftrack_dz[i]     = -999;
-      RECOELE_gsftrack_dzError[i]   = -999;
-      RECOELE_gsftrack_losthits[i]  = -999;
-      RECOELE_gsftrack_validhits[i] = -999;
-      RECOELE_gsftrack_expected_inner_hits[i]=-999;
-      RECOELE_scl_E[i]   = -999;
-      RECOELE_scl_Et[i]  = -999;
-      RECOELE_scl_Eta[i] = -999;
-      RECOELE_scl_Phi[i] = -999;
-      RECOELE_ecalEnergy[i] = -999;
-
-      // Track-Cluster matching attributes
-      RECOELE_ep[i]             = -999.;
-      RECOELE_eSeedp[i]         = -999.;
-      RECOELE_eSeedpout[i]      = -999.;
-      RECOELE_eElepout[i]       = -999.;
-      //
-      RECOELE_deltaEtaIn[i]     = -999.;
-      RECOELE_deltaEtaSeed[i]   = -999.;
-      RECOELE_deltaEtaEle[i]    = -999.;
-      RECOELE_deltaPhiIn[i]     = -999.;
-      RECOELE_deltaPhiSeed[i]   = -999.;
-      RECOELE_deltaPhiEle[i]    = -999.;
-      // Fiducial flags 
-      RECOELE_isbarrel[i]    = 0;
-      RECOELE_isendcap[i]    = 0;
-      RECOELE_isGap[i]  = 0;
-      RECOELE_isEBetaGap[i]  = 0;
-      RECOELE_isEBphiGap[i]  = 0;
-      RECOELE_isEEdeeGap[i]  = 0;
-      RECOELE_isEEringGap[i] = 0;
-      // Shower shape
-      RECOELE_sigmaIetaIeta[i] = -999.;
-      RECOELE_sigmaEtaEta[i]   = -999.;
-      RECOELE_e15[i]           = -999.;
-      RECOELE_e25max[i]        = -999.;
-      RECOELE_e55[i]           = -999.;
-      RECOELE_he[i]            = -999.;
-      RECOELE_r9[i]            = -999.;
-      // Particle flow
-      RECOELE_mva[i] = -999.; 
-      // Brem & Classifaction
-      RECOELE_fbrem[i]  = -999.; 
-      RECOELE_nbrems[i] = -999;
-      RECOELE_Class[i]  = -999;
-      RECOELE_fbrem_mode[i]=-999.;
-      RECOELE_fbrem_mean[i]=-999.;
-      // isolation
-      RECOELE_EGMTRACKISO[i]=-999.; 
-      RECOELE_EGMHCALISO[i]=-999.;
-      RECOELE_EGMECALISO[i]=-999.;
-      RECOELE_EGMX[i]=-999.;
-
-      // PF isolation
-      RECOELE_PFchAllPart[i]=-999.;
-      RECOELE_PFchHad[i]=-999.;
-      RECOELE_PFneuHad[i]=999.;
-      RECOELE_PFphoton[i]=-999.;
-      RECOELE_PFPUchAllPart[i]=-999.;
-      RECOELE_PFX_dB[i]=-999.;
-      RECOELE_PFX_rho[i]=-999.;
-
-      // Electron regression
-      RECOELE_regEnergy[i]=-999.;
-      RECOELE_regEnergyError[i]=-999.;
-
-      // TLE electrons
-      RECOELE_TLE_ParentSC_X[i]=-999.;
-      RECOELE_TLE_ParentSC_Y[i]=-999.;
-      RECOELE_TLE_ParentSC_Z[i]=-999.;
-
-      // IP
-      RECOELE_IP[i]=-9999.;
-      RECOELE_SIP[i]=-9999.;
-      RECOELE_IPERROR[i]=-9999.;
-      RECOELE_IP_KF[i]=-999.;
-      RECOELE_SIP_KF[i]=-999.;
-      RECOELE_IPERROR_KF[i]=-999.;
-      RECOELE_SIP_GD[i]=-999.;
-      RECOELE_SIP_GDEEEE[i]=-999.;
-      RECOELE_SIP_Std[i]=-999.;
-      RECOELE_SIP_StdEEEE[i]=-999.;
-      RECOELE_SIP_Kin[i]=-999.;
-      RECOELE_SIP_KinEEEE[i]=-999.;
-      RECOELE_STIP[i]=-999.;
-      RECOELE_TIP[i]=-999.;
-      RECOELE_TIPERROR[i]=-999.;
-      RECOELE_SLIP[i]=-999.;
-      RECOELE_LIP[i]=-999.;
-      RECOELE_LIPERROR[i]=-999.;
-      ele_sclRawE[i]=-999. ;
-      ele_sclX[i]=-999.; 
-      ele_sclY[i]=-999.; 
-      ele_sclZ[i]=-999.;
-      ele_seedSubdet1[i]=-999.;
-      ele_seedDphi1[i]=-999.; 
-      ele_seedDrz1[i]=-999.;
-      ele_seedSubdet2[i]=-999.;
-      ele_seedDphi2[i]=-999.; 
-      ele_seedDrz2[i]=-999.;
-      ele_eidVeryLoose[i]=-999.; 
-      ele_eidLoose[i]=-999.; 
-      ele_eidMedium[i]=-999.; 
-      ele_eidTight[i]=-999. ;
-      ele_eidHZZVeryLoose[i]=-999.; 
-      ele_eidHZZLoose[i]=-999.; 
-      ele_eidHZZMedium[i]=-999.; 
-      ele_eidHZZTight[i]=-999. ;
-      RECOELE_mvaTrigV0[i]=-999.;
-      RECOELE_mvaNonTrigV0[i]=-999.;
-    
-      // Conversion
-      ConvMapDist[i]=-999.;
-      ConvMapDcot[i]=-999.;
-      
-      // Muon block
-      RECOMU_PT_MuHLTMatch[i]=-999.;
-      RECOMU_ETA_MuHLTMatch[i]=-999.;
-      RECOMU_PHI_MuHLTMatch[i]=-999.;
-      RECOELE_PT_EleHLTMatch[i]=-999.;
-      RECOELE_ETA_EleHLTMatch[i]=-999.;
-      RECOELE_PHI_EleHLTMatch[i]=-999.;
-
-      RECOMU_isPFMu[i]=false;
-      RECOMU_isGlobalMu[i]=false;
-      RECOMU_isStandAloneMu[i]=false;
-      RECOMU_isTrackerMu[i]=false;
-      RECOMU_isCaloMu[i]=false;
-      RECOMU_isTrackerHighPtMu[i]=false;   
-      RECOMU_isME0Muon[i]=false;
-
-      RECOMU_E[i]=-999.;
-      RECOMU_PT[i]=-999.;
-      // RECOMU_Roch_calib_error[i]=-999.;
-      RECOMU_P[i]=-999.;
-      RECOMU_PHI[i]=-999.;
-      RECOMU_ETA[i]=-999.;
-      RECOMU_THETA[i]=-999.;
-      RECOMU_MASS[i]=-999.;      
-      RECOMU_CHARGE[i]=-999.;
-      RECOMU_PT_uncorr[i]=-999.;
-      
-      for (int j=0; j<3; j++){
-	for (int k=0;k<3;k++){
-	  RECOMU_COV[i][j][k]=-999.;
-	  RECOELE_COV[i][j][k]=-999.;
-	}
-      }
-
-      RECOMU_TRACKISO[i]=-999.; 
-      RECOMU_TRACKISO_SUMPT[i]=-999.; 
-      RECOMU_ECALISO[i]=-999.;
-      RECOMU_HCALISO[i]=-999.;
-      RECOMU_X[i]=-999.;
-
-      RECOMU_PFchHad[i]=-999.;
-      RECOMU_PFneuHad[i]=999.;
-      RECOMU_PFphoton[i]=-999.;
-      RECOMU_PFX_dB[i]=-999.;
-      RECOMU_PFX_rho[i]=-999.;
-
-      RECOMU_IP[i]=-9999.;
-      RECOMU_SIP[i]=-9999.;
-      RECOMU_IPERROR[i]=-9999.;
-      RECOMU_IP_KF[i]=-999.;
-      RECOMU_SIP_KF[i]=-999.;
-      RECOMU_IPERROR_KF[i]=-999.;
-
-      RECOMU_SIP_GD[i]=-999.;
-      RECOMU_SIP_GDMMMM[i]=-999.;
-      RECOMU_SIP_Std[i]=-999.;
-      RECOMU_SIP_StdMMMM[i]=-999.;
-      RECOMU_SIP_Kin[i]=-999.;
-      RECOMU_SIP_KinMMMM[i]=-999.;
-      RECOMU_STIP[i]=-999.;
-      RECOMU_TIP[i]=-999.;
-      RECOMU_TIPERROR[i]=-999.;
-      RECOMU_SLIP[i]=-999.;
-      RECOMU_LIP[i]=-999.;
-      RECOMU_LIPERROR[i]=-999.;
-      
- 
-
-      RECOMU_numberOfMatches[i]=-999;
-      RECOMU_numberOfMatchedStations[i]=-999.;
-      RECOMU_caloCompatibility[i]=-999.;
-      RECOMU_segmentCompatibility[i]=-999.;
-      RECOMU_glbmuPromptTight[i]=false;
-      
-      RECOMU_mutrkPT[i]=-999.;
-      RECOMU_mutrkPTError[i]=-999.;
-      RECOMU_mutrkDxy[i]=-999.;
-      RECOMU_mutrkDxyError[i]=-999.;
-      RECOMU_mutrkDxyB[i]=-999.;
-      RECOMU_mutrkDz[i]=-999.;
-      RECOMU_mutrkDzError[i]=-999.;
-      RECOMU_mutrkDzB[i]=-999.;
-      RECOMU_mutrkChi2PerNdof[i]=-999.;
-      RECOMU_mutrktrackerLayersWithMeasurement[i]=-999.;
-
-      RECOMU_muInnertrkDxy[i]=-999.;
-      RECOMU_muInnertrkDxyError[i]=-999.;
-      RECOMU_muInnertrkDxyB[i]=-999.;
-      RECOMU_muInnertrkDz[i]=-999.;
-      RECOMU_muInnertrkDzError[i]=-999.;
-      RECOMU_muInnertrkDzB[i]=-999.;
-      RECOMU_muInnertrkChi2PerNdof[i]=-999.;
-      RECOMU_muInnertrktrackerLayersWithMeasurement[i]=-999.;
-      RECOMU_muInnertrkCharge[i]=-999.;
-      RECOMU_muInnertrkNHits[i]=-999.;
-      RECOMU_muInnertrkNPixHits[i]=-999.;
-      RECOMU_muInnertrkNStripHits[i]=-999.;
-      RECOMU_muInnertrkPT[i]=-999.;
-      RECOMU_muInnertrkPTError[i]=-999.;
-      
-      RECOMU_mubesttrkType[i]=-999;
-      RECOMU_mubesttrkDxy[i]=-999.;
-      RECOMU_mubesttrkDxyB[i]=-999.;
-      RECOMU_mubesttrkDxyError[i]=-999.;
-      RECOMU_mubesttrkDz[i]=-999.;
-      RECOMU_mubesttrkDzB[i]=-999.;
-      RECOMU_mubesttrkDzError[i]=-999.;
-      RECOMU_mubesttrkPTError[i]=-999.;
-      RECOMU_Rochester_Error[i]=-999.;
-
-      RECOMU_mutrkCharge[i]=-999.;
-      RECOMU_mutrkNHits[i]=-999.;
-      RECOMU_mutrkNPixHits[i]=-999.;
-      RECOMU_mutrkNMuonHits[i]=-999.;
-      RECOMU_mutrkNStripHits[i]=-999.;
-      RECOMU_trkmuArbitration[i]=false;
-      RECOMU_trkmu2DCompatibilityLoose[i]=false;
-      RECOMU_trkmu2DCompatibilityTight[i]=false;
-      RECOMU_trkmuOneStationLoose[i]=false;
-      RECOMU_trkmuOneStationTight[i]=false;
-      RECOMU_trkmuLastStationLoose[i]=false;
-      RECOMU_trkmuLastStationTight[i]=false;
-      RECOMU_trkmuOneStationAngLoose[i]=false;
-      RECOMU_trkmuOneStationAngTight[i]=false;
-      RECOMU_trkmuLastStationAngLoose[i]=false;
-      RECOMU_trkmuLastStationAngTight[i]=false;
-      RECOMU_trkmuLastStationOptimizedLowPtLoose[i]=false;
-      RECOMU_trkmuLastStationOptimizedLowPtTight[i]=false;
-
-    }
-    
-
-    for (int i=0; i<50;i++){      
-      //Matching 
-
-      // Muons
-      RECOMU_MatchingMCTruth[i]=false;
-      RECOMU_MatchingMCpT[i]=-999.;
-      RECOMU_MatchingMCEta[i]=-999.;
-      RECOMU_MatchingMCPhi[i]=-999.;
-      
-      // Electrons
-      RECOELE_MatchingMCTruth[i]=false;
-      RECOELE_MatchingMCpT[i]=-999.;
-      RECOELE_MatchingMCEta[i]=-999.;
-      RECOELE_MatchingMCPhi[i]=-999.;
-
-
-      //Gamma:
-      RECOPHOT_MatchingMCTruth[i]=false;
-      RECOPHOT_MatchingMCpT[i]=-999.;
-      RECOPHOT_MatchingMCEta[i]=-999.;
-      RECOPHOT_MatchingMCPhi[i]=-999.;
-
-      
-      //zToMuMu:
-      RECOzMuMu_MatchingMCTruth[i]=false;
-      RECOzMuMu_MatchingMCpT[i]=-999.;
-      RECOzMuMu_MatchingMCmass[i]=-999.;
-      RECOzMuMu_MatchingMCEta[i]=-999.;
-      RECOzMuMu_MatchingMCPhi[i]=-999.;
-      
-      //zToEE:
-      RECOzEE_MatchingMCTruth[i]=false;
-      RECOzEE_MatchingMCpT[i]=-999.;
-      RECOzEE_MatchingMCmass[i]=-999.;
-    }
-
-     for (int i=0; i<100;i++){
-      //HTozzToMMMM:
-      RECOHzzMMMM_MatchingMCTruth[i]=false;
-      RECOHzzMMMM_MatchingMCpT[i]=-999.;
-      RECOHzzMMMM_MatchingMCmass[i]=-999.;
-      RECOHzzMMMM_MatchingMCEta[i]=-999.;
-      //HTozzToEEMM:
-      RECOHzzEEMM_MatchingMCTruth[i]=false;
-      RECOHzzEEMM_MatchingMCpT[i]=-999.;
-      RECOHzzEEMM_MatchingMCmass[i]=-999.;
-      RECOHzzEEMM_MatchingMCEta[i]=-999.;
-      //HTozzToEEEE:
-      RECOHzzEEEE_MatchingMCTruth[i]=false;
-      RECOHzzEEEE_MatchingMCpT[i]=-999.;
-      RECOHzzEEEE_MatchingMCmass[i]=-999.;
-      RECOHzzEEEE_MatchingMCEta[i]=-999.;
-    }
-
-
-    for (int i=0; i<200;i++){
-      RECO_TRACK_PT[i]=-999.;
-      RECO_TRACK_ETA[i]=-999.;
-      RECO_TRACK_PHI[i]=-999.;
-      RECO_TRACK_CHI2[i]=-999.;
-      RECO_TRACK_CHI2RED[i]=-999.;
-      RECO_TRACK_CHI2PROB[i]=-999.;
-      RECO_TRACK_NHITS[i]=0;
-      RECO_TRACK_DXY[i]=-999.;
-      RECO_TRACK_DXYERR[i]=-999.;
-      RECO_TRACK_DZ[i]=-999.;
-      RECO_TRACK_DZERR[i]=-999.;   			       					
-    }
-
-    for (int i=0; i<50;i++){
-      tCHighEff_BTagJet_PT[i]=-999.;
-//      tCHighPur_BTagJet_PT[i]=-999.;
-      cSV_BTagJet_PT[i]=-999.;
-      tCHighEff_BTagJet_ETA[i]=-999.;
- //     tCHighPur_BTagJet_ETA[i]=-999.;
-      cSV_BTagJet_ETA[i]=-999.;
-      tCHighEff_BTagJet_PHI[i]=-999.;
- //     tCHighPur_BTagJet_PHI[i]=-999.;
-      cSV_BTagJet_PHI[i]=-999.;
-      tCHighEff_BTagJet_DISCR[i]=-999.;
- //     tCHighPur_BTagJet_DISCR[i]=-999.;
-      cSV_BTagJet_DISCR[i]=-999.;
-      cSV_BTagJet_ET[i]=-999.;
-    }
-    
-  }
+  void Initialize() {}
   
   void fillPU(const edm::Event& iEvent){
       edm::Handle<vector<PileupSummaryInfo> > PupInfo;
@@ -5793,7 +4937,7 @@ void fillTracks(const edm::Event& iEvent){
   ArrayVector<float> RECOELE_E,RECOELE_PT,RECOELE_PTError,RECOELE_P,RECOELE_ETA,RECOELE_THETA,RECOELE_PHI,RECOELE_MASS;
   ArrayVector<float> RECOELE_CHARGE,RECOELE_ID, RECOELE_PT_uncorr ;
 
-  bool RECOELE_isEcalDriven, RECOELE_isTrackerDriven;
+  ArrayVector<int > RECOELE_isEcalDriven, RECOELE_isTrackerDriven;
   ArrayVector<float> 
     RECOELE_gsftrack_NPixHits,
     RECOELE_gsftrack_NStripHits,
@@ -5850,7 +4994,7 @@ void fillTracks(const edm::Event& iEvent){
   ArrayVector<float> RECOELE_ecalTrkEnergyErrPostCorr,RECOELE_energyScaleValue,RECOELE_energySigmaValue, RECOELE_energyScaleUp, RECOELE_energyScaleDown, RECOELE_energyScaleStatUp, RECOELE_energyScaleStatDown, RECOELE_energyScaleSystUp, RECOELE_energyScaleSystDown, RECOELE_energyScaleGainUp, RECOELE_energyScaleGainDown,RECOELE_energyScaleEtUp, RECOELE_energyScaleEtDown, RECOELE_energySigmaUp, RECOELE_energySigmaDown, RECOELE_energySigmaPhiUp, RECOELE_energySigmaPhiDown, RECOELE_energySigmaRhoUp, RECOELE_energySigmaRhoDown,RECOELE_ecalTrkEnergyPreCorr, RECOELE_ecalTrkEnergyErrPreCorr;
 
   // RECO muons
-  bool RECOMU_isPFMu,RECOMU_isGlobalMu,RECOMU_isStandAloneMu,RECOMU_isTrackerMu,RECOMU_isCaloMu,RECOMU_isTrackerHighPtMu,RECOMU_isME0Muon;
+  ArrayVector<int > RECOMU_isPFMu,RECOMU_isGlobalMu,RECOMU_isStandAloneMu,RECOMU_isTrackerMu,RECOMU_isCaloMu,RECOMU_isTrackerHighPtMu,RECOMU_isME0Muon;
   ArrayVector<float> RECOMU_E,RECOMU_PT,RECOMU_P,RECOMU_ETA,RECOMU_THETA,RECOMU_PHI,RECOMU_MASS,RECOMU_CHARGE;
   ArrayVector<ArrayVector<ArrayVector<double> > > RECOMU_COV;
   ArrayVector<double> /*,RECOMU_Roch_calib_error,*/ RECOMU_PT_uncorr;
@@ -5872,7 +5016,7 @@ void fillTracks(const edm::Event& iEvent){
 
   ArrayVector<float>
     RECOMU_caloCompatibility,RECOMU_segmentCompatibility;
-  ArrayVector<bool> RECOMU_glbmuPromptTight;
+  ArrayVector<int > RECOMU_glbmuPromptTight;
  
   ArrayVector<int> RECOMU_MMMM_MATCHED,RECOMU_EEMM_MATCHED,
       RECOMU_ZMM_MATCHED,RECOMU_ZssMM_MATCHED,RECOMU_ZEM_MATCHED,
@@ -5896,12 +5040,12 @@ void fillTracks(const edm::Event& iEvent){
     RECOMU_muInnertrktrackerLayersWithMeasurement,RECOMU_muInnertrkPT,RECOMU_muInnertrkPTError,
     RECOMU_muInnertrkCharge,RECOMU_muInnertrkNHits,RECOMU_muInnertrkNPixHits,RECOMU_muInnertrkNStripHits,
     RECOMU_mutrkCharge,RECOMU_mutrkNHits,RECOMU_mutrkNPixHits,RECOMU_mutrkNStripHits,RECOMU_mutrkNMuonHits;
-  bool RECOMU_trkmuArbitration,RECOMU_trkmu2DCompatibilityLoose,RECOMU_trkmu2DCompatibilityTight;
-  bool RECOMU_trkmuOneStationLoose,RECOMU_trkmuOneStationTight;
-  bool RECOMU_trkmuLastStationLoose,RECOMU_trkmuLastStationTight;
-  bool RECOMU_trkmuLastStationAngLoose,RECOMU_trkmuLastStationAngTight;
-  bool RECOMU_trkmuOneStationAngLoose,RECOMU_trkmuOneStationAngTight;
-  bool RECOMU_trkmuLastStationOptimizedLowPtLoose,RECOMU_trkmuLastStationOptimizedLowPtTight;
+  ArrayVector<int > RECOMU_trkmuArbitration,RECOMU_trkmu2DCompatibilityLoose,RECOMU_trkmu2DCompatibilityTight;
+  ArrayVector<int > RECOMU_trkmuOneStationLoose,RECOMU_trkmuOneStationTight;
+  ArrayVector<int > RECOMU_trkmuLastStationLoose,RECOMU_trkmuLastStationTight;
+  ArrayVector<int > RECOMU_trkmuLastStationAngLoose,RECOMU_trkmuLastStationAngTight;
+  ArrayVector<int > RECOMU_trkmuOneStationAngLoose,RECOMU_trkmuOneStationAngTight;
+  ArrayVector<int > RECOMU_trkmuLastStationOptimizedLowPtLoose,RECOMU_trkmuLastStationOptimizedLowPtTight;
   
    // Photons
   ArrayVector<float> RECOPHOT_PT,RECOPHOT_ETA,RECOPHOT_PHI,RECOPHOT_THETA,RECOPHOT_TLE_ParentSC_X,RECOPHOT_TLE_ParentSC_Y,RECOPHOT_TLE_ParentSC_Z;
@@ -5944,52 +5088,52 @@ void fillTracks(const edm::Event& iEvent){
    
   
   //Muons Matching
-  ArrayVector<bool > RECOMU_MatchingMCTruth;
+  ArrayVector<int > RECOMU_MatchingMCTruth;
   ArrayVector<float> RECOMU_MatchingMCpT;
   ArrayVector<float> RECOMU_MatchingMCEta;
   ArrayVector<float> RECOMU_MatchingMCPhi;
   
   //Electrons:
-  ArrayVector<bool > RECOELE_MatchingMCTruth;
+  ArrayVector<int > RECOELE_MatchingMCTruth;
   ArrayVector<float> RECOELE_MatchingMCpT;
   ArrayVector<float> RECOELE_MatchingMCEta;
   ArrayVector<float> RECOELE_MatchingMCPhi;
   //Gamma:
-  ArrayVector<bool > RECOPHOT_MatchingMCTruth;
+  ArrayVector<int > RECOPHOT_MatchingMCTruth;
   ArrayVector<float> RECOPHOT_MatchingMCpT;
   ArrayVector<float> RECOPHOT_MatchingMCEta;
   ArrayVector<float> RECOPHOT_MatchingMCPhi;
 
   //zToMuMu:
-  ArrayVector<bool > RECOzMuMu_MatchingMCTruth;
+  ArrayVector<int > RECOzMuMu_MatchingMCTruth;
   ArrayVector<float> RECOzMuMu_MatchingMCpT;
   ArrayVector<float> RECOzMuMu_MatchingMCmass;
   ArrayVector<float> RECOzMuMu_MatchingMCEta;
   ArrayVector<float> RECOzMuMu_MatchingMCPhi;
 
   //zToEE:
-  ArrayVector<bool > RECOzEE_MatchingMCTruth;
+  ArrayVector<int > RECOzEE_MatchingMCTruth;
   ArrayVector<float> RECOzEE_MatchingMCpT;
   ArrayVector<float> RECOzEE_MatchingMCmass;
   ArrayVector<float> RECOzEE_MatchingMCEta;
   ArrayVector<float> RECOzEE_MatchingMCPhi;
 
   //HtoZtoEEEE:
-  ArrayVector<bool > RECOHzzEEEE_MatchingMCTruth;
+  ArrayVector<int > RECOHzzEEEE_MatchingMCTruth;
   ArrayVector<float> RECOHzzEEEE_MatchingMCpT;
   ArrayVector<float> RECOHzzEEEE_MatchingMCmass;
   ArrayVector<float> RECOHzzEEEE_MatchingMCEta;
   ArrayVector<float> RECOHzzEEEE_MatchingMCPhi;
 
   //HtoZtoMMMM:
-  ArrayVector<bool > RECOHzzMMMM_MatchingMCTruth;
+  ArrayVector<int > RECOHzzMMMM_MatchingMCTruth;
   ArrayVector<float> RECOHzzMMMM_MatchingMCpT;
   ArrayVector<float> RECOHzzMMMM_MatchingMCmass;
   ArrayVector<float> RECOHzzMMMM_MatchingMCEta;
   ArrayVector<float> RECOHzzMMMM_MatchingMCPhi;
 
   //HtoZtoEEMM:
-  ArrayVector<bool > RECOHzzEEMM_MatchingMCTruth;
+  ArrayVector<int > RECOHzzEEMM_MatchingMCTruth;
   ArrayVector<float> RECOHzzEEMM_MatchingMCpT;
   ArrayVector<float> RECOHzzEEMM_MatchingMCmass;
   ArrayVector<float> RECOHzzEEMM_MatchingMCEta;
@@ -6008,7 +5152,7 @@ void fillTracks(const edm::Event& iEvent){
   // Primary Vertices
   ArrayVector<float> RECO_VERTEX_x, RECO_VERTEX_y, RECO_VERTEX_z,RECO_VERTEX_ndof,RECO_VERTEX_chi2,RECO_VERTEXPROB;
   ArrayVector<ArrayVector<float > > RECO_VERTEX_TRACK_PT;
-  ArrayVector<bool > RECO_VERTEX_isValid;
+  ArrayVector<int > RECO_VERTEX_isValid;
   ArrayVector<int> RECO_VERTEX_ntracks;
   
   // RECO JETS
@@ -6021,7 +5165,7 @@ void fillTracks(const edm::Event& iEvent){
   bool isData;
   edm::EDGetTokenT<edm::View<pat::Muon>> slimmedMuonsTag_;
   edm::EDGetTokenT<LHEEventProduct> LHE_;
-  ArrayVector<bool > LHE_PARTON_CLEAR;
+  ArrayVector<int > LHE_PARTON_CLEAR;
   int LHE_PARTON_N;
   ArrayVector<int> LHE_PARTON_PDGID;
   ArrayVector<float> LHE_PARTON_PT, LHE_PARTON_ETA, LHE_PARTON_PHI, LHE_PARTON_E;
@@ -6031,7 +5175,7 @@ void fillTracks(const edm::Event& iEvent){
   ArrayVector<float> RECO_PFJET_PT_UncUp, RECO_PFJET_PT_UncDn, RECO_PFJET_AREA, RECO_PFJET_CHARGED_HADRON_ENERGY, RECO_PFJET_NEUTRAL_HADRON_ENERGY, RECO_PFJET_PHOTON_ENERGY, RECO_PFJET_ELECTRON_ENERGY, RECO_PFJET_PTD;
   ArrayVector<float> RECO_PFJET_MUON_ENERGY, RECO_PFJET_HF_HADRON_ENERGY, RECO_PFJET_HF_EM_ENERGY, RECO_PFJET_CHARGED_EM_ENERGY, RECO_PFJET_CHARGED_MU_ENERGY;
   ArrayVector<float> RECO_PFJET_NEUTRAL_EM_ENERGY;
-  ArrayVector<float > RECO_PFJET_COMPONENT_PT, RECO_PFJET_COMPONENT_ETA, RECO_PFJET_COMPONENT_PHI, RECO_PFJET_COMPONENT_E, RECO_PFJET_COMPONENT_TRANSVERSE_MASS, RECO_PFJET_COMPONENT_CHARGE;
+  ArrayVector<ArrayVector<float > > RECO_PFJET_COMPONENT_PT, RECO_PFJET_COMPONENT_ETA, RECO_PFJET_COMPONENT_PHI, RECO_PFJET_COMPONENT_E, RECO_PFJET_COMPONENT_TRANSVERSE_MASS, RECO_PFJET_COMPONENT_CHARGE;
   ArrayVector<ArrayVector<float> > RECO_PFJET_COMPONENT_XVERTEX, RECO_PFJET_COMPONENT_YVERTEX, RECO_PFJET_COMPONENT_ZVERTEX, RECO_PFJET_COMPONENT_VERTEX_CHI2;
 
   // GenJET
