@@ -2,5 +2,10 @@
  <class name="edm::ValueMap<float>">
  </class>
  <class name="edm::Wrapper<edm::ValueMap<float> >" />
-
+ <class name="std::vector<double >" />
+ <class name="std::vector<float >" />
+ <class name="std::vector<int >" />
+ <class name="std::vector<std::vector<float > >" />
+ <class name="std::vector<std::vector<int > >" />
+ <class name="std::vector<std::vector<std::vector<double > > >" />
 </lcgdict>
