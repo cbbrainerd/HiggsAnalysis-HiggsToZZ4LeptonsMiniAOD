@@ -141,6 +141,9 @@
 //chisquare
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+//ArrayVector hack
+#include "HiggsAnalysis/HiggsToZZ4Leptons/include/ArrayVector.hpp"
+
 class MultiTrajectoryStateMode ;
 class EgammaTowerIsolation ;
 
@@ -5676,8 +5679,8 @@ void fillTracks(const edm::Event& iEvent){
 
   // HLT
   int RECO_nMuHLTMatch,RECO_nEleHLTMatch;
-  float RECOMU_PT_MuHLTMatch[100],RECOMU_ETA_MuHLTMatch[100],RECOMU_PHI_MuHLTMatch[100];
-  float RECOELE_PT_EleHLTMatch[100],RECOELE_ETA_EleHLTMatch[100],RECOELE_PHI_EleHLTMatch[100];
+  ArrayVector<float> RECOMU_PT_MuHLTMatch,RECOMU_ETA_MuHLTMatch,RECOMU_PHI_MuHLTMatch;
+  ArrayVector<float> RECOELE_PT_EleHLTMatch,RECOELE_ETA_EleHLTMatch,RECOELE_PHI_EleHLTMatch;
   
   char HLTPathsFired[20000];
 
@@ -5715,307 +5718,324 @@ void fillTracks(const edm::Event& iEvent){
   edm::ESHandle<ParticleDataTable>  pdt_;
   
   // MC truth
-  float MC_E[7],MC_PT[7],MC_ETA[7],MC_THETA[7],MC_PHI[7],MC_MASS[7],MC_PDGID[7];
+  ArrayVector<float> MC_E,MC_PT,MC_ETA,MC_THETA,MC_PHI,MC_MASS,MC_PDGID;
 
-  double MCRF_cosTheta1_spin[10], MCRF_cosTheta2_spin[10], MCRF_cosThetaStar_spin[10], MCRF_Phi_spin[10], 
-    MCRF_Phi1_spin[10], MCRF_Phi2_spin[10], MCRF_phi1RF_spin[10], MCRF_phi2RF_spin[10], MCRF_MELA[10];
+  ArrayVector<double> MCRF_cosTheta1_spin, MCRF_cosTheta2_spin, MCRF_cosThetaStar_spin, MCRF_Phi_spin, 
+    MCRF_Phi1_spin, MCRF_Phi2_spin, MCRF_phi1RF_spin, MCRF_phi2RF_spin, MCRF_MELA;
   
-  float MC_LEPT_PT[4],MC_LEPT_ETA[4],MC_LEPT_PHI[4],MC_LEPT_THETA[4],MC_LEPT_PDGID[4];
-  float MC_Z_MASS[2][5],MC_Z_PT[2][5],MC_Z_ETA[2][5],MC_Z_PHI[2][5],MC_Z_THETA[2][5],MC_Z_PDGID[2][5];
+  ArrayVector<float> MC_LEPT_PT,MC_LEPT_ETA,MC_LEPT_PHI,MC_LEPT_THETA,MC_LEPT_PDGID;
+  ArrayVector<ArrayVector<float> > MC_Z_MASS,MC_Z_PT,MC_Z_ETA,MC_Z_PHI,MC_Z_THETA,MC_Z_PDGID;
 
-  float MC_fourl_MASS[100][5],MC_fourl_PT[100][5],MC_fourl_PDGID[100][5];
-  float MC_ZZ_MASS[4][7],MC_ZZ_PT[4][7],MC_ZZ_ETA[4][7],MC_ZZ_PHI[4][7],MC_ZZ_THETA[4][7],MC_ZZ_PDGID[4][7];
+  ArrayVector<ArrayVector<float> > MC_fourl_MASS,MC_fourl_PT,MC_fourl_PDGID;
+  ArrayVector<ArrayVector<float> > MC_ZZ_MASS,MC_ZZ_PT,MC_ZZ_ETA,MC_ZZ_PHI,MC_ZZ_THETA,MC_ZZ_PDGID;
 
   // RECO collection
  
   
   // RECORF
     
-  double RECORF_2e2mu_cosTheta1_spin[100], RECORF_2e2mu_cosTheta2_spin[100], RECORF_2e2mu_cosThetaStar_spin[100], RECORF_2e2mu_Phi_spin[100], 
-    RECORF_2e2mu_Phi1_spin[100], RECORF_2e2mu_Phi2_spin[100], RECORF_2e2mu_phi1RF_spin[100], RECORF_2e2mu_phi2RF_spin[100],RECORF_2e2mu_MELA[100];
+  ArrayVector<double> RECORF_2e2mu_cosTheta1_spin, RECORF_2e2mu_cosTheta2_spin, RECORF_2e2mu_cosThetaStar_spin, RECORF_2e2mu_Phi_spin, 
+    RECORF_2e2mu_Phi1_spin, RECORF_2e2mu_Phi2_spin, RECORF_2e2mu_phi1RF_spin, RECORF_2e2mu_phi2RF_spin,RECORF_2e2mu_MELA;
   
     
-  double RECORF_4e_cosTheta1_spin[100], RECORF_4e_cosTheta2_spin[100], RECORF_4e_cosThetaStar_spin[100], RECORF_4e_Phi_spin[100],RECORF_4e_MELA[100], 
-    RECORF_4e_Phi1_spin[100], RECORF_4e_Phi2_spin[100], RECORF_4e_phi1RF_spin[100], RECORF_4e_phi2RF_spin[100],RECORF_4mu_MELA[100];
+  ArrayVector<double> RECORF_4e_cosTheta1_spin, RECORF_4e_cosTheta2_spin, RECORF_4e_cosThetaStar_spin, RECORF_4e_Phi_spin,RECORF_4e_MELA, 
+    RECORF_4e_Phi1_spin, RECORF_4e_Phi2_spin, RECORF_4e_phi1RF_spin, RECORF_4e_phi2RF_spin,RECORF_4mu_MELA;
   
     
-  double RECORF_4mu_cosTheta1_spin[100], RECORF_4mu_cosTheta2_spin[100], RECORF_4mu_cosThetaStar_spin[100], RECORF_4mu_Phi_spin[100], 
-    RECORF_4mu_Phi1_spin[100], RECORF_4mu_Phi2_spin[100], RECORF_4mu_phi1RF_spin[100], RECORF_4mu_phi2RF_spin[100];
+  ArrayVector<double> RECORF_4mu_cosTheta1_spin, RECORF_4mu_cosTheta2_spin, RECORF_4mu_cosThetaStar_spin, RECORF_4mu_Phi_spin, 
+    RECORF_4mu_Phi1_spin, RECORF_4mu_Phi2_spin, RECORF_4mu_phi1RF_spin, RECORF_4mu_phi2RF_spin;
   
 
   int leptonflavor;
 
   // RECO additional
-  float 
-    RECO_ZMM_MASS[50],RECO_ZMM_PT[3][50],RECO_ZMM_ETA[3][50],RECO_ZMM_PHI[3][50],
-    RECO_ZEE_MASS[50],RECO_ZEE_PT[3][50],RECO_ZEE_ETA[3][50],RECO_ZEE_PHI[3][50],
-    RECO_ZMMss_MASS[50],RECO_ZMMss_PT[3][50],RECO_ZMMss_ETA[3][50],RECO_ZMMss_PHI[3][50],
-    RECO_ZEEss_MASS[50],RECO_ZEEss_PT[3][50],RECO_ZEEss_ETA[3][50],RECO_ZEEss_PHI[3][50],
-    RECO_ZEM_MASS[50],RECO_ZEM_PT[3][50],RECO_ZEM_ETA[3][50],RECO_ZEM_PHI[3][50],
-    RECO_DiLep_MASS[50],RECO_DiLep_PT[3][50],RECO_DiLep_ETA[3][50],RECO_DiLep_PHI[3][50];
-  
+  ArrayVector<float> 
+    RECO_ZMM_MASS,
+    RECO_ZEE_MASS,
+    RECO_ZMMss_MASS,
+    RECO_ZEEss_MASS,
+    RECO_ZEM_MASS,
+    RECO_DiLep_MASS;
+  ArrayVector<ArrayVector<float> >
+    RECO_ZMM_PT,RECO_ZMM_ETA,RECO_ZMM_PHI,
+    RECO_ZEE_PT,RECO_ZEE_ETA,RECO_ZEE_PHI,
+    RECO_ZMMss_PT,RECO_ZMMss_ETA,RECO_ZMMss_PHI,
+    RECO_ZEEss_PT,RECO_ZEEss_ETA,RECO_ZEEss_PHI,
+    RECO_ZEM_PT,RECO_ZEM_ETA,RECO_ZEM_PHI,
+    RECO_DiLep_PT,RECO_DiLep_ETA,RECO_DiLep_PHI;
 
-  float 
-    RECO_EEMM_MASS[7][100],RECO_MMMM_MASS[7][100],RECO_EEEE_MASS[7][100],
-    RECO_EEMM_PT[7][100],  RECO_MMMM_PT[7][100],  RECO_EEEE_PT[7][100],
-    RECO_EEMM_ETA[7][100],RECO_MMMM_ETA[7][100],RECO_EEEE_ETA[7][100],
-    RECO_EEMM_PHI[7][100],  RECO_MMMM_PHI[7][100],  RECO_EEEE_PHI[7][100],
-    RECO_MMMM_MASS_REFIT[100],RECO_EEMM_MASS_REFIT[100],RECO_EEEE_MASS_REFIT[100],
-    RECO_LLLL_MASS[7][50],RECO_LLLL_PT[7][50],RECO_LLLL_ETA[7][50],RECO_LLLL_PHI[7][50];
+  ArrayVector<ArrayVector<float> > 
+    RECO_EEMM_MASS,RECO_MMMM_MASS,RECO_EEEE_MASS,
+    RECO_EEMM_PT,  RECO_MMMM_PT,  RECO_EEEE_PT,
+    RECO_EEMM_ETA,RECO_MMMM_ETA,RECO_EEEE_ETA,
+    RECO_EEMM_PHI,  RECO_MMMM_PHI,  RECO_EEEE_PHI,
+    RECO_LLLL_MASS,RECO_LLLL_PT,RECO_LLLL_ETA,RECO_LLLL_PHI;
 
-  float	RECO_LLL0_MASS[50],RECO_LLL1_MASS[50],RECO_LLL2_MASS[50],RECO_LLL3_MASS[50];
-  float	RECO_LLL0_PT[4][50],RECO_LLL1_PT[4][50],RECO_LLL2_PT[4][50],RECO_LLL3_PT[4][50];
+  ArrayVector<float>
+    RECO_MMMM_MASS_REFIT,RECO_EEMM_MASS_REFIT,RECO_EEEE_MASS_REFIT;
 
-  float	RECO_LLLl0_MASS[20],RECO_LLLl1_MASS[20];
-  float	RECO_LLLl0_PT[5][20],RECO_LLLl1_PT[5][20];
+  ArrayVector<float> RECO_LLL0_MASS,RECO_LLL1_MASS,RECO_LLL2_MASS,RECO_LLL3_MASS;
+  ArrayVector<ArrayVector<float> > RECO_LLL0_PT,RECO_LLL1_PT,RECO_LLL2_PT,RECO_LLL3_PT;
 
-  float 
-    RECO_LLLL0ss_MASS[20],RECO_LLLL0ss_PT[5][20],
-    RECO_LLLL1ss_MASS[20],RECO_LLLL1ss_PT[5][20],
-    RECO_LLLL2ss_MASS[20],RECO_LLLL2ss_PT[5][20];
-  
+  ArrayVector<float> RECO_LLLl0_MASS,RECO_LLLl1_MASS;
+  ArrayVector<ArrayVector<float> > RECO_LLLl0_PT,RECO_LLLl1_PT;
+
+  ArrayVector<float> 
+    RECO_LLLL0ss_MASS,
+    RECO_LLLL1ss_MASS,
+    RECO_LLLL2ss_MASS;
+  ArrayVector<ArrayVector<float> > 
+    RECO_LLLL0ss_PT,
+    RECO_LLLL1ss_PT,
+    RECO_LLLL2ss_PT;
   // RECO electrons
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
-  float RECOELE_E[100],RECOELE_PT[100],RECOELE_PTError[100],RECOELE_P[100],RECOELE_ETA[100],RECOELE_THETA[100],RECOELE_PHI[100],RECOELE_MASS[100];
-  float RECOELE_CHARGE[100],RECOELE_ID[100], RECOELE_PT_uncorr[100] ;
+  ArrayVector<float> RECOELE_E,RECOELE_PT,RECOELE_PTError,RECOELE_P,RECOELE_ETA,RECOELE_THETA,RECOELE_PHI,RECOELE_MASS;
+  ArrayVector<float> RECOELE_CHARGE,RECOELE_ID, RECOELE_PT_uncorr ;
 
-  bool RECOELE_isEcalDriven[100], RECOELE_isTrackerDriven[100];
-  float 
-    RECOELE_gsftrack_NPixHits[100],
-    RECOELE_gsftrack_NStripHits[100],
-    RECOELE_gsftrack_chi2[100], 
-    RECOELE_gsftrack_dxyB[100], RECOELE_gsftrack_dxy[100], RECOELE_gsftrack_dxyError[100],
-    RECOELE_gsftrack_dzB[100], RECOELE_gsftrack_dz[100],RECOELE_gsftrack_dzError[100];
-  int RECOELE_gsftrack_losthits[100],RECOELE_gsftrack_validhits[100],RECOELE_gsftrack_expected_inner_hits[100]; 
-  float
-    RECOELE_scl_E[100],RECOELE_scl_Et[100],RECOELE_scl_Eta[100],RECOELE_scl_Phi[100]; 
+  bool RECOELE_isEcalDriven, RECOELE_isTrackerDriven;
+  ArrayVector<float> 
+    RECOELE_gsftrack_NPixHits,
+    RECOELE_gsftrack_NStripHits,
+    RECOELE_gsftrack_chi2, 
+    RECOELE_gsftrack_dxyB, RECOELE_gsftrack_dxy, RECOELE_gsftrack_dxyError,
+    RECOELE_gsftrack_dzB, RECOELE_gsftrack_dz,RECOELE_gsftrack_dzError;
+  ArrayVector<int> RECOELE_gsftrack_losthits,RECOELE_gsftrack_validhits,RECOELE_gsftrack_expected_inner_hits; 
+  ArrayVector<float>
+    RECOELE_scl_E,RECOELE_scl_Et,RECOELE_scl_Eta,RECOELE_scl_Phi; 
   //float RECOELE_eSuperClusterOverP[100], RECOELE_eSeedClusterOverPout[100], RECOELE_deltaEtaSuperClusterTrackAtVtx[100], RECOELE_deltaPhiSuperClusterTrackAtVtx[100];
-  float 
-    RECOELE_ep[100], RECOELE_eSeedp[100], RECOELE_eSeedpout[100], RECOELE_eElepout[100],
-    RECOELE_deltaEtaIn[100],RECOELE_deltaEtaSeed[100],RECOELE_deltaEtaEle[100],RECOELE_deltaPhiIn[100],
-    RECOELE_deltaPhiSeed[100],RECOELE_deltaPhiEle[100],RECOELE_ecalEnergy[100];
-  int RECOELE_isbarrel[100], RECOELE_isendcap[100], RECOELE_isEBetaGap[100], RECOELE_isEBphiGap[100], RECOELE_isEEdeeGap[100], RECOELE_isEEringGap[100], RECOELE_isGap[100]; 
-  float RECOELE_sigmaIetaIeta[100], RECOELE_sigmaEtaEta[100], RECOELE_e15[100], RECOELE_e25max[100], RECOELE_e55[100], RECOELE_he[100], RECOELE_r9[100];
-  float RECOELE_mva[100], RECOELE_fbrem[100],RECOELE_fbrem_mean[100],RECOELE_fbrem_mode[100];
-  int RECOELE_nbrems[100], RECOELE_Class[100];
+  ArrayVector<float> 
+    RECOELE_ep, RECOELE_eSeedp, RECOELE_eSeedpout, RECOELE_eElepout,
+    RECOELE_deltaEtaIn,RECOELE_deltaEtaSeed,RECOELE_deltaEtaEle,RECOELE_deltaPhiIn,
+    RECOELE_deltaPhiSeed,RECOELE_deltaPhiEle,RECOELE_ecalEnergy;
+  ArrayVector<int> RECOELE_isbarrel, RECOELE_isendcap, RECOELE_isEBetaGap, RECOELE_isEBphiGap, RECOELE_isEEdeeGap, RECOELE_isEEringGap, RECOELE_isGap; 
+  ArrayVector<float> RECOELE_sigmaIetaIeta, RECOELE_sigmaEtaEta, RECOELE_e15, RECOELE_e25max, RECOELE_e55, RECOELE_he, RECOELE_r9;
+  ArrayVector<float> RECOELE_mva, RECOELE_fbrem,RECOELE_fbrem_mean,RECOELE_fbrem_mode;
+  ArrayVector<int> RECOELE_nbrems, RECOELE_Class;
   
-  float RECOELE_EGMTRACKISO[100],RECOELE_EGMECALISO[100],RECOELE_EGMHCALISO[100],RECOELE_EGMX[100],
-    RECOELE_IP[100],RECOELE_SIP[100],RECOELE_IPERROR[100],
-    RECOELE_IP_KF[100],RECOELE_SIP_KF[100],RECOELE_IPERROR_KF[100],
-    RECOELE_STIP[100],RECOELE_TIP[100],RECOELE_TIPERROR[100],
-    RECOELE_SLIP[100],RECOELE_LIP[100],RECOELE_LIPERROR[100],
-    RECOELE_SIP_GD[100], RECOELE_SIP_GDEEEE[100],
-    RECOELE_SIP_Std[100], RECOELE_SIP_StdEEEE[100], 
-    RECOELE_SIP_Kin[100], RECOELE_SIP_KinEEEE[100];
+  ArrayVector<float> RECOELE_EGMTRACKISO,RECOELE_EGMECALISO,RECOELE_EGMHCALISO,RECOELE_EGMX,
+    RECOELE_IP,RECOELE_SIP,RECOELE_IPERROR,
+    RECOELE_IP_KF,RECOELE_SIP_KF,RECOELE_IPERROR_KF,
+    RECOELE_STIP,RECOELE_TIP,RECOELE_TIPERROR,
+    RECOELE_SLIP,RECOELE_LIP,RECOELE_LIPERROR,
+    RECOELE_SIP_GD, RECOELE_SIP_GDEEEE,
+    RECOELE_SIP_Std, RECOELE_SIP_StdEEEE, 
+    RECOELE_SIP_Kin, RECOELE_SIP_KinEEEE;
 
-  double RECOELE_PFchAllPart[100],RECOELE_PFchHad[100],RECOELE_PFneuHad[100],RECOELE_PFphoton[100],
-    RECOELE_PFPUchAllPart[100],RECOELE_PFX_dB[100],RECOELE_PFX_rho[100],RECOELE_PF_RingsIsoMVA[100];
+  ArrayVector<double> RECOELE_PFchAllPart,RECOELE_PFchHad,RECOELE_PFneuHad,RECOELE_PFphoton,
+    RECOELE_PFPUchAllPart,RECOELE_PFX_dB,RECOELE_PFX_rho,RECOELE_PF_RingsIsoMVA;
 
-  double RECOELE_regEnergy[100],RECOELE_regEnergyError[100];
+  ArrayVector<double> RECOELE_regEnergy,RECOELE_regEnergyError;
 
-  float RECOELE_TLE_ParentSC_X[100],RECOELE_TLE_ParentSC_Y[100],RECOELE_TLE_ParentSC_Z[100];
+  ArrayVector<float> RECOELE_TLE_ParentSC_X,RECOELE_TLE_ParentSC_Y,RECOELE_TLE_ParentSC_Z;
   
-  int RECOELE_EEEE_MATCHED[100],RECOELE_EEMM_MATCHED[100],RECOELE_ZEE_MATCHED[100],RECOELE_ZssEE_MATCHED[10],RECOELE_ZEM_MATCHED[100],
-    RECOELE_LLL0_MATCHED[100],RECOELE_LLL1_MATCHED[100],RECOELE_LLL2_MATCHED[100],RECOELE_LLL3_MATCHED[100],
-    RECOELE_LLLLss0_MATCHED[100],RECOELE_LLLLss1_MATCHED[100],RECOELE_LLLLss2_MATCHED[100],
-    RECOELE_LLLl0_MATCHED[100],RECOELE_LLLl1_MATCHED[100],RECOELE_LLLL_MATCHED[100];
-  double RECOELE_mvaTrigV0[100],RECOELE_mvaNonTrigV0[100];
+  ArrayVector<int> RECOELE_EEEE_MATCHED,RECOELE_EEMM_MATCHED,RECOELE_ZEE_MATCHED,RECOELE_ZssEE_MATCHED,RECOELE_ZEM_MATCHED,
+    RECOELE_LLL0_MATCHED,RECOELE_LLL1_MATCHED,RECOELE_LLL2_MATCHED,RECOELE_LLL3_MATCHED,
+    RECOELE_LLLLss0_MATCHED,RECOELE_LLLLss1_MATCHED,RECOELE_LLLLss2_MATCHED,
+    RECOELE_LLLl0_MATCHED,RECOELE_LLLl1_MATCHED,RECOELE_LLLL_MATCHED;
+  ArrayVector<double> RECOELE_mvaTrigV0,RECOELE_mvaNonTrigV0;
   
-  double ele_sclRawE[100] ;
-  double ele_sclX[100], ele_sclY[100], ele_sclZ[100];
-  int ele_seedSubdet1[100];
-  double ele_seedDphi1[100], ele_seedDrz1[100];
-  int ele_seedSubdet2[100];
-  double ele_seedDphi2[100], ele_seedDrz2[100];
-  double ele_eidVeryLoose[100], ele_eidLoose[100], ele_eidMedium[100], ele_eidTight[100] ;
-  double ele_eidHZZVeryLoose[100], ele_eidHZZLoose[100], ele_eidHZZMedium[100], ele_eidHZZTight[100] ;
-  double RECOELE_COV[100][3][3];
+  ArrayVector<double> ele_sclRawE ;
+  ArrayVector<double> ele_sclX, ele_sclY, ele_sclZ;
+  ArrayVector<int> ele_seedSubdet1;
+  ArrayVector<double> ele_seedDphi1, ele_seedDrz1;
+  ArrayVector<int> ele_seedSubdet2;
+  ArrayVector<double> ele_seedDphi2, ele_seedDrz2;
+  ArrayVector<double> ele_eidVeryLoose, ele_eidLoose, ele_eidMedium, ele_eidTight ;
+  ArrayVector<double> ele_eidHZZVeryLoose, ele_eidHZZLoose, ele_eidHZZMedium, ele_eidHZZTight ;
+  ArrayVector<ArrayVector<ArrayVector<double> > > RECOELE_COV;
 
   //Reham electron systematic variables
 
-  float RECOELE_ecalTrkEnergyErrPostCorr[100],RECOELE_energyScaleValue[100],RECOELE_energySigmaValue[100], RECOELE_energyScaleUp[100], RECOELE_energyScaleDown[100], RECOELE_energyScaleStatUp[100], RECOELE_energyScaleStatDown[100], RECOELE_energyScaleSystUp[100], RECOELE_energyScaleSystDown[100], RECOELE_energyScaleGainUp[100], RECOELE_energyScaleGainDown[100],RECOELE_energyScaleEtUp[100], RECOELE_energyScaleEtDown[100], RECOELE_energySigmaUp[100], RECOELE_energySigmaDown[100], RECOELE_energySigmaPhiUp[100], RECOELE_energySigmaPhiDown[100], RECOELE_energySigmaRhoUp[100], RECOELE_energySigmaRhoDown[100],RECOELE_ecalTrkEnergyPreCorr[100], RECOELE_ecalTrkEnergyErrPreCorr[100];
+  ArrayVector<float> RECOELE_ecalTrkEnergyErrPostCorr,RECOELE_energyScaleValue,RECOELE_energySigmaValue, RECOELE_energyScaleUp, RECOELE_energyScaleDown, RECOELE_energyScaleStatUp, RECOELE_energyScaleStatDown, RECOELE_energyScaleSystUp, RECOELE_energyScaleSystDown, RECOELE_energyScaleGainUp, RECOELE_energyScaleGainDown,RECOELE_energyScaleEtUp, RECOELE_energyScaleEtDown, RECOELE_energySigmaUp, RECOELE_energySigmaDown, RECOELE_energySigmaPhiUp, RECOELE_energySigmaPhiDown, RECOELE_energySigmaRhoUp, RECOELE_energySigmaRhoDown,RECOELE_ecalTrkEnergyPreCorr, RECOELE_ecalTrkEnergyErrPreCorr;
 
   // RECO muons
-  bool RECOMU_isPFMu[100],RECOMU_isGlobalMu[100],RECOMU_isStandAloneMu[100],RECOMU_isTrackerMu[100],RECOMU_isCaloMu[100],RECOMU_isTrackerHighPtMu[100],RECOMU_isME0Muon[100];
-  float RECOMU_E[100],RECOMU_PT[100],RECOMU_P[100],RECOMU_ETA[100],RECOMU_THETA[100],RECOMU_PHI[100],RECOMU_MASS[100],RECOMU_CHARGE[100];
-  double RECOMU_COV[100][3][3]/*,RECOMU_Roch_calib_error[100]*/,RECOMU_PT_uncorr[100];
+  bool RECOMU_isPFMu,RECOMU_isGlobalMu,RECOMU_isStandAloneMu,RECOMU_isTrackerMu,RECOMU_isCaloMu,RECOMU_isTrackerHighPtMu,RECOMU_isME0Muon;
+  ArrayVector<float> RECOMU_E,RECOMU_PT,RECOMU_P,RECOMU_ETA,RECOMU_THETA,RECOMU_PHI,RECOMU_MASS,RECOMU_CHARGE;
+  ArrayVector<ArrayVector<ArrayVector<double> > > RECOMU_COV;
+  ArrayVector<double> /*,RECOMU_Roch_calib_error,*/ RECOMU_PT_uncorr;
 
-  float 
-    RECOMU_TRACKISO[100],RECOMU_TRACKISO_SUMPT[100],RECOMU_ECALISO[100],RECOMU_HCALISO[100], RECOMU_X[100],   
-    RECOMU_IP[100],RECOMU_SIP[100],RECOMU_IPERROR[100],
-    RECOMU_IP_KF[100],RECOMU_SIP_KF[100],RECOMU_IPERROR_KF[100],
-    RECOMU_STIP[100],RECOMU_TIP[100],RECOMU_TIPERROR[100],
-    RECOMU_SLIP[100],RECOMU_LIP[100],RECOMU_LIPERROR[100],
-    RECOMU_SIP_GD[100], RECOMU_SIP_GDMMMM[100],
-    RECOMU_SIP_Std[100], RECOMU_SIP_StdMMMM[100], 
-    RECOMU_SIP_Kin[100], RECOMU_SIP_KinMMMM[100];
+  ArrayVector<float> 
+    RECOMU_TRACKISO,RECOMU_TRACKISO_SUMPT,RECOMU_ECALISO,RECOMU_HCALISO, RECOMU_X,   
+    RECOMU_IP,RECOMU_SIP,RECOMU_IPERROR,
+    RECOMU_IP_KF,RECOMU_SIP_KF,RECOMU_IPERROR_KF,
+    RECOMU_STIP,RECOMU_TIP,RECOMU_TIPERROR,
+    RECOMU_SLIP,RECOMU_LIP,RECOMU_LIPERROR,
+    RECOMU_SIP_GD, RECOMU_SIP_GDMMMM,
+    RECOMU_SIP_Std, RECOMU_SIP_StdMMMM, 
+    RECOMU_SIP_Kin, RECOMU_SIP_KinMMMM;
 
-  double 
-    RECOMU_PFchHad[100],RECOMU_PFneuHad[100],RECOMU_PFphoton[100],RECOMU_PFsumPUPt[100],RECOMU_PFX_dB[100],RECOMU_PFPUchAllPart[100],RECOMU_PFchAllPart[100],RECOMU_PFX_rho[100],
-    RECOMU_PFchHad42[100],RECOMU_PFneuHad42[100],RECOMU_PFphoton42[100],RECOMU_PFPUchAllPart42[100],RECOMU_PFchAllPart42[100],
-    RECOMU_PF_RingsIsoMVA[100],RECOMU_PF_RingsIDMVA[100];
+  ArrayVector<double> 
+    RECOMU_PFchHad,RECOMU_PFneuHad,RECOMU_PFphoton,RECOMU_PFsumPUPt,RECOMU_PFX_dB,RECOMU_PFPUchAllPart,RECOMU_PFchAllPart,RECOMU_PFX_rho,
+    RECOMU_PFchHad42,RECOMU_PFneuHad42,RECOMU_PFphoton42,RECOMU_PFPUchAllPart42,RECOMU_PFchAllPart42,
+    RECOMU_PF_RingsIsoMVA,RECOMU_PF_RingsIDMVA;
 
-  float
-    RECOMU_caloCompatibility[100],RECOMU_segmentCompatibility[100];
-  bool RECOMU_glbmuPromptTight[100];
+  ArrayVector<float>
+    RECOMU_caloCompatibility,RECOMU_segmentCompatibility;
+  ArrayVector<bool> RECOMU_glbmuPromptTight;
  
-  int RECOMU_MMMM_MATCHED[100],RECOMU_EEMM_MATCHED[100],
-      RECOMU_ZMM_MATCHED[100],RECOMU_ZssMM_MATCHED[100],RECOMU_ZEM_MATCHED[100],
-      RECOMU_LLL0_MATCHED[100],RECOMU_LLL1_MATCHED[100],RECOMU_LLL2_MATCHED[100],RECOMU_LLL3_MATCHED[100],
-    RECOMU_LLLLss0_MATCHED[100],RECOMU_LLLLss1_MATCHED[100],RECOMU_LLLLss2_MATCHED[100],
-    RECOMU_LLLl0_MATCHED[100],RECOMU_LLLl1_MATCHED[100],RECOMU_LLLL_MATCHED[100];
-  int RECOMU_numberOfMatches[100],RECOMU_numberOfMatchedStations[100];
-  int RECOMU_mubesttrkType[100];
+  ArrayVector<int> RECOMU_MMMM_MATCHED,RECOMU_EEMM_MATCHED,
+      RECOMU_ZMM_MATCHED,RECOMU_ZssMM_MATCHED,RECOMU_ZEM_MATCHED,
+      RECOMU_LLL0_MATCHED,RECOMU_LLL1_MATCHED,RECOMU_LLL2_MATCHED,RECOMU_LLL3_MATCHED,
+    RECOMU_LLLLss0_MATCHED,RECOMU_LLLLss1_MATCHED,RECOMU_LLLLss2_MATCHED,
+    RECOMU_LLLl0_MATCHED,RECOMU_LLLl1_MATCHED,RECOMU_LLLL_MATCHED;
+  ArrayVector<int> RECOMU_numberOfMatches,RECOMU_numberOfMatchedStations;
+  ArrayVector<int> RECOMU_mubesttrkType;
   
-  float 
-    RECOMU_mutrkPT[100],RECOMU_mutrkPTError[100],
-    RECOMU_mutrkDxy[100],RECOMU_mutrkDxyError[100],RECOMU_mutrkDxyB[100],
-    RECOMU_mutrkDz[100],RECOMU_mutrkDzError[100],RECOMU_mutrkDzB[100],
-    RECOMU_mutrkChi2PerNdof[100],
-    RECOMU_mutrktrackerLayersWithMeasurement[100],
-    RECOMU_muInnertrkDxy[100],RECOMU_muInnertrkDxyError[100],RECOMU_muInnertrkDxyB[100],
-    RECOMU_muInnertrkDz[100],RECOMU_muInnertrkDzError[100],RECOMU_muInnertrkDzB[100],
-    RECOMU_mubesttrkDxy[100],RECOMU_mubesttrkDxyError[100],RECOMU_mubesttrkDxyB[100],
-    RECOMU_mubesttrkDz[100],RECOMU_mubesttrkDzError[100],RECOMU_mubesttrkDzB[100], RECOMU_mubesttrkPTError[100], RECOMU_Rochester_Error[100],
-    RECOMU_muInnertrkChi2PerNdof[100],
-    RECOMU_muInnertrktrackerLayersWithMeasurement[100],RECOMU_muInnertrkPT[100],RECOMU_muInnertrkPTError[100],
-    RECOMU_muInnertrkCharge[100],RECOMU_muInnertrkNHits[100],RECOMU_muInnertrkNPixHits[100],RECOMU_muInnertrkNStripHits[100],
-    RECOMU_mutrkCharge[100],RECOMU_mutrkNHits[100],RECOMU_mutrkNPixHits[100],RECOMU_mutrkNStripHits[100],RECOMU_mutrkNMuonHits[100];
-  bool RECOMU_trkmuArbitration[100],RECOMU_trkmu2DCompatibilityLoose[100],RECOMU_trkmu2DCompatibilityTight[100];
-  bool RECOMU_trkmuOneStationLoose[100],RECOMU_trkmuOneStationTight[100];
-  bool RECOMU_trkmuLastStationLoose[100],RECOMU_trkmuLastStationTight[100];
-  bool RECOMU_trkmuLastStationAngLoose[100],RECOMU_trkmuLastStationAngTight[100];
-  bool RECOMU_trkmuOneStationAngLoose[100],RECOMU_trkmuOneStationAngTight[100];
-  bool RECOMU_trkmuLastStationOptimizedLowPtLoose[100],RECOMU_trkmuLastStationOptimizedLowPtTight[100];
+  ArrayVector<float> 
+    RECOMU_mutrkPT,RECOMU_mutrkPTError,
+    RECOMU_mutrkDxy,RECOMU_mutrkDxyError,RECOMU_mutrkDxyB,
+    RECOMU_mutrkDz,RECOMU_mutrkDzError,RECOMU_mutrkDzB,
+    RECOMU_mutrkChi2PerNdof,
+    RECOMU_mutrktrackerLayersWithMeasurement,
+    RECOMU_muInnertrkDxy,RECOMU_muInnertrkDxyError,RECOMU_muInnertrkDxyB,
+    RECOMU_muInnertrkDz,RECOMU_muInnertrkDzError,RECOMU_muInnertrkDzB,
+    RECOMU_mubesttrkDxy,RECOMU_mubesttrkDxyError,RECOMU_mubesttrkDxyB,
+    RECOMU_mubesttrkDz,RECOMU_mubesttrkDzError,RECOMU_mubesttrkDzB, RECOMU_mubesttrkPTError, RECOMU_Rochester_Error,
+    RECOMU_muInnertrkChi2PerNdof,
+    RECOMU_muInnertrktrackerLayersWithMeasurement,RECOMU_muInnertrkPT,RECOMU_muInnertrkPTError,
+    RECOMU_muInnertrkCharge,RECOMU_muInnertrkNHits,RECOMU_muInnertrkNPixHits,RECOMU_muInnertrkNStripHits,
+    RECOMU_mutrkCharge,RECOMU_mutrkNHits,RECOMU_mutrkNPixHits,RECOMU_mutrkNStripHits,RECOMU_mutrkNMuonHits;
+  bool RECOMU_trkmuArbitration,RECOMU_trkmu2DCompatibilityLoose,RECOMU_trkmu2DCompatibilityTight;
+  bool RECOMU_trkmuOneStationLoose,RECOMU_trkmuOneStationTight;
+  bool RECOMU_trkmuLastStationLoose,RECOMU_trkmuLastStationTight;
+  bool RECOMU_trkmuLastStationAngLoose,RECOMU_trkmuLastStationAngTight;
+  bool RECOMU_trkmuOneStationAngLoose,RECOMU_trkmuOneStationAngTight;
+  bool RECOMU_trkmuLastStationOptimizedLowPtLoose,RECOMU_trkmuLastStationOptimizedLowPtTight;
   
    // Photons
-  float RECOPHOT_PT[20],RECOPHOT_ETA[20],RECOPHOT_PHI[20],RECOPHOT_THETA[20],RECOPHOT_TLE_ParentSC_X[20],RECOPHOT_TLE_ParentSC_Y[20],RECOPHOT_TLE_ParentSC_Z[20];
-  float RECOPFPHOT_PT[20],RECOPFPHOT_PTError[20],RECOPFPHOT_ETA[20],RECOPFPHOT_PHI[20],RECOPFPHOT_THETA[20];
-  double RECOPFPHOT_PFchAllPart[20],RECOPFPHOT_PFchHad[20],RECOPFPHOT_PFneuHad[20],RECOPFPHOT_PFphoton[20],
-    RECOPFPHOT_PFPUchAllPart[20],RECOPFPHOT_PFX_rho[20], RECOPFPHOT_PT_uncorr[20];
+  ArrayVector<float> RECOPHOT_PT,RECOPHOT_ETA,RECOPHOT_PHI,RECOPHOT_THETA,RECOPHOT_TLE_ParentSC_X,RECOPHOT_TLE_ParentSC_Y,RECOPHOT_TLE_ParentSC_Z;
+  ArrayVector<float> RECOPFPHOT_PT,RECOPFPHOT_PTError,RECOPFPHOT_ETA,RECOPFPHOT_PHI,RECOPFPHOT_THETA;
+  ArrayVector<double> RECOPFPHOT_PFchAllPart,RECOPFPHOT_PFchHad,RECOPFPHOT_PFneuHad,RECOPFPHOT_PFphoton,
+    RECOPFPHOT_PFPUchAllPart,RECOPFPHOT_PFX_rho, RECOPFPHOT_PT_uncorr;
 
   //Reham 
   
-  float RECOPFPHOT_ecalEnergyErrPostCorr[20],RECOPFPHOT_energyScaleValue[20],RECOPFPHOT_energySigmaValue[20], RECOPFPHOT_energyScaleUp[20], RECOPFPHOT_energyScaleDown[20], RECOPFPHOT_energyScaleStatUp[20], RECOPFPHOT_energyScaleStatDown[20], RECOPFPHOT_energyScaleSystUp[20], RECOPFPHOT_energyScaleSystDown[20], RECOPFPHOT_energyScaleGainUp[20], RECOPFPHOT_energyScaleGainDown[20],RECOPFPHOT_energyScaleEtUp[20], RECOPFPHOT_energyScaleEtDown[20], RECOPFPHOT_energySigmaUp[20], RECOPFPHOT_energySigmaDown[20], RECOPFPHOT_energySigmaPhiUp[20], RECOPFPHOT_energySigmaPhiDown[20], RECOPFPHOT_energySigmaRhoUp[20], RECOPFPHOT_energySigmaRhoDown[20],RECOPFPHOT_ecalEnergyPreCorr[20],RECOPFPHOT_ecalEnergyErrPreCorr[20];
+  ArrayVector<float> RECOPFPHOT_ecalEnergyErrPostCorr,RECOPFPHOT_energyScaleValue,RECOPFPHOT_energySigmaValue, RECOPFPHOT_energyScaleUp, RECOPFPHOT_energyScaleDown, RECOPFPHOT_energyScaleStatUp, RECOPFPHOT_energyScaleStatDown, RECOPFPHOT_energyScaleSystUp, RECOPFPHOT_energyScaleSystDown, RECOPFPHOT_energyScaleGainUp, RECOPFPHOT_energyScaleGainDown,RECOPFPHOT_energyScaleEtUp, RECOPFPHOT_energyScaleEtDown, RECOPFPHOT_energySigmaUp, RECOPFPHOT_energySigmaDown, RECOPFPHOT_energySigmaPhiUp, RECOPFPHOT_energySigmaPhiDown, RECOPFPHOT_energySigmaRhoUp, RECOPFPHOT_energySigmaRhoDown,RECOPFPHOT_ecalEnergyPreCorr,RECOPFPHOT_ecalEnergyErrPreCorr;
   
 
   // Vertexing
-  double ftsigma[100],ftsigmalag[100],ftsigmaMMMM[100],ftsigmalagMMMM[100],ftsigmaEEEE[100],ftsigmalagEEEE[100];
-  double gdX[100],gdY[100],gdZ[100],gdXMMMM[100],gdYMMMM[100],gdZMMMM[100],gdXEEEE[100],gdYEEEE[100],gdZEEEE[100];
-  double gdlagX[100],gdlagY[100],gdlagZ[100],gdlagProb[100],gdlagNdof[100],
-    gdlagXMMMM[100],gdlagYMMMM[100],gdlagZMMMM[100],gdlagProbMMMM[100],gdlagNdofMMMM[100],
-    gdlagXEEEE[100],gdlagYEEEE[100],gdlagZEEEE[100],gdlagProbEEEE[100],gdlagNdofEEEE[100];
+  ArrayVector<double> ftsigma,ftsigmalag,ftsigmaMMMM,ftsigmalagMMMM,ftsigmaEEEE,ftsigmalagEEEE;
+  ArrayVector<double> gdX,gdY,gdZ,gdXMMMM,gdYMMMM,gdZMMMM,gdXEEEE,gdYEEEE,gdZEEEE;
+  ArrayVector<double> gdlagX,gdlagY,gdlagZ,gdlagProb,gdlagNdof,
+    gdlagXMMMM,gdlagYMMMM,gdlagZMMMM,gdlagProbMMMM,gdlagNdofMMMM,
+    gdlagXEEEE,gdlagYEEEE,gdlagZEEEE,gdlagProbEEEE,gdlagNdofEEEE;
 
   //ConstraintFit 4l
-  double  StdFitVertexX[100], StdFitVertexY[100], StdFitVertexZ[100], StdFitVertexChi2r[100], StdFitVertexProb[100];
-  double  KinFitVertexX[100], KinFitVertexY[100], KinFitVertexZ[100], KinFitVertexChi2r[100], KinFitVertexProb[100];
-  double  StdFitVertexXMMMM[100], StdFitVertexYMMMM[100], StdFitVertexZMMMM[100], StdFitVertexChi2rMMMM[100], StdFitVertexProbMMMM[100];
-  double  KinFitVertexXMMMM[100], KinFitVertexYMMMM[100], KinFitVertexZMMMM[100], KinFitVertexChi2rMMMM[100], KinFitVertexProbMMMM[100];
-  double  StdFitVertexXEEEE[100], StdFitVertexYEEEE[100], StdFitVertexZEEEE[100], StdFitVertexChi2rEEEE[100], StdFitVertexProbEEEE[100];
-  double  KinFitVertexXEEEE[100], KinFitVertexYEEEE[100], KinFitVertexZEEEE[100], KinFitVertexChi2rEEEE[100], KinFitVertexProbEEEE[100];
+  ArrayVector<double>  StdFitVertexX, StdFitVertexY, StdFitVertexZ, StdFitVertexChi2r, StdFitVertexProb;
+  ArrayVector<double>  KinFitVertexX, KinFitVertexY, KinFitVertexZ, KinFitVertexChi2r, KinFitVertexProb;
+  ArrayVector<double>  StdFitVertexXMMMM, StdFitVertexYMMMM, StdFitVertexZMMMM, StdFitVertexChi2rMMMM, StdFitVertexProbMMMM;
+  ArrayVector<double>  KinFitVertexXMMMM, KinFitVertexYMMMM, KinFitVertexZMMMM, KinFitVertexChi2rMMMM, KinFitVertexProbMMMM;
+  ArrayVector<double>  StdFitVertexXEEEE, StdFitVertexYEEEE, StdFitVertexZEEEE, StdFitVertexChi2rEEEE, StdFitVertexProbEEEE;
+  ArrayVector<double>  KinFitVertexXEEEE, KinFitVertexYEEEE, KinFitVertexZEEEE, KinFitVertexChi2rEEEE, KinFitVertexProbEEEE;
 
-  float StdFitVertexTrack_PT[4][100],StdFitVertexTrack_ETA[4][100],StdFitVertexTrack_PHI[4][100],
-    StdFitVertexTrackMMMM_PT[4][100],StdFitVertexTrackMMMM_ETA[4][100],StdFitVertexTrackMMMM_PHI[4][100],
-    StdFitVertexTrackEEEE_PT[4][100],StdFitVertexTrackEEEE_ETA[4][100],StdFitVertexTrackEEEE_PHI[4][100];
+  ArrayVector<ArrayVector<float> > StdFitVertexTrack_PT,StdFitVertexTrack_ETA,StdFitVertexTrack_PHI,
+    StdFitVertexTrackMMMM_PT,StdFitVertexTrackMMMM_ETA,StdFitVertexTrackMMMM_PHI,
+    StdFitVertexTrackEEEE_PT,StdFitVertexTrackEEEE_ETA,StdFitVertexTrackEEEE_PHI;
 
    //ConstraintFit 2l
-  double  StdFitVertexChi2rDiLep[40], StdFitVertexProbDiLep[40];
+  ArrayVector<double>  StdFitVertexChi2rDiLep, StdFitVertexProbDiLep;
 
   //ConstraintFit 3l
-  double  StdFitVertexChi2rMMM[100], StdFitVertexProbMMM[100];
-  double  StdFitVertexChi2rMME[100], StdFitVertexProbMME[100];
-  double  StdFitVertexChi2rEEE[100], StdFitVertexProbEEE[100];
-  double  StdFitVertexChi2rMEE[100], StdFitVertexProbMEE[100];
+  ArrayVector<double>  StdFitVertexChi2rMMM, StdFitVertexProbMMM;
+  ArrayVector<double>  StdFitVertexChi2rMME, StdFitVertexProbMME;
+  ArrayVector<double>  StdFitVertexChi2rEEE, StdFitVertexProbEEE;
+  ArrayVector<double>  StdFitVertexChi2rMEE, StdFitVertexProbMEE;
    
   
   //Muons Matching
-  bool RECOMU_MatchingMCTruth[100];
-  float RECOMU_MatchingMCpT[100];
-  float RECOMU_MatchingMCEta[100];
-  float RECOMU_MatchingMCPhi[100];
+  ArrayVector<bool > RECOMU_MatchingMCTruth;
+  ArrayVector<float> RECOMU_MatchingMCpT;
+  ArrayVector<float> RECOMU_MatchingMCEta;
+  ArrayVector<float> RECOMU_MatchingMCPhi;
   
   //Electrons:
-  bool RECOELE_MatchingMCTruth[100];
-  float RECOELE_MatchingMCpT[100];
-  float RECOELE_MatchingMCEta[100];
-  float RECOELE_MatchingMCPhi[100];
+  ArrayVector<bool > RECOELE_MatchingMCTruth;
+  ArrayVector<float> RECOELE_MatchingMCpT;
+  ArrayVector<float> RECOELE_MatchingMCEta;
+  ArrayVector<float> RECOELE_MatchingMCPhi;
   //Gamma:
-  bool RECOPHOT_MatchingMCTruth[50];
-  float RECOPHOT_MatchingMCpT[50];
-  float RECOPHOT_MatchingMCEta[50];
-  float RECOPHOT_MatchingMCPhi[50];
+  ArrayVector<bool > RECOPHOT_MatchingMCTruth;
+  ArrayVector<float> RECOPHOT_MatchingMCpT;
+  ArrayVector<float> RECOPHOT_MatchingMCEta;
+  ArrayVector<float> RECOPHOT_MatchingMCPhi;
 
   //zToMuMu:
-  bool RECOzMuMu_MatchingMCTruth[50];
-  float RECOzMuMu_MatchingMCpT[50];
-  float RECOzMuMu_MatchingMCmass[50];
-  float RECOzMuMu_MatchingMCEta[50];
-  float RECOzMuMu_MatchingMCPhi[50];
+  ArrayVector<bool > RECOzMuMu_MatchingMCTruth;
+  ArrayVector<float> RECOzMuMu_MatchingMCpT;
+  ArrayVector<float> RECOzMuMu_MatchingMCmass;
+  ArrayVector<float> RECOzMuMu_MatchingMCEta;
+  ArrayVector<float> RECOzMuMu_MatchingMCPhi;
 
   //zToEE:
-  bool RECOzEE_MatchingMCTruth[50];
-  float RECOzEE_MatchingMCpT[50];
-  float RECOzEE_MatchingMCmass[50];
-  float RECOzEE_MatchingMCEta[50];
-  float RECOzEE_MatchingMCPhi[50];
+  ArrayVector<bool > RECOzEE_MatchingMCTruth;
+  ArrayVector<float> RECOzEE_MatchingMCpT;
+  ArrayVector<float> RECOzEE_MatchingMCmass;
+  ArrayVector<float> RECOzEE_MatchingMCEta;
+  ArrayVector<float> RECOzEE_MatchingMCPhi;
 
   //HtoZtoEEEE:
-  bool RECOHzzEEEE_MatchingMCTruth[100];
-  float RECOHzzEEEE_MatchingMCpT[100];
-  float RECOHzzEEEE_MatchingMCmass[100];
-  float RECOHzzEEEE_MatchingMCEta[100];
-  float RECOHzzEEEE_MatchingMCPhi[100];
+  ArrayVector<bool > RECOHzzEEEE_MatchingMCTruth;
+  ArrayVector<float> RECOHzzEEEE_MatchingMCpT;
+  ArrayVector<float> RECOHzzEEEE_MatchingMCmass;
+  ArrayVector<float> RECOHzzEEEE_MatchingMCEta;
+  ArrayVector<float> RECOHzzEEEE_MatchingMCPhi;
 
   //HtoZtoMMMM:
-  bool RECOHzzMMMM_MatchingMCTruth[100];
-  float RECOHzzMMMM_MatchingMCpT[100];
-  float RECOHzzMMMM_MatchingMCmass[100];
-  float RECOHzzMMMM_MatchingMCEta[100];
-  float RECOHzzMMMM_MatchingMCPhi[100];
+  ArrayVector<bool > RECOHzzMMMM_MatchingMCTruth;
+  ArrayVector<float> RECOHzzMMMM_MatchingMCpT;
+  ArrayVector<float> RECOHzzMMMM_MatchingMCmass;
+  ArrayVector<float> RECOHzzMMMM_MatchingMCEta;
+  ArrayVector<float> RECOHzzMMMM_MatchingMCPhi;
 
   //HtoZtoEEMM:
-  bool RECOHzzEEMM_MatchingMCTruth[100];
-  float RECOHzzEEMM_MatchingMCpT[100];
-  float RECOHzzEEMM_MatchingMCmass[100];
-  float RECOHzzEEMM_MatchingMCEta[100];
-  float RECOHzzEEMM_MatchingMCPhi[100];
+  ArrayVector<bool > RECOHzzEEMM_MatchingMCTruth;
+  ArrayVector<float> RECOHzzEEMM_MatchingMCpT;
+  ArrayVector<float> RECOHzzEEMM_MatchingMCmass;
+  ArrayVector<float> RECOHzzEEMM_MatchingMCEta;
+  ArrayVector<float> RECOHzzEEMM_MatchingMCPhi;
   
  
 
   // RECO counters
   int RECO_NMU, RECO_NELE, RECO_NTRACK, RECO_NPHOT, RECO_NPFPHOT,RECO_NJET, RECO_NVTX;
-  float RECO_TRACK_PT[200], RECO_TRACK_ETA[200], RECO_TRACK_PHI[200],
-    RECO_TRACK_CHI2[200],RECO_TRACK_CHI2RED[200],RECO_TRACK_CHI2PROB[200], 
-    RECO_TRACK_DXY[200],RECO_TRACK_DXYERR[200], 
-    RECO_TRACK_DZ[200],RECO_TRACK_DZERR[200];
-  int RECO_TRACK_NHITS[200];
+  ArrayVector<float> RECO_TRACK_PT, RECO_TRACK_ETA, RECO_TRACK_PHI,
+    RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB, 
+    RECO_TRACK_DXY,RECO_TRACK_DXYERR, 
+    RECO_TRACK_DZ,RECO_TRACK_DZERR;
+  ArrayVector<int> RECO_TRACK_NHITS;
   
   // Primary Vertices
-  float RECO_VERTEX_x[15], RECO_VERTEX_y[15], RECO_VERTEX_z[15],RECO_VERTEX_ndof[15],RECO_VERTEX_chi2[15],RECO_VERTEXPROB[15],RECO_VERTEX_TRACK_PT[15][100];
-  bool RECO_VERTEX_isValid[15];
-  int RECO_VERTEX_ntracks[15];
+  ArrayVector<float> RECO_VERTEX_x, RECO_VERTEX_y, RECO_VERTEX_z,RECO_VERTEX_ndof,RECO_VERTEX_chi2,RECO_VERTEXPROB;
+  ArrayVector<ArrayVector<float > > RECO_VERTEX_TRACK_PT;
+  ArrayVector<bool > RECO_VERTEX_isValid;
+  ArrayVector<int> RECO_VERTEX_ntracks;
   
   // RECO JETS
-  int RECO_PFJET_N, RECO_PFJET_CHARGE[200],RECO_PFJET_PUID[200], RECO_PFJET_PUID_loose[200], RECO_PFJET_PUID_medium[200];
-  float RECO_PFJET_ET[200], RECO_PFJET_PT[200], RECO_PFJET_ETA[200], RECO_PFJET_PHI[200],RECO_PFJET_PUID_MVA[200],RECO_PFJET_QG_Likelihood[200],RECO_PFJET_QG_axis2[200],RECO_PFJET_QG_ptd[200],RECO_PFJET_QG_mult[200];
+  int RECO_PFJET_N;
+  ArrayVector<int>  RECO_PFJET_CHARGE,RECO_PFJET_PUID, RECO_PFJET_PUID_loose, RECO_PFJET_PUID_medium;
+  ArrayVector<float> RECO_PFJET_ET, RECO_PFJET_PT, RECO_PFJET_ETA, RECO_PFJET_PHI,RECO_PFJET_PUID_MVA,RECO_PFJET_QG_Likelihood,RECO_PFJET_QG_axis2,RECO_PFJET_QG_ptd,RECO_PFJET_QG_mult;
   double RHO,RHO_ele,RHO_mu;
 
  //@
   bool isData;
   edm::EDGetTokenT<edm::View<pat::Muon>> slimmedMuonsTag_;
   edm::EDGetTokenT<LHEEventProduct> LHE_;
-  bool LHE_PARTON_CLEAR[10];
-  int LHE_PARTON_N, LHE_PARTON_PDGID[10];
-  float LHE_PARTON_PT[10], LHE_PARTON_ETA[10], LHE_PARTON_PHI[10], LHE_PARTON_E[10];
-  int RECO_PFJET_CHARGED_HADRON_MULTIPLICITY[200], RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY[200], RECO_PFJET_PHOTON_MULTIPLICITY[200], RECO_PFJET_ELECTRON_MULTIPLICITY[200], RECO_PFJET_COMPONENT_PDGID[200][100];
-  int RECO_PFJET_MUON_MULTIPLICITY[200], RECO_PFJET_HF_HADRON_MULTIPLICTY[200], RECO_PFJET_HF_EM_MULTIPLICITY[200], RECO_PFJET_CHARGED_MULTIPLICITY[200], RECO_PFJET_NEUTRAL_MULTIPLICITY[200], RECO_PFJET_NCOMPONENTS[200];
-  float RECO_PFJET_PT_UncUp[200], RECO_PFJET_PT_UncDn[200], RECO_PFJET_AREA[200], RECO_PFJET_CHARGED_HADRON_ENERGY[200], RECO_PFJET_NEUTRAL_HADRON_ENERGY[200], RECO_PFJET_PHOTON_ENERGY[200], RECO_PFJET_ELECTRON_ENERGY[200], RECO_PFJET_PTD[200];
-  float RECO_PFJET_MUON_ENERGY[200], RECO_PFJET_HF_HADRON_ENERGY[200], RECO_PFJET_HF_EM_ENERGY[200], RECO_PFJET_CHARGED_EM_ENERGY[200], RECO_PFJET_CHARGED_MU_ENERGY[200];
-  float RECO_PFJET_NEUTRAL_EM_ENERGY[200], RECO_PFJET_COMPONENT_PT[200][100], RECO_PFJET_COMPONENT_ETA[200][100], RECO_PFJET_COMPONENT_PHI[200][100], RECO_PFJET_COMPONENT_E[200][100], RECO_PFJET_COMPONENT_TRANSVERSE_MASS[200][100], RECO_PFJET_COMPONENT_CHARGE[200][100];
-  float RECO_PFJET_COMPONENT_XVERTEX[200][100], RECO_PFJET_COMPONENT_YVERTEX[200][100], RECO_PFJET_COMPONENT_ZVERTEX[200][100], RECO_PFJET_COMPONENT_VERTEX_CHI2[200][100];
+  ArrayVector<bool > LHE_PARTON_CLEAR;
+  int LHE_PARTON_N;
+  ArrayVector<int> LHE_PARTON_PDGID;
+  ArrayVector<float> LHE_PARTON_PT, LHE_PARTON_ETA, LHE_PARTON_PHI, LHE_PARTON_E;
+  ArrayVector<int> RECO_PFJET_CHARGED_HADRON_MULTIPLICITY, RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY, RECO_PFJET_PHOTON_MULTIPLICITY, RECO_PFJET_ELECTRON_MULTIPLICITY;
+  ArrayVector<ArrayVector<int > > RECO_PFJET_COMPONENT_PDGID;
+  ArrayVector<int> RECO_PFJET_MUON_MULTIPLICITY, RECO_PFJET_HF_HADRON_MULTIPLICTY, RECO_PFJET_HF_EM_MULTIPLICITY, RECO_PFJET_CHARGED_MULTIPLICITY, RECO_PFJET_NEUTRAL_MULTIPLICITY, RECO_PFJET_NCOMPONENTS;
+  ArrayVector<float> RECO_PFJET_PT_UncUp, RECO_PFJET_PT_UncDn, RECO_PFJET_AREA, RECO_PFJET_CHARGED_HADRON_ENERGY, RECO_PFJET_NEUTRAL_HADRON_ENERGY, RECO_PFJET_PHOTON_ENERGY, RECO_PFJET_ELECTRON_ENERGY, RECO_PFJET_PTD;
+  ArrayVector<float> RECO_PFJET_MUON_ENERGY, RECO_PFJET_HF_HADRON_ENERGY, RECO_PFJET_HF_EM_ENERGY, RECO_PFJET_CHARGED_EM_ENERGY, RECO_PFJET_CHARGED_MU_ENERGY;
+  ArrayVector<float> RECO_PFJET_NEUTRAL_EM_ENERGY;
+  ArrayVector<float > RECO_PFJET_COMPONENT_PT, RECO_PFJET_COMPONENT_ETA, RECO_PFJET_COMPONENT_PHI, RECO_PFJET_COMPONENT_E, RECO_PFJET_COMPONENT_TRANSVERSE_MASS, RECO_PFJET_COMPONENT_CHARGE;
+  ArrayVector<ArrayVector<float> > RECO_PFJET_COMPONENT_XVERTEX, RECO_PFJET_COMPONENT_YVERTEX, RECO_PFJET_COMPONENT_ZVERTEX, RECO_PFJET_COMPONENT_VERTEX_CHI2;
 
   // GenJET
-  float MC_GENJET_PT[100], MC_GENJET_ETA[100], MC_GENJET_PHI[100];
+  ArrayVector<float> MC_GENJET_PT, MC_GENJET_ETA, MC_GENJET_PHI;
 
   // RECO MET
   float genmet;
@@ -6051,21 +6071,21 @@ void fillTracks(const edm::Event& iEvent){
   
  
   
-  float tCHighEff_BTagJet_PT[50],
-    tCHighPur_BTagJet_PT[50],
-    cSV_BTagJet_PT[50];
-  float tCHighEff_BTagJet_ETA[50],
-    tCHighPur_BTagJet_ETA[50],
-    cSV_BTagJet_ETA[50];
-  float tCHighEff_BTagJet_PHI[50],
-    tCHighPur_BTagJet_PHI[50],
-    cSV_BTagJet_PHI[50];
-  float tCHighEff_BTagJet_DISCR[50],
-    tCHighPur_BTagJet_DISCR[50],
-    cSV_BTagJet_DISCR[50];
-  float cSV_BTagJet_ET[50];
+  ArrayVector<float> tCHighEff_BTagJet_PT,
+    tCHighPur_BTagJet_PT,
+    cSV_BTagJet_PT;
+  ArrayVector<float> tCHighEff_BTagJet_ETA,
+    tCHighPur_BTagJet_ETA,
+    cSV_BTagJet_ETA;
+  ArrayVector<float> tCHighEff_BTagJet_PHI,
+    tCHighPur_BTagJet_PHI,
+    cSV_BTagJet_PHI;
+  ArrayVector<float> tCHighEff_BTagJet_DISCR,
+    tCHighPur_BTagJet_DISCR,
+    cSV_BTagJet_DISCR;
+  ArrayVector<float> cSV_BTagJet_ET;
 
-  float ConvMapDist[100],ConvMapDcot[100];
+  ArrayVector<float> ConvMapDist,ConvMapDcot;
 
   // MVA Ring Isolation
   //MuonMVAEstimator *fMuonIsoMVA;
@@ -6076,6 +6096,3 @@ void fillTracks(const edm::Event& iEvent){
 };
 
 #endif
-
-
-
