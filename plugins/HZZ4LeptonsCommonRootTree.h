@@ -159,7 +159,8 @@ using namespace reco;
 using namespace std;
 using namespace pat;
 
-
+//Quick hack to remove most output
+#define HZZ4LeptonsCommonRootTreeH_DEBUG 0
 
 
 class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
@@ -1399,7 +1400,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       unsigned int i=iCand-EleCandidates->begin();
       //@// std::cout << "Electron with pt= " << iCand->pt() << ": check trigger matching" << std::endl;
       if (IsEleMatchedToHLTEle(*iCand,  HLTEleMatched , HLTEleMatchedNames, maxDeltaR_, maxDPtRel_)==true){
-	    std::cout << "Electron HLT Matched with pT= " << iCand->pt() << std::endl;
+	    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Electron HLT Matched with pT= " << iCand->pt() << std::endl;
 	    nEleHLTMatch++;
 	    RECOELE_PT_EleHLTMatch[i]=iCand->pt();
 	    RECOELE_ETA_EleHLTMatch[i]=iCand->eta();
@@ -1536,14 +1537,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       //@// std::cout << "\n The 4 highest pt leptons in MCtruth are= ";
       for (unsigned int i=0;i<leptonpt.size();i++){
 	if (i>3) continue;
-	std::cout << leptonpt.at(i) << " ";
+	if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << leptonpt.at(i) << " ";
 	MC_LEPT_PT[i]=leptonpt.at(i);
 	MC_LEPT_ETA[i]=leptoneta.at(i);
 	MC_LEPT_PHI[i]=leptonphi.at(i);
 	MC_LEPT_THETA[i]=leptontheta.at(i);
         MC_LEPT_PDGID[i]=leptonpdgid.at(i);
       }
-      std::cout << std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << std::endl;
     }
 
     // Check if Z bosons are generated (specially for Z + jet MC)
@@ -1565,7 +1566,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  // Select status 3 electron, muon or tau
 	  if (((abs((**it_dst3).pdgId()) == 11) || (abs((**it_dst3).pdgId()) == 13) || (abs((**it_dst3).pdgId()) == 15)) && (**it_dst3).status() == 3) {
 	    //@//  std::cout<<"\n |--> Z daughter Particle  "<<std::setw(18)<<"| id = "<<std::setw(5)<<(**it_dst3).pdgId()<<" | st = "<<std::setw(5)<<(**it_dst3).status()<<" | pt = ";
-	    std::cout<<std::setw(12)<<(**it_dst3).pt()<<" GeV/c | eta = "<<std::setw(12)<<(**it_dst3).eta()<<" | phi = "<<std::setw(12)<<(**it_dst3).phi();
+	    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<std::setw(12)<<(**it_dst3).pt()<<" GeV/c | eta = "<<std::setw(12)<<(**it_dst3).eta()<<" | phi = "<<std::setw(12)<<(**it_dst3).phi();
 	    // daughters of the status 3 electron, muon or tau
 	    reco::GenParticle::daughters dst1 = (**it_dst3).daughterRefVector();
 	    bool flag_emu_found = false; 
@@ -2235,11 +2236,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       
       float corrEt = cand->et() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
       auto corrP4  = cand->p4() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
-      std::cout<<"corrEt= "<<corrEt<<"corrP4 = "<<corrP4<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"corrEt= "<<corrEt<<"corrP4 = "<<corrP4<<std::endl;
      
-      std::cout<<"TESTTTT Kinematics corrPT = "<<corrP4.pt()<<" corrE = "<<corrP4.energy()<<"corrEta = "<<corrP4.eta()<<"corr phi = "<<corrP4.phi()<<"corrTheta = "<<corrP4.theta()<<"corrcharge = "<<cand->charge()<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"TESTTTT Kinematics corrPT = "<<corrP4.pt()<<" corrE = "<<corrP4.energy()<<"corrEta = "<<corrP4.eta()<<"corr phi = "<<corrP4.phi()<<"corrTheta = "<<corrP4.theta()<<"corrcharge = "<<cand->charge()<<std::endl;
 
-      std::cout<<"TESTTTT Kinematics BEFORE corr. PT = "<< cand->p4().pt()<<" E = "<<cand->p4().energy()<<"Eta = "<<cand->p4().eta()<<" phi = "<<cand->p4().phi()<<"Theta = "<<cand->p4().theta()<<"charge = "<<cand->charge()<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"TESTTTT Kinematics BEFORE corr. PT = "<< cand->p4().pt()<<" E = "<<cand->p4().energy()<<"Eta = "<<cand->p4().eta()<<" phi = "<<cand->p4().phi()<<"Theta = "<<cand->p4().theta()<<"charge = "<<cand->charge()<<std::endl;
  
 
       if (corrP4.pt() <7 )continue;
@@ -2322,14 +2323,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	/* 	  <<std::endl; */
 	
 	
-	std::cout<<"#########Electron step 1 "<<std::endl;
+	if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 1 "<<std::endl;
 
      // Global variables
       RECOELE_isEcalDriven[index]    = cand->ecalDrivenSeed();
       RECOELE_isTrackerDriven[index] = cand->trackerDrivenSeed();
 
      //@//
-       std::cout << "\n Electron in the event: "
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "\n Electron in the event: "
 	 << "  isEcalDriven="    << RECOELE_isEcalDriven[index]  
 	 << "  isTrackerDriven=" << RECOELE_isTrackerDriven[index] 
 	 << std::endl;
@@ -2337,13 +2338,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       ///@@@/// Electron ID  REHAM
       
 
-     std::cout << cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << std::endl;
-     std::cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values")<<std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values")<<std::endl;
 
      RECOELE_ID[index] = cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ");
      RECOELE_mvaNonTrigV0[index] =  cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
 
-     std::cout<<"RECOELE_ID[index] = "<<RECOELE_ID[index]<<" RECOELE_mvaNonTrigV0[index] = "<< RECOELE_mvaNonTrigV0[index]<<std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_ID[index] = "<<RECOELE_ID[index]<<" RECOELE_mvaNonTrigV0[index] = "<< RECOELE_mvaNonTrigV0[index]<<std::endl;
 
      //@@@///  Electron SIP Reham
 
@@ -2422,9 +2423,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	}
       }
       
-      std::cout<<"#########Electron step 2 "<<std::endl;
-      std::cout<<"RECOELE_PTError[index]= "<<RECOELE_PTError[index]<<std::endl;
-      std::cout<<"cand ecal energy = "<<cand->correctedEcalEnergy()<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 2 "<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_PTError[index]= "<<RECOELE_PTError[index]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"cand ecal energy = "<<cand->correctedEcalEnergy()<<std::endl;
 
       // Egamma isolation
       //RECOELE_EGMTRACKISO[index]=(*egmisoTkelemap)[eletrackref]/eletrackref->pt();
@@ -2497,7 +2498,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
         if (fabs(RECOELE_scl_Eta[index]) >= 2.4   && fabs(RECOELE_scl_Eta[index]) < 5.0  )  EffectiveArea = 0.2687;
       }
 
-      std::cout<<"#########Electron step 3 "<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 3 "<<std::endl;
 
       //RECOELE_PFX_rho[index]=(RECOELE_PFchHad[index]+
       //		      max( (RECOELE_PFneuHad[index]+RECOELE_PFphoton[index]-max(RHO_ele,0.0)*EffectiveArea),0.0) )/cand->p4().pt(); 
@@ -2519,7 +2520,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 
 
-      std::cout<<"#########Electron step 4 "<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 4 "<<std::endl;
 
       // GsfTrack
       RECOELE_gsftrack_NPixHits[index]  = cand->gsfTrack()->hitPattern().numberOfValidPixelHits();
@@ -2569,7 +2570,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOELE_deltaPhiSeed[index] = cand->deltaPhiSeedClusterTrackAtCalo(); 
       RECOELE_deltaPhiEle[index]  = cand->deltaPhiEleClusterTrackAtCalo() ;  
 
-      std::cout<<"#########Electron step 5 "<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 5 "<<std::endl;
 
       //@// 
      /* std::cout << "--track-cluster matching: " 
@@ -2658,7 +2659,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       /*        RECOELE_trackMomentumError[index]    = cand->trackMomentumError(); */
       /*        RECOELE_electronMomentumError[index] = cand->electronMomentumError(); */
       
-	      std::cout<<"#########Electron step 6 "<<std::endl;
+	      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 6 "<<std::endl;
     
       // Seed Collection
       if (useRECOformat) {
@@ -2674,7 +2675,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       }
       //
 
-      std::cout<<"#########Electron step 6a "<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 6a "<<std::endl;
 
 
       //add Gen Level info for electrons 
@@ -2691,23 +2692,23 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       	// CandidateRef Ref( CollEle, i );
       	    edm::Ref<std::vector<reco::GenParticle> > genrefEle = (*GenParticlesMatchEle)[eletrackref];
       	    if (!genrefEle.isNull()){
-      	      std::cout << "GenElectron with pT= " << genrefEle->p4().pt() << " and mass="<< genrefEle->p4().mass()<< std::endl;
+      	      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "GenElectron with pT= " << genrefEle->p4().pt() << " and mass="<< genrefEle->p4().mass()<< std::endl;
       	      RECOELE_MatchingMCTruth[index]= true;
       	      RECOELE_MatchingMCpT[index]= genrefEle->p4().pt();
       	      RECOELE_MatchingMCEta[index]= genrefEle->p4().eta();
       	      RECOELE_MatchingMCPhi[index]= genrefEle->p4().phi();
       	    }
       	    else {
-      	      std::cout << "There is no a reference to a genElectron" << std::endl;
+      	      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "There is no a reference to a genElectron" << std::endl;
       	    }
       	    // }
       	  //	}
       }//end match
 
-      std::cout<<"RECOELE_MatchingMCTruth[index] = "<<RECOELE_MatchingMCTruth[index]<<std::endl;
-      std::cout<<" RECOELE_MatchingMCpT[index] = "<< RECOELE_MatchingMCpT[index]<<std::endl;
-      std::cout<<"RECOELE_MatchingMCEta[index]= "<<RECOELE_MatchingMCEta[index]<<std::endl;
-      std::cout<<" RECOELE_MatchingMCPhi[index]= "<< RECOELE_MatchingMCPhi[index]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_MatchingMCTruth[index] = "<<RECOELE_MatchingMCTruth[index]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOELE_MatchingMCpT[index] = "<< RECOELE_MatchingMCpT[index]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_MatchingMCEta[index]= "<<RECOELE_MatchingMCEta[index]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOELE_MatchingMCPhi[index]= "<< RECOELE_MatchingMCPhi[index]<<std::endl;
       ///////
 
       index ++;
@@ -2800,14 +2801,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     TLorentzVector p4;
     int nl;
 
-    std::cout<<"######## //ROOT TREE Muon correction// ########"<<std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"######## //ROOT TREE Muon correction// ########"<<std::endl;
    
     //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
 
     edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
     calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
 
-    std::cout<<"#ROOT TREE open the txt file for muon corrections"<<std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE open the txt file for muon corrections"<<std::endl;
    
     int ii=0;
 
@@ -2816,7 +2817,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       edm::Ref<edm::View<pat::Muon> > muref(SlimmedMuons,ii);
 
     double u = rgen_->Rndm();
-    std::cout << "Random number: " << u << std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Random number: " << u << std::endl;
 
     bool Muon_Match = false;
     double Gen_Mu_pt= 0., Gen_Mu_eta= 0., Gen_Mu_phi= 0.;
@@ -2825,7 +2826,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       oldPt=SlimmedMuonsIter->pt();
       oldPtError=SlimmedMuonsIter->muonBestTrack()->ptError();
       
-      std::cout<<"Slimmed Muon Pt = "<<oldPt<<"old pt error from muon best track= "<<oldPtError<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"Slimmed Muon Pt = "<<oldPt<<"old pt error from muon best track= "<<oldPtError<<std::endl;
       ////
       
       /* // To add matching informations Reham */
@@ -2841,8 +2842,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  //        	      CandidateRef Ref(SlimmedMuons, ii ); 
         	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[muref]; 
         	      if (!genrefMu.isNull()){ 
-        		std::cout<<"#ROOT TREE Matched found "<<std::endl; 
-        		std::cout << "#ROOT TREE GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< std::endl; 
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE Matched found "<<std::endl; 
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "#ROOT TREE GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< std::endl; 
         		 Muon_Match = true; 
         		 Gen_Mu_pt = genrefMu->p4().pt(); 
 			 Gen_Mu_eta = genrefMu->p4().eta();
@@ -2853,7 +2854,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 			 GenMuon_phi.push_back(Gen_Mu_phi);
         	      } 
         	      else { 
-        		std::cout << "ROOT TREE There is no reference to a genMuon" << std::endl; 
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "ROOT TREE There is no reference to a genMuon" << std::endl; 
         		Muon_Match = false;
 			Muon_match.push_back(Muon_Match);
 			GenMuon_pt.push_back(Gen_Mu_pt); 
@@ -2972,17 +2973,17 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       float calibratorPtError = 0, mu_uncorr_pt = 0, gen_muon_pt=0, gen_muon_eta=0, gen_muon_phi=0;
       bool MUMATCH=false;
       unsigned int NslimmedMuons = vcorrPt.size();
-      std::cout << ">>>>> NslimmedMuons = " << NslimmedMuons <<" NMuCandidates = " << MuCandidates->size() << std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << ">>>>> NslimmedMuons = " << NslimmedMuons <<" NMuCandidates = " << MuCandidates->size() << std::endl;
       for(unsigned int iref=0; iref<NslimmedMuons; ++iref){
-	std::cout<<"Vcorrpt = "<<vcorrPt.at(iref)<<" cand pt = "<<cand->pt()<<std::endl;
+	if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"Vcorrpt = "<<vcorrPt.at(iref)<<" cand pt = "<<cand->pt()<<std::endl;
 	float candpt = cand->pt();
 	float corrpt = vcorrPt.at(iref);
 	if( candpt == corrpt ){
 	//if( (vcorrPt.at(iref)) == (cand->pt()) ){
 	  calibratorPtError = vcorrPtError.at(iref);
 	  mu_uncorr_pt =vuncorrpt.at(iref);
-	  std::cout<< "MuCandPt = " << cand->pt() << ", calibratorPt = " << vcorrPt.at(iref) << ", calibratorPtError = " << vcorrPtError.at(iref) << std::endl;
-	  std::cout<<"mu uncorr pt = "<<mu_uncorr_pt<<std::endl;
+	  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<< "MuCandPt = " << cand->pt() << ", calibratorPt = " << vcorrPt.at(iref) << ", calibratorPtError = " << vcorrPtError.at(iref) << std::endl;
+	  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"mu uncorr pt = "<<mu_uncorr_pt<<std::endl;
 	 
 	  if (fillMCTruth==true){
 	  if(Muon_match.at(iref)== true) {
@@ -2990,7 +2991,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    gen_muon_pt = GenMuon_pt.at(iref);
 	    gen_muon_eta = GenMuon_eta.at(iref);
 	    gen_muon_phi = GenMuon_phi.at(iref);
-	    std::cout<<"MUMATCH = "<<MUMATCH<<"gen_muon = "<<gen_muon_pt<<"eta = "<<gen_muon_eta<<" phi = "<<gen_muon_phi<<std::endl;
+	    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"MUMATCH = "<<MUMATCH<<"gen_muon = "<<gen_muon_pt<<"eta = "<<gen_muon_eta<<" phi = "<<gen_muon_phi<<std::endl;
 	  }
 	  }
 	} 
@@ -3001,10 +3002,10 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_MatchingMCEta[indexbis]= gen_muon_eta;
       RECOMU_MatchingMCPhi[indexbis]= gen_muon_phi;
       
-     std::cout<<" RECOMU_MatchingMCTruth[indexbis] = "<< RECOMU_MatchingMCTruth[indexbis]<<std::endl;
-      std::cout<<" RECOMU_MatchingMCpT[indexbis] = "<< RECOMU_MatchingMCpT[indexbis]<<std::endl;
-      std::cout<<" RECOMU_MatchingMCEta[indexbis] = "<< RECOMU_MatchingMCEta[indexbis]<<std::endl;
-      std::cout<<" RECOMU_MatchingMCPhi[indexbis] = "<< RECOMU_MatchingMCPhi[indexbis]<<std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCTruth[indexbis] = "<< RECOMU_MatchingMCTruth[indexbis]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCpT[indexbis] = "<< RECOMU_MatchingMCpT[indexbis]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCEta[indexbis] = "<< RECOMU_MatchingMCEta[indexbis]<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCPhi[indexbis] = "<< RECOMU_MatchingMCPhi[indexbis]<<std::endl;
       
       edm::Ref<edm::View<pat::Muon> > mutrackref(MuCandidates,indexbis); 
       //@// edm::Ref<edm::View<pat::Muon> > mutrackrefv(VertMuCandidates,indexbis); 
@@ -3041,7 +3042,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_PT_uncorr[indexbis]=mu_uncorr_pt;
 
       //@//    
-       std::cout << "--kinematic:"
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "--kinematic:"
 		<< "  pT="     << RECOMU_PT[indexbis]
 	        << "  E="      << RECOMU_E[indexbis]
 		<< "  p="      << RECOMU_P[indexbis]
@@ -3125,7 +3126,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_IP[indexbis]= std::abs(cand->dB(pat::Muon::PV3D));
       RECOMU_IPERROR[indexbis]= cand->edB(pat::Muon::PV3D);
 
-      std::cout<<"SIP = "<<RECOMU_SIP[indexbis]<<"IP , error = "<<RECOMU_IP[indexbis]<<", "<<RECOMU_IPERROR[indexbis]<<"std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D) = "<<std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D)<<"cand->dB(pat::Muon::PV3D) ="<<cand->dB(pat::Muon::PV3D)<<"cand->edB(pat::Muon::PV3D)= "<<cand->edB(pat::Muon::PV3D)<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"SIP = "<<RECOMU_SIP[indexbis]<<"IP , error = "<<RECOMU_IP[indexbis]<<", "<<RECOMU_IPERROR[indexbis]<<"std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D) = "<<std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D)<<"cand->dB(pat::Muon::PV3D) ="<<cand->dB(pat::Muon::PV3D)<<"cand->edB(pat::Muon::PV3D)= "<<cand->edB(pat::Muon::PV3D)<<std::endl;
 
 
       
@@ -3161,7 +3162,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
        RECOMU_mubesttrkPTError[indexbis]=cand->muonBestTrack()->ptError();
        RECOMU_Rochester_Error[indexbis]=calibratorPtError;
-       std::cout<<">>>> check muon best track pt error "<< RECOMU_mubesttrkPTError[indexbis]<<" Muon rochester error ="<< RECOMU_Rochester_Error[indexbis]<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<">>>> check muon best track pt error "<< RECOMU_mubesttrkPTError[indexbis]<<" Muon rochester error ="<< RECOMU_Rochester_Error[indexbis]<<std::endl;
 
       if(cand->globalTrack().isAvailable()){
 	RECOMU_mutrkPT[indexbis]=cand->globalTrack()->pt();
@@ -3429,9 +3430,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
      	//Reham error in PT and some systematic variables 
       
-      std::cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<std::endl;
-      std::cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<std::endl;
-      std::cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<std::endl;
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<std::endl;
 
       RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
       RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
@@ -3608,39 +3609,39 @@ void fillTracks(const edm::Event& iEvent){
      
 
      if (names.triggerName(i) == GoodVtxNoiseFilter_Selector_ ){
-       std::cout<<"&&&&& pass GoodVtxNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass GoodVtxNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterGoodVtxNoise = int(noiseFilterBits_->accept(i));};
 
      if (names.triggerName(i) == GlobalSuperTightHalo2016NoiseFilter_Selector_ ){
-       std::cout<<"&&&&& pass GlobalSuperTightHalo2016NoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass GlobalSuperTightHalo2016NoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterGlobalSuperTightHalo2016NoiseFilter = int(noiseFilterBits_->accept(i));};
 
      if (names.triggerName(i) == HBHENoiseFilter_Selector_){
-       std::cout<<"&&&& Pass HBHENoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&& Pass HBHENoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterHBHENoise = int(noiseFilterBits_->accept(i));};
      
      if (names.triggerName(i) == HBHENoiseIsoFilter_Selector_ ){
-       std::cout<<"&&&&& pass HBHENoiseIsoFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass HBHENoiseIsoFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterHBHENoiseIso = int(noiseFilterBits_->accept(i));};
 
      if (names.triggerName(i) == EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_ ){
-       std::cout<<"&&&&& pass EcalDeadCellTriggerPrimitiveNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass EcalDeadCellTriggerPrimitiveNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterEcalDeadCellTriggerPrimitiveNoise = int(noiseFilterBits_->accept(i));};
 
     if (names.triggerName(i) == BadPFMuonFilter_Selector_ ){
-       std::cout<<"&&&&& pass EcalBadPFMuonFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass EcalBadPFMuonFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterBadPFMuon = int(noiseFilterBits_->accept(i));};
 
     if (names.triggerName(i) == BadChargedCandidateFilter_Selector_ ){
-       std::cout<<"&&&&& pass BadChargedCandidateFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass BadChargedCandidateFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterBadChargedCandidate = int(noiseFilterBits_->accept(i));};
 
      if (names.triggerName(i) == EEBadScNoiseFilter_Selector_ ){
-       std::cout<<"&&&&& pass EEBadScNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass EEBadScNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterEEBadScNoise = int(noiseFilterBits_->accept(i));};
 
     if (names.triggerName(i) == EcalBadCalibFilter_Selector_ ){
-       std::cout<<"&&&&& pass EcalBadCalibFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass EcalBadCalibFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterEcalBadCalib = int(noiseFilterBits_->accept(i));};
       
    };
@@ -4479,7 +4480,7 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByToken(rhojetsTag_,rhoHandle); 
     if (rhoHandle.isValid() ) {
       RHO_mu=*rhoHandle;
-       std::cout << "RHO mu fastjet= " << RHO_mu << std::endl; 
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO mu fastjet= " << RHO_mu << std::endl; 
     }
     else {
        std::cout << "Not valid RHO mu collection" << std::endl;
@@ -4488,7 +4489,7 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByToken(rhojetsTag_,rhoHandle); 
     if (rhoHandle.isValid() ) {
       RHO_ele=*rhoHandle;
-      std::cout << "RHO ele fastjet= " << RHO_ele << std::endl; 
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO ele fastjet= " << RHO_ele << std::endl; 
     }
     else {
       std::cout << "Not valid RHO ele collection" << std::endl;

@@ -193,7 +193,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
 
   // Incrementing counter of events
   nevt++;
-  std::cout << "Dumping the information of the event in a ROOT tree: " << nevt << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Dumping the information of the event in a ROOT tree: " << nevt << std::endl;
   
   //Initialize variables
   Initialize();
@@ -204,14 +204,14 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   ils=iEvent.luminosityBlock();
 
   // std::cout << "Dumping the information of run=" << irun << "  event=" << ievt << "  lumisection=" << ils << std::endl;
-  std::cout << "Dumping_the_information_of_run:" << irun << ":" << ievt << ":" << ils << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Dumping_the_information_of_run:" << irun << ":" << ievt << ":" << ils << std::endl;
 
   edm::Handle<LumiSummary> l;
   iEvent.getLuminosityBlock().getByLabel("lumiProducer", l); 
   // Check that there is something
   if (l.isValid()){
     Avginstlumi=l->avgInsDelLumi();
-    std::cout << "Instataneous luminosity= " << Avginstlumi << std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Instataneous luminosity= " << Avginstlumi << std::endl;
   }
 
   // file PU block
@@ -226,7 +226,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   
   // Get the MC Truth particles, H, ZZ and 4 leptons
   if ( fillMCTruth) {
-    std::cout << "Filling MCtruth variables" << std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Filling MCtruth variables" << std::endl;
     fillgenparticles(iEvent,iSetup);
     fillmc(iEvent);
   }
@@ -237,7 +237,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   PV = *recoPrimaryVertexCollection;
   
   RECO_NVTX=recoPrimaryVertexCollection->size();
-  std::cout << "Number of Vertices in the event= " << RECO_NVTX << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Number of Vertices in the event= " << RECO_NVTX << std::endl;
 
   int index_vertex = 0;
   
@@ -251,12 +251,12 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
     RECO_VERTEX_ntracks[index_vertex] = i->tracksSize();
     RECO_VERTEXPROB[index_vertex] = ChiSquaredProbability(i->chi2(),i->ndof());
     RECO_VERTEX_isValid[index_vertex] = i->isValid();
-    std::cout << "Vertex made by " << i->tracksSize() << " tracks with chi2="<< i->chi2() << " and ndof=" << i->ndof() << " and prob=" << RECO_VERTEXPROB[index_vertex] << std::endl;
+    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Vertex made by " << i->tracksSize() << " tracks with chi2="<< i->chi2() << " and ndof=" << i->ndof() << " and prob=" << RECO_VERTEXPROB[index_vertex] << std::endl;
     
     int indice=0;
     for(std::vector<reco::TrackBaseRef>::const_iterator iter = i->tracks_begin();
 	iter != i->tracks_end(); iter++) {
-      std::cout << "pT of tracks building the vertex= " << (**iter).pt() << std::endl; 
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "pT of tracks building the vertex= " << (**iter).pt() << std::endl; 
       if (indice <100) RECO_VERTEX_TRACK_PT[index_vertex][indice]= (**iter).pt();
       indice++;
     }
@@ -268,9 +268,9 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
 
   // Fill RECO block in the rootple
   // PF Jets
-  std::cout << "fill jet test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "fill jet test" << std::endl;
   filljets(iEvent,iSetup);
-  std::cout << "fill jet test end" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "fill jet test end" << std::endl;
 
 //  if (useAdditionalRECO==true) {
 //    fillAdditionalRECO(iEvent);
@@ -279,11 +279,11 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
 
 
   // Filling electron and muons vectors
-  std::cout <<"fill ele test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout <<"fill ele test" << std::endl;
   fillElectrons(iEvent,iSetup);
-  std::cout <<"fill Muon test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout <<"fill Muon test" << std::endl;
   fillMuons(iEvent,iSetup);
-  std::cout <<"fill photon test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout <<"fill photon test" << std::endl;
   fillPhotons(iEvent);
 
 
@@ -305,14 +305,14 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   
   //Tracks
 
-  std::cout << "fill track test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "fill track test" << std::endl;
   fillTracks(iEvent); 
 
  //GENJets
   if (fillMCTruth) fillgenjets(iEvent);
 
     
-  std::cout << "GENMET test" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "GENMET test" << std::endl;
 
   //GENMET
   if (fillMCTruth) {
@@ -326,17 +326,17 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
  
 
  
-  std::cout << "fill MET" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "fill MET" << std::endl;
   //RECO MET
   fillMET(iEvent);
 
  
-  std::cout << "fill MET Filters" << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "fill MET Filters" << std::endl;
   //RECO MET
   fillMETFilters(iEvent);
 
 
-   std::cout << " beam spot met " << std::endl;
+   if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << " beam spot met " << std::endl;
   // Beam Spot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(offlineBeamSpot_,recoBeamSpotHandle) ;
@@ -346,13 +346,13 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   BeamSpot_Y=bs.position().y();
   BeamSpot_Z=bs.position().z();
   
-  std::cout << "BeamSpot:"
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "BeamSpot:"
        << "  bs_X=" << BeamSpot_X
        << "  bs_Y=" << BeamSpot_Y
        << "  bs_Z=" << BeamSpot_Z
        << std::endl;
 
-  std::cout << "Btag test " << std::endl;
+  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Btag test " << std::endl;
   // btagging
   fillBTagging(iEvent);
 
@@ -369,5 +369,3 @@ void HZZ4LeptonsCommonRootTree::beginJob() {
 
 void HZZ4LeptonsCommonRootTree::endJob() {
 }
-
-
