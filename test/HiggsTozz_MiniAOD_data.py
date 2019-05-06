@@ -206,7 +206,7 @@ process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,
 
 
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 #process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck', #DEBUG
