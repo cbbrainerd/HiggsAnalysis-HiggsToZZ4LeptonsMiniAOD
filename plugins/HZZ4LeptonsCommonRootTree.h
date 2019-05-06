@@ -1471,7 +1471,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     iEvent.getByToken(genjetTag_,genjetHandle);
     int i=0;
     for ( GenJetCollection::const_iterator igen=genjetHandle->begin(); igen!=genjetHandle->end(); igen++) {
-      if (i>99) break;
+      //if (i>99) break;
+      if(i==100) std::cout << "Warning: number of genJets exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       MC_GENJET_PT[i]=igen->pt();
       MC_GENJET_ETA[i]=igen->eta();
       MC_GENJET_PHI[i]=igen->phi();
@@ -1951,7 +1952,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     int kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesMMMM->begin();cand != CandidatesMMMM->end(); ++ cand ) { 
-      if (kk>99) break;
+      //if (kk>99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesMMMM exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       RECO_MMMM_MASS[i-1][kk]=cand->p4().mass();
       RECO_MMMM_PT[i-1][kk]=cand->p4().pt();
       RECO_MMMM_ETA[i-1][kk]=cand->p4().eta();
@@ -2008,7 +2010,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesEEEE->begin();cand != CandidatesEEEE->end(); ++ cand ) {
-      if (kk>99) break;
+      //if (kk>99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesEEEE exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       RECO_EEEE_MASS[i-1][kk]=cand->p4().mass();
       RECO_EEEE_PT[i-1][kk]=cand->p4().pt();
       RECO_EEEE_ETA[i-1][kk]=cand->p4().eta();
@@ -2065,7 +2068,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesEEMM->begin();cand != CandidatesEEMM->end(); ++ cand ) {
-      if (kk>99) break;
+      //if (kk>99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesEEMM exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       RECO_EEMM_MASS[i-1][kk]=cand->p4().mass();
       RECO_EEMM_PT[i-1][kk]=cand->p4().pt();
       RECO_EEMM_ETA[i-1][kk]=cand->p4().eta();
@@ -2213,7 +2217,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     for (edm::View<pat::Electron>::const_iterator cand = EleRefs->begin(); cand != EleRefs->end(); ++cand) {
       
-      if(index>99) break;
+      //if(index>99) break;
+      if(index==100) std::cout << "Warning: number of EleRefs exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       
       edm::Ref<edm::View<pat::Electron> > eletrackref(EleRefs,index);
       // edm::Ref<edm::View<pat::Electron> > eletrackrefv(VertEleCandidates,index);
@@ -2962,7 +2967,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     for (edm::View<pat::Muon>::const_iterator cand = MuCandidates->begin(); cand != MuCandidates->end(); ++cand) {
             
-      if(indexbis>99) break;
+      //if(indexbis>99) break;
+      if(indexbis==100) std::cout << "Warning: number of MuCandidates exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 
       edm::Ref<edm::View<pat::Muon> > muonref(MuCandidates,indexbis);
 
@@ -3325,7 +3331,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     
     int iphot=0;
     for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
-      if (iphot>19) break;
+      //if (iphot>19) break;
+      if(iphot==20) std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 
       
       RECOPHOT_PT[iphot]=cand->pt();
@@ -3375,7 +3382,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
 
-      if (iphot>19) break;
+      //if (iphot>19) break;
+      if(iphot==20) std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 
       edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot); 
 
@@ -3497,7 +3505,8 @@ void fillTracks(const edm::Event& iEvent){
   
 //  for(edm::View<pat::PackedCandidate>::const_iterator i=cands->begin(); i!=cands->end(); i++){
   for(unsigned int i=0;i<cands->size();i++){
-     if (countk>199) break;
+     //if (countk>199) break;
+     if (countk==200) std::cout << "Warning: number of cands exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
      const pat::PackedCandidate & c = (*cands)[i];
      if(!(c.charge() != 0 && c.numberOfHits()> 0)) continue;
      RECO_NTRACK++;
@@ -3906,7 +3915,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertex, StandardFitVtx_);
     int jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtx_->begin(); cand!=StandardFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if(jjj==100) std::cout << "Warning: number of StandardFitVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexX[jjj]=cand->position().x();
       StdFitVertexY[jjj]=cand->position().y();
       StdFitVertexZ[jjj]=cand->position().z();
@@ -3926,7 +3936,8 @@ void fillTracks(const edm::Event& iEvent){
       if(hasRefittedTracks){	
 	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
 	for(unsigned int i=0; i< refit_tks.size(); i++){	 
-	  if (i > 3) break;
+	  //if (i > 3) break;
+      if(i==4) std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 	  //@//  std::cout << "Track momentum Refit=" << refit_tks[i].pt() << std::endl;
 	  StdFitVertexTrack_PT[i][jjj] =refit_tks[i].pt() ;
 	  StdFitVertexTrack_ETA[i][jjj]=refit_tks[i].eta() ;
@@ -3946,7 +3957,8 @@ void fillTracks(const edm::Event& iEvent){
 
     int kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesEEMM->begin();cand != CandidatesEEMM->end(); ++ cand ) {
-      if (kk > 99) break;
+      //if (kk > 99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesEEMM exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       edm::Ref<edm::View<Candidate> > Ref(CandidatesEEMM,kk);
       //@//  std::cout << "Original 2e2mu mass is= " << cand->p4().mass() << " Refitted mass is= " << (*refmassmap)[Ref] << std::endl;
       RECO_EEMM_MASS_REFIT[kk]=(*refmassmap)[Ref];
@@ -3958,7 +3970,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(KinematicFitVertex, KinematicFitVtx_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=KinematicFitVtx_->begin(); cand!=KinematicFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if(jjj==100) std::cout << "Warning: number of KinematicFitVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       KinFitVertexX[jjj]=cand->position().x();
       KinFitVertexY[jjj]=cand->position().y();
       KinFitVertexZ[jjj]=cand->position().z();
@@ -3981,7 +3994,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexMMMM, StandardFitVtx_);
     int jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtx_->begin(); cand!=StandardFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if(jjj==100) std::cout << "Warning: number of StandardFixVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexXMMMM[jjj]=cand->position().x();
       StdFitVertexYMMMM[jjj]=cand->position().y();
       StdFitVertexZMMMM[jjj]=cand->position().z();
@@ -4000,7 +4014,8 @@ void fillTracks(const edm::Event& iEvent){
       if(hasRefittedTracks){	
 	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
 	for(unsigned int i=0; i< refit_tks.size(); i++){
-	  if (i > 3) break;
+	  //if (i > 3) break;
+      if(i==4) std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 	  //@//  std::cout << "Track momentum Refit=" << refit_tks[i].pt() << std::endl;
 	  StdFitVertexTrackMMMM_PT[i][jjj] =refit_tks[i].pt() ;
 	  StdFitVertexTrackMMMM_ETA[i][jjj]=refit_tks[i].eta() ;
@@ -4020,7 +4035,8 @@ void fillTracks(const edm::Event& iEvent){
 
     int kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesMMMM->begin();cand != CandidatesMMMM->end(); ++ cand ) {
-      if (kk > 99) break;
+      //if (kk > 99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesMMMM exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       edm::Ref<edm::View<Candidate> > Ref(CandidatesMMMM,kk);
       //@//  std::cout << "Original 4mu mass is= " << cand->p4().mass() << " Refitted mass is= " << (*refmassmap)[Ref] << std::endl;
       RECO_MMMM_MASS_REFIT[kk]=(*refmassmap)[Ref];
@@ -4033,7 +4049,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(KinematicFitVertexMMMM, KinematicFitVtx_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=KinematicFitVtx_->begin(); cand!=KinematicFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if(jjj==100) std::cout << "Warning: number of KinematicFitVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       KinFitVertexXMMMM[jjj]=cand->position().x();
       KinFitVertexYMMMM[jjj]=cand->position().y();
       KinFitVertexZMMMM[jjj]=cand->position().z();
@@ -4056,7 +4073,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexEEEE, StandardFitVtx_);
     int jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtx_->begin(); cand!=StandardFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if(jjj==100) std::cout << "Warning: number of StandardFitVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexXEEEE[jjj]=cand->position().x();
       StdFitVertexYEEEE[jjj]=cand->position().y();
       StdFitVertexZEEEE[jjj]=cand->position().z();
@@ -4074,7 +4092,8 @@ void fillTracks(const edm::Event& iEvent){
       if(hasRefittedTracks){	
 	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
 	for(unsigned int i=0; i< refit_tks.size(); i++){
-	  if (i > 3) break;
+	  //if (i > 3) break;
+      if(i==4) std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 	  //@//  std::cout << "Track momentum Refit=" << refit_tks[i].pt() << std::endl;
 	  StdFitVertexTrackEEEE_PT[i][jjj] =refit_tks[i].pt() ;
 	  StdFitVertexTrackEEEE_ETA[i][jjj]=refit_tks[i].eta() ;
@@ -4095,7 +4114,8 @@ void fillTracks(const edm::Event& iEvent){
 
     int kk=0;
     for( edm::View<Candidate>::const_iterator cand = CandidatesEEEE->begin();cand != CandidatesEEEE->end(); ++ cand ) {
-      if (kk > 99) break;
+      //if (kk > 99) break;
+      if(kk==100) std::cout << "Warning: number of CandidatesEEEE exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       edm::Ref<edm::View<Candidate> > Ref(CandidatesEEEE,kk);
       //@// std::cout << "Original 4e mass is= " << cand->p4().mass() << " Refitted mass is= " << (*refmassmap)[Ref] << std::endl;
       RECO_EEEE_MASS_REFIT[kk]=(*refmassmap)[Ref];
@@ -4107,7 +4127,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(KinematicFitVertexEEEE, KinematicFitVtx_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=KinematicFitVtx_->begin(); cand!=KinematicFitVtx_->end(); ++cand){
-      if (jjj > 99) break;
+      //if (jjj > 99) break;
+      if (jjj==100) std::cout << "Warning: number of KinematicFitVtx_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       KinFitVertexXEEEE[jjj]=cand->position().x();
       KinFitVertexYEEEE[jjj]=cand->position().y();
       KinFitVertexZEEEE[jjj]=cand->position().z();
@@ -4146,7 +4167,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexMMM, StandardFitVtxMMM_);
     int jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtxMMM_->begin(); cand!=StandardFitVtxMMM_->end(); ++cand){
-      if (jjj > 39) break;
+      //if (jjj > 39) break;
+      if(jjj==40) std::cout << "Warning: number of StandardFitVtxMMM_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMMM[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMMM[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
    
@@ -4160,7 +4182,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexMME, StandardFitVtxMME_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtxMME_->begin(); cand!=StandardFitVtxMME_->end(); ++cand){
-      if (jjj > 19) break;
+      //if (jjj > 19) break;
+      if(jjj==20) std::cout << "Warning: number of StandardFitVtxMME_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMME[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMME[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
       /*  std::cout << "Std Fit MME: " 
@@ -4173,7 +4196,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexEEE, StandardFitVtxEEE_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtxEEE_->begin(); cand!=StandardFitVtxEEE_->end(); ++cand){
-      if (jjj > 19) break;
+      //if (jjj > 19) break;
+      if(jjj==20) std::cout << "Warning: number of StandardFitVtxEEE_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rEEE[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbEEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
       /*  std::cout << "Std Fit EEE: " 
@@ -4186,7 +4210,8 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByLabel(StandardFitVertexMEE, StandardFitVtxMEE_);
     jjj=0;
     for (std::vector<reco::Vertex>::const_iterator cand=StandardFitVtxMEE_->begin(); cand!=StandardFitVtxMEE_->end(); ++cand){
-      if (jjj > 19) break;
+      //if (jjj > 19) break;
+      if(jjj==20) std::cout << "Warning: number of StandardFitVtxMEE_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMEE[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
       /*  std::cout << "Std Fit MEE: " 

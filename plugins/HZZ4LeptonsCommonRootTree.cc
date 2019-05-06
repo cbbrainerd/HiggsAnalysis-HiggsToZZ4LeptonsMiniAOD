@@ -242,7 +242,8 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   int index_vertex = 0;
   
   for (VertexCollection::const_iterator i=recoPrimaryVertexCollection->begin(); i!=recoPrimaryVertexCollection->end();i++) {
-    if(index_vertex>14) break;
+    //if(index_vertex>14) break;
+    if(index_vertex==15) std::cout << "Warning: number of recoPrimaryVertexCollection exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
     RECO_VERTEX_x[index_vertex] = i->x();
     RECO_VERTEX_y[index_vertex] = i->y();
     RECO_VERTEX_z[index_vertex] = i->z();
