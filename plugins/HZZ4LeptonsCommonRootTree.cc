@@ -244,24 +244,39 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   for (VertexCollection::const_iterator i=recoPrimaryVertexCollection->begin(); i!=recoPrimaryVertexCollection->end();i++) {
     //if(index_vertex>14) break;
     if(index_vertex==15) std::cout << "Warning: number of recoPrimaryVertexCollection exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
-    RECO_VERTEX_x[index_vertex] = i->x();
-    RECO_VERTEX_y[index_vertex] = i->y();
-    RECO_VERTEX_z[index_vertex] = i->z();
-    RECO_VERTEX_ndof[index_vertex] = i->ndof();
-    RECO_VERTEX_chi2[index_vertex] = i->chi2();
-    RECO_VERTEX_ntracks[index_vertex] = i->tracksSize();
-    RECO_VERTEXPROB[index_vertex] = ChiSquaredProbability(i->chi2(),i->ndof());
-    RECO_VERTEX_isValid[index_vertex] = i->isValid();
-    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Vertex made by " << i->tracksSize() << " tracks with chi2="<< i->chi2() << " and ndof=" << i->ndof() << " and prob=" << RECO_VERTEXPROB[index_vertex] << std::endl;
+    if(index_vertex==1) break; // Only save one
+    RECO_VERTEX_x = i->x();
+    RECO_VERTEX_y = i->y();
+    RECO_VERTEX_z = i->z();
+    RECO_VERTEX_ndof = i->ndof();
+    RECO_VERTEX_chi2 = i->chi2();
+    RECO_VERTEX_ntracks = i->tracksSize();
+    RECO_VERTEXPROB = ChiSquaredProbability(i->chi2(),i->ndof());
+    RECO_VERTEX_isValid = i->isValid();
     
-    int indice=0;
-    for(std::vector<reco::TrackBaseRef>::const_iterator iter = i->tracks_begin();
-	iter != i->tracks_end(); iter++) {
-      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "pT of tracks building the vertex= " << (**iter).pt() << std::endl; 
-      if (indice <100) RECO_VERTEX_TRACK_PT[index_vertex][indice]= (**iter).pt();
-      indice++;
-    }
-   
+/*
+ *    RECO_VERTEX_x[index_vertex] = i->x();
+ *    RECO_VERTEX_y[index_vertex] = i->y();
+ *    RECO_VERTEX_z[index_vertex] = i->z();
+ *    RECO_VERTEX_ndof[index_vertex] = i->ndof();
+ *    RECO_VERTEX_chi2[index_vertex] = i->chi2();
+ *    RECO_VERTEX_ntracks[index_vertex] = i->tracksSize();
+ *    RECO_VERTEXPROB[index_vertex] = ChiSquaredProbability(i->chi2(),i->ndof());
+ *    RECO_VERTEX_isValid[index_vertex] = i->isValid();
+ *    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "Vertex made by " << i->tracksSize() << " tracks with chi2="<< i->chi2() << " and ndof=" << i->ndof() << " and prob=" << RECO_VERTEXPROB[index_vertex] << std::endl;
+ *    
+ */
+/*
+ *    int indice=0;
+ *    for(std::vector<reco::TrackBaseRef>::const_iterator iter = i->tracks_begin();
+ *	iter != i->tracks_end(); iter++) {
+ *      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "pT of tracks building the vertex= " << (**iter).pt() << std::endl; 
+ *      if (indice <100) RECO_VERTEX_TRACK_PT[indice] = (**iter).pt();
+ *      //if (indice <100) RECO_VERTEX_TRACK_PT[index_vertex][indice] = (**iter).pt();
+ *      indice++;
+ *    }
+ */
+
     index_vertex++;
   } // loop on vertices
   
