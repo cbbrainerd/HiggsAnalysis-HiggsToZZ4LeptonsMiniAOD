@@ -19,7 +19,7 @@ class ArrayMDVector : public std::vector<typename ArrayMDVector<T,d-1>::type> {
         typedef std::vector<typename ArrayMDVector<T,d-1>::vector_type> vector_type;
         typedef typename ArrayMDVector<T,d-1>::type content_type;
         typedef ArrayMDVector<T,d> type;
-        content_type& operator[](std::size_t pos);
+        typename ArrayMDVector<T,d>::reference operator[](std::size_t pos);
 };
 
 template<class T>
@@ -35,7 +35,7 @@ typename ArrayMDVector<T,d>::vector_type* cast_to_vector(ArrayMDVector<T,d>* arr
 }
 
 template <class T, int d>
-typename ArrayMDVector<T,d>::content_type& ArrayMDVector<T,d>::operator[](std::size_t pos) {
+typename ArrayMDVector<T,d>::reference ArrayMDVector<T,d>::operator[](std::size_t pos) {
     std::size_t current_length=this->size();
     if(pos==current_length) {
         this->push_back(typename ArrayMDVector<T,d>::content_type());
