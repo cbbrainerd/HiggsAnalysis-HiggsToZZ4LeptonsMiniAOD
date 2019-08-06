@@ -2362,6 +2362,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
   // MC Higgs 
   void fillmc(const edm::Event& iEvent){
+    //This is bugged in a way similar to how MC_ZZ_... branches were
     edm::Handle<edm::View<Candidate> > Candidates;
     iEvent.getByToken(MCcollName, Candidates);
     //@//   std::cout << "running fillmc" << std::endl;

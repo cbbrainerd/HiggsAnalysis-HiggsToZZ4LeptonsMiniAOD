@@ -28,7 +28,6 @@ HZZ4LeptonsHLTAnalysisFilter::~HZZ4LeptonsHLTAnalysisFilter() {
 
 // Filter Run Event
 bool HZZ4LeptonsHLTAnalysisFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-
   edm::Handle<vector<std::string> > HLTfired_;
   iEvent.getByToken(HLTInfoFired,HLTfired_);
   
