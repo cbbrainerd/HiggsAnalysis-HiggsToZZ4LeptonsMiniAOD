@@ -6,10 +6,10 @@
  * ArrayMDVector<T,d> creates a d-dimensional vector of T (i.e. ArrayVector<int,3> is basically std::vector<std::vector<std::vector<int> > >)
  * cast_to_vector takes in an ArrayMDVector<T,d>* and casts it to the equivalent std::vector<...>* for functions that need to be passed a std::vector pointer
  * Unlike a std::vector, ArrayMDVector can be assigned to as though it were an C-style array
- * Adds default-constructed elements if assigned past the end. (i.e. ArrayVector<int,1> foo; foo[3]=0; will give the same result as ArrayVector<int,1> foo {0,0,0,1};)
+ * Adds default-constructed elements if assigned past the end. (i.e. ArrayVector<int,1> foo; foo[3]=1; will give the same result as ArrayVector<int,1> foo {0,0,0,1};) Also warns in this case.
  * Usage: 
  *   Variable declaration: ArrayVectorMD<int,1> foo;
- *   Branch declaration: tree->Branch("foo",cast_to_vector(foo));
+ *   Branch declaration: tree->Branch("foo",cast_to_vector(&foo));
  *   Adding elements: for(int i=0;i<bar;++i) foo[i]=i;
  */
 
