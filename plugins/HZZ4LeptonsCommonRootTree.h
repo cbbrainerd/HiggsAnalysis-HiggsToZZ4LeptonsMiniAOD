@@ -1034,19 +1034,17 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // Tracks
     Tree_->Branch( "RECO_NTRACK", &RECO_NTRACK, "RECO_NTRACK/I");
-/* don't save RECO cand tracks
- *    Tree_->Branch( "RECO_TRACK_PT",cast_to_vector(&RECO_TRACK_PT));
- *    Tree_->Branch( "RECO_TRACK_ETA",cast_to_vector(&RECO_TRACK_ETA));
- *    Tree_->Branch( "RECO_TRACK_PHI",cast_to_vector(&RECO_TRACK_PHI));
- *    Tree_->Branch( "RECO_TRACK_CHI2",cast_to_vector(&RECO_TRACK_CHI2));
- *    Tree_->Branch( "RECO_TRACK_CHI2RED",cast_to_vector(&RECO_TRACK_CHI2RED));
- *    Tree_->Branch( "RECO_TRACK_CHI2PROB",cast_to_vector(&RECO_TRACK_CHI2PROB));
- *    Tree_->Branch( "RECO_TRACK_NHITS",cast_to_vector(&RECO_TRACK_NHITS));
- *    Tree_->Branch( "RECO_TRACK_DXY",cast_to_vector(&RECO_TRACK_DXY));
- *    Tree_->Branch( "RECO_TRACK_DXYERR",cast_to_vector(&RECO_TRACK_DXYERR));
- *    Tree_->Branch( "RECO_TRACK_DZ",cast_to_vector(&RECO_TRACK_DZ));
- *    Tree_->Branch( "RECO_TRACK_DZERR",cast_to_vector(&RECO_TRACK_DZERR));
- */
+    Tree_->Branch( "RECO_TRACK_PT",(std::vector<float >*)(&RECO_TRACK_PT));
+    Tree_->Branch( "RECO_TRACK_ETA",(std::vector<float >*)(&RECO_TRACK_ETA));
+    Tree_->Branch( "RECO_TRACK_PHI",(std::vector<float >*)(&RECO_TRACK_PHI));
+    Tree_->Branch( "RECO_TRACK_CHI2",(std::vector<float >*)(&RECO_TRACK_CHI2));
+    Tree_->Branch( "RECO_TRACK_CHI2RED",(std::vector<float >*)(&RECO_TRACK_CHI2RED));
+    Tree_->Branch( "RECO_TRACK_CHI2PROB",(std::vector<float >*)(&RECO_TRACK_CHI2PROB));
+    Tree_->Branch( "RECO_TRACK_NHITS",(std::vector<int >*)(&RECO_TRACK_NHITS));
+    Tree_->Branch( "RECO_TRACK_DXY",(std::vector<float >*)(&RECO_TRACK_DXY));
+    Tree_->Branch( "RECO_TRACK_DXYERR",(std::vector<float >*)(&RECO_TRACK_DXYERR));
+    Tree_->Branch( "RECO_TRACK_DZ",(std::vector<float >*)(&RECO_TRACK_DZ));
+    Tree_->Branch( "RECO_TRACK_DZERR",(std::vector<float >*)(&RECO_TRACK_DZERR));
     
     // Photons
     Tree_->Branch("RECO_NPHOT", &RECO_NPHOT, "RECO_NPHOT/I");
@@ -1099,15 +1097,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("BeamSpot_Z",&BeamSpot_Z,"BeamSpot_Z/D");
     // Vertices
     Tree_->Branch( "RECO_NVTX", &RECO_NVTX, "RECO_NVTX/I");
-    Tree_->Branch( "RECO_VERTEX_x",&RECO_VERTEX_x,"RECO_VERTEX_x/F");
-    Tree_->Branch( "RECO_VERTEX_y",&RECO_VERTEX_y,"RECO_VERTEX_y/F");
-    Tree_->Branch( "RECO_VERTEX_z",&RECO_VERTEX_z,"RECO_VERTEX_z/F");
-    Tree_->Branch( "RECO_VERTEX_ndof",&RECO_VERTEX_ndof,"RECO_VERTEX_ndof/F");
-    Tree_->Branch( "RECO_VERTEX_chi2",&RECO_VERTEX_chi2,"RECO_VERTEX_chi2/F");
-    Tree_->Branch( "RECO_VERTEX_ntracks",&RECO_VERTEX_ntracks,"RECO_VERTEX_ntracks/I");
-    Tree_->Branch( "RECO_VERTEXPROB",&RECO_VERTEXPROB,"RECO_VERTEXPROB/F");
-    Tree_->Branch( "RECO_VERTEX_isValid",&RECO_VERTEX_isValid,"RECO_VERTEX_isValid/I");
-    //Tree_->Branch( "RECO_VERTEX_TRACK_PT",cast_to_vector(&RECO_VERTEX_TRACK_PT));
+    Tree_->Branch( "RECO_VERTEX_x",(std::vector<float >*)(&RECO_VERTEX_x));
+    Tree_->Branch( "RECO_VERTEX_y",(std::vector<float >*)(&RECO_VERTEX_y));
+    Tree_->Branch( "RECO_VERTEX_z",(std::vector<float >*)(&RECO_VERTEX_z));
+    Tree_->Branch( "RECO_VERTEX_ndof",(std::vector<float >*)(&RECO_VERTEX_ndof));
+    Tree_->Branch( "RECO_VERTEX_chi2",(std::vector<float >*)(&RECO_VERTEX_chi2));
+    Tree_->Branch( "RECO_VERTEX_ntracks",(std::vector<int >*)(&RECO_VERTEX_ntracks));
+    Tree_->Branch( "RECO_VERTEXPROB",(std::vector<float >*)(&RECO_VERTEXPROB));
+    Tree_->Branch( "RECO_VERTEX_isValid",(std::vector<int >*)(&RECO_VERTEX_isValid));
+    Tree_->Branch( "RECO_VERTEX_TRACK_PT",(std::vector<std::vector<float > >*)(&RECO_VERTEX_TRACK_PT));
     
     // PFJets
     Tree_->Branch( "RECO_PFJET_N",   &RECO_PFJET_N,   "RECO_PFJET_N/I");
@@ -1738,19 +1736,17 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECOHzzMMMM_MatchingMCmass.clear();
     RECOHzzMMMM_MatchingMCEta.clear();
     RECOHzzMMMM_MatchingMCPhi.clear();
-/* don't save reco candidates
- *    RECO_TRACK_PT.clear();
- *    RECO_TRACK_ETA.clear();
- *    RECO_TRACK_PHI.clear();
- *    RECO_TRACK_CHI2.clear();
- *    RECO_TRACK_CHI2RED.clear();
- *    RECO_TRACK_CHI2PROB.clear();
- *    RECO_TRACK_NHITS.clear();
- *    RECO_TRACK_DXY.clear();
- *    RECO_TRACK_DXYERR.clear();
- *    RECO_TRACK_DZ.clear();
- *    RECO_TRACK_DZERR.clear();
- */
+    RECO_TRACK_PT.clear();
+    RECO_TRACK_ETA.clear();
+    RECO_TRACK_PHI.clear();
+    RECO_TRACK_CHI2.clear();
+    RECO_TRACK_CHI2RED.clear();
+    RECO_TRACK_CHI2PROB.clear();
+    RECO_TRACK_NHITS.clear();
+    RECO_TRACK_DXY.clear();
+    RECO_TRACK_DXYERR.clear();
+    RECO_TRACK_DZ.clear();
+    RECO_TRACK_DZERR.clear();
     RECOPHOT_PT.clear();
     RECOPHOT_ETA.clear();
     RECOPHOT_PHI.clear();
@@ -1785,17 +1781,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECOPFPHOT_energySigmaPhiDown.clear();
     RECOPFPHOT_energySigmaRhoUp.clear();
     RECOPFPHOT_energySigmaRhoDown.clear();
-/* Don't store all the RECO_VERTEX variables
- *    RECO_VERTEX_x.clear();
- *    RECO_VERTEX_y.clear();
- *    RECO_VERTEX_z.clear();
- *    RECO_VERTEX_ndof.clear();
- *    RECO_VERTEX_chi2.clear();
- *    RECO_VERTEX_ntracks.clear();
- *    RECO_VERTEXPROB.clear();
- *    RECO_VERTEX_isValid.clear();
- *    RECO_VERTEX_TRACK_PT.clear();
- */
+    RECO_VERTEX_x.clear();
+    RECO_VERTEX_y.clear();
+    RECO_VERTEX_z.clear();
+    RECO_VERTEX_ndof.clear();
+    RECO_VERTEX_chi2.clear();
+    RECO_VERTEX_ntracks.clear();
+    RECO_VERTEXPROB.clear();
+    RECO_VERTEX_isValid.clear();
+    RECO_VERTEX_TRACK_PT.clear();
     RECO_PFJET_CHARGE.clear();
     RECO_PFJET_ET.clear();
     RECO_PFJET_PT.clear();
@@ -4122,20 +4116,18 @@ void fillTracks(const edm::Event& iEvent){
      const pat::PackedCandidate & c = (*cands)[i];
      if(!(c.charge() != 0 && c.numberOfHits()> 0)) continue;
      RECO_NTRACK++;
-/*    don't save reco cand tracks
- *    RECO_TRACK_PT[countk]=c.pseudoTrack().pt();
- *    RECO_TRACK_ETA[countk]=c.pseudoTrack().eta();
- *    RECO_TRACK_PHI[countk]=c.pseudoTrack().phi();
- *    RECO_TRACK_CHI2[countk]=c.pseudoTrack().chi2();
- *    RECO_TRACK_CHI2RED[countk]=c.pseudoTrack().normalizedChi2();
- *    //RECO_TRACK_CHI2PROB=TMath::Prob(i->chi2(),i->ndof());
- *    RECO_TRACK_CHI2PROB[countk]=ChiSquaredProbability(c.pseudoTrack().chi2(),c.pseudoTrack().ndof());
- *    RECO_TRACK_NHITS[countk]=c.pseudoTrack().numberOfValidHits();
- *    RECO_TRACK_DXY[countk]=c.pseudoTrack().dxy();
- *    RECO_TRACK_DXYERR[countk]=c.pseudoTrack().dxyError();
- *    RECO_TRACK_DZ[countk]=c.pseudoTrack().dz();
- *    RECO_TRACK_DZERR[countk]=c.pseudoTrack().dzError();
- */
+    RECO_TRACK_PT[countk]=c.pseudoTrack().pt();
+    RECO_TRACK_ETA[countk]=c.pseudoTrack().eta();
+    RECO_TRACK_PHI[countk]=c.pseudoTrack().phi();
+    RECO_TRACK_CHI2[countk]=c.pseudoTrack().chi2();
+    RECO_TRACK_CHI2RED[countk]=c.pseudoTrack().normalizedChi2();
+    //RECO_TRACK_CHI2PROB=TMath::Prob(i->chi2(),i->ndof());
+    RECO_TRACK_CHI2PROB[countk]=ChiSquaredProbability(c.pseudoTrack().chi2(),c.pseudoTrack().ndof());
+    RECO_TRACK_NHITS[countk]=c.pseudoTrack().numberOfValidHits();
+    RECO_TRACK_DXY[countk]=c.pseudoTrack().dxy();
+    RECO_TRACK_DXYERR[countk]=c.pseudoTrack().dxyError();
+    RECO_TRACK_DZ[countk]=c.pseudoTrack().dz();
+    RECO_TRACK_DZERR[countk]=c.pseudoTrack().dzError();
     countk++;
   }
   //@// std::cout << "Number of Tracks in the event= " << RECO_NTRACK << std::endl;
@@ -5772,18 +5764,18 @@ void fillTracks(const edm::Event& iEvent){
 
   // RECO counters
   int RECO_NMU, RECO_NELE, RECO_NTRACK, RECO_NPHOT, RECO_NPFPHOT,RECO_NJET, RECO_NVTX;
-/*
- *  ArrayMDVector<float,1>RECO_TRACK_PT, RECO_TRACK_ETA, RECO_TRACK_PHI,
- *    RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB, 
- *    RECO_TRACK_DXY,RECO_TRACK_DXYERR, 
- *    RECO_TRACK_DZ,RECO_TRACK_DZERR;
- * ArrayMDVector<int,1>RECO_TRACK_NHITS;
- */
+
+ArrayMDVector<float,1>RECO_TRACK_PT, RECO_TRACK_ETA, RECO_TRACK_PHI,
+   RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB, 
+   RECO_TRACK_DXY,RECO_TRACK_DXYERR, 
+   RECO_TRACK_DZ,RECO_TRACK_DZERR;
+ArrayMDVector<int,1>RECO_TRACK_NHITS;
+
   
   // Primary Vertices
-  float RECO_VERTEX_x, RECO_VERTEX_y, RECO_VERTEX_z,RECO_VERTEX_ndof,RECO_VERTEX_chi2,RECO_VERTEXPROB;
-  //ArrayMDVector<float,2>RECO_VERTEX_TRACK_PT;
-  int RECO_VERTEX_isValid;
+  ArrayMDVector<float,1> RECO_VERTEX_x, RECO_VERTEX_y, RECO_VERTEX_z,RECO_VERTEX_ndof,RECO_VERTEX_chi2,RECO_VERTEXPROB;
+  ArrayMDVector<float,2>RECO_VERTEX_TRACK_PT;
+  ArrayMDVector<bool,1> RECO_VERTEX_isValid;
   int RECO_VERTEX_ntracks;
   
   // RECO JETS
