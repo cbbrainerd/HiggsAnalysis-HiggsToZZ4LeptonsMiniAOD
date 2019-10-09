@@ -451,20 +451,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("MC_ZZ_PHI",cast_to_vector(&MC_ZZ_PHI));
     Tree_->Branch("MC_ZZ_THETA",cast_to_vector(&MC_ZZ_THETA));
     Tree_->Branch("MC_ZZ_PDGID",cast_to_vector(&MC_ZZ_PDGID));
-    // daughters
-    Tree_->Branch("MC_ZZ_D_MASS",cast_to_vector(&MC_ZZ_D_MASS));
-    Tree_->Branch("MC_ZZ_D_PT",cast_to_vector(&MC_ZZ_D_PT));
-    Tree_->Branch("MC_ZZ_D_ETA",cast_to_vector(&MC_ZZ_D_ETA));
-    Tree_->Branch("MC_ZZ_D_PHI",cast_to_vector(&MC_ZZ_D_PHI));
-    Tree_->Branch("MC_ZZ_D_THETA",cast_to_vector(&MC_ZZ_D_THETA));
-    Tree_->Branch("MC_ZZ_D_PDGID",cast_to_vector(&MC_ZZ_D_PDGID));
-    // daughters of daughters
-    Tree_->Branch("MC_ZZ_DD_MASS",cast_to_vector(&MC_ZZ_DD_MASS));
-    Tree_->Branch("MC_ZZ_DD_PT",cast_to_vector(&MC_ZZ_DD_PT));
-    Tree_->Branch("MC_ZZ_DD_ETA",cast_to_vector(&MC_ZZ_DD_ETA));
-    Tree_->Branch("MC_ZZ_DD_PHI",cast_to_vector(&MC_ZZ_DD_PHI));
-    Tree_->Branch("MC_ZZ_DD_THETA",cast_to_vector(&MC_ZZ_DD_THETA));
-    Tree_->Branch("MC_ZZ_DD_PDGID",cast_to_vector(&MC_ZZ_DD_PDGID));
 
 
     // GenJet
@@ -1302,18 +1288,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MC_ZZ_PHI.clear();
     MC_ZZ_THETA.clear();
     MC_ZZ_PDGID.clear();
-    MC_ZZ_D_MASS.clear();
-    MC_ZZ_D_PT.clear();
-    MC_ZZ_D_ETA.clear();
-    MC_ZZ_D_PHI.clear();
-    MC_ZZ_D_THETA.clear();
-    MC_ZZ_D_PDGID.clear();
-    MC_ZZ_DD_MASS.clear();
-    MC_ZZ_DD_PT.clear();
-    MC_ZZ_DD_ETA.clear();
-    MC_ZZ_DD_PHI.clear();
-    MC_ZZ_DD_THETA.clear();
-    MC_ZZ_DD_PDGID.clear();
     MC_GENJET_PT.clear();
     MC_GENJET_ETA.clear();
     MC_GENJET_PHI.clear();
@@ -2310,30 +2284,31 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     i =0;
     edm::Handle<edm::View<Candidate> >  ZZCandidates;
     iEvent.getByToken(digenZ_, ZZCandidates);
-    //Change format of MC_ZZ_*: MC_ZZ_*[candidate] has candidate itself, MC_ZZ_D_*[cand][daughter] has daughter, MC_ZZ_DD_*[cand][daughter][daughter] has daughter of daughter
+    
     for (edm::View<Candidate>::const_iterator mcIterZZ=ZZCandidates->begin(); mcIterZZ!=ZZCandidates->end(); ++mcIterZZ ) {
-      //if (i>3 ) continue; save all
+      if (i>3 ) continue;
       //@// std::cout << "MC ZZ Mass= " << mcIterZZ->p4().mass() 
       //@//  << " and pT= " << mcIterZZ->p4().pt()  
       //@//  << std::endl;
       
       
-      MC_ZZ_MASS[i]   = mcIterZZ->p4().mass();
-      MC_ZZ_PT[i]     = mcIterZZ->p4().pt();
-      MC_ZZ_ETA[i]    = mcIterZZ->p4().eta();
-      MC_ZZ_PHI[i]    = mcIterZZ->p4().phi();
-      MC_ZZ_THETA[i]  = mcIterZZ->p4().theta();
-      MC_ZZ_PDGID[i]  = mcIterZZ->pdgId();
+      MC_ZZ_MASS[i][0]   = mcIterZZ->p4().mass();
+      MC_ZZ_PT[i][0]     = mcIterZZ->p4().pt();
+      MC_ZZ_ETA[i][0]    = mcIterZZ->p4().eta();
+      MC_ZZ_PHI[i][0]    = mcIterZZ->p4().phi();
+      MC_ZZ_THETA[i][0]  = mcIterZZ->p4().theta();
+      MC_ZZ_PDGID[i][0]  = mcIterZZ->pdgId();
       
+      int ii=0,l=0;
       for (unsigned j = 0; j < mcIterZZ->numberOfDaughters(); ++j ) {
 	// std::cout << " j= " << j << " " << abs(mcIterZZ->daughter(j)->pdgId()) << std::endl;
 	
-    	MC_ZZ_D_MASS[i][j] = mcIterZZ->daughter(j)->p4().mass();
-    	MC_ZZ_D_PT[i][j]   = mcIterZZ->daughter(j)->p4().pt();
-    	MC_ZZ_D_ETA[i][j]  = mcIterZZ->daughter(j)->p4().eta();
-    	MC_ZZ_D_PHI[i][j]  = mcIterZZ->daughter(j)->p4().phi();
-    	MC_ZZ_D_THETA[i][j]= mcIterZZ->daughter(j)->p4().theta();
-    	MC_ZZ_D_PDGID[i][j]= mcIterZZ->daughter(j)->pdgId();
+	MC_ZZ_MASS[i][j+1] = mcIterZZ->daughter(j)->p4().mass();
+	MC_ZZ_PT[i][j+1]   = mcIterZZ->daughter(j)->p4().pt();
+	MC_ZZ_ETA[i][j+1]  = mcIterZZ->daughter(j)->p4().eta();
+	MC_ZZ_PHI[i][j+1]  = mcIterZZ->daughter(j)->p4().phi();
+	MC_ZZ_THETA[i][j+1]= mcIterZZ->daughter(j)->p4().theta();
+	MC_ZZ_PDGID[i][j+1]= mcIterZZ->daughter(j)->pdgId();
 	
 	//std::cout << mcIterZZ->daughter(j)->numberOfDaughters()<< std::endl;
 	
@@ -2342,22 +2317,25 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  // std::cout << " k= " << k << abs(mcIterZZ->daughter(j)->daughter(k)->pdgId()) << std::endl;
 	  if ( abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==13 || 
 	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==15 || 
-	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==11)
-        {
+	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==11){
+	    l=ii+j+kk+3; 	      
 	    
 	    //std::cout << " l= " << l << " " << abs(mcIterZZ->daughter(j)->daughter(k)->pdgId()) << std::endl;
-    	    MC_ZZ_DD_MASS[i][j][kk] = mcIterZZ->daughter(j)->daughter(k)->p4().mass();
-    	    MC_ZZ_DD_PT[i][j][kk]   = mcIterZZ->daughter(j)->daughter(k)->p4().pt();
-    	    MC_ZZ_DD_ETA[i][j][kk]  = mcIterZZ->daughter(j)->daughter(k)->p4().eta();
-    	    MC_ZZ_DD_PHI[i][j][kk]  = mcIterZZ->daughter(j)->daughter(k)->p4().phi();
-    	    MC_ZZ_DD_THETA[i][j][kk]= mcIterZZ->daughter(j)->daughter(k)->p4().theta();
-    	    MC_ZZ_DD_PDGID[i][j][kk]= mcIterZZ->daughter(j)->daughter(k)->pdgId();
-	        kk++;
-	    }
+	    MC_ZZ_MASS[i][l] = mcIterZZ->daughter(j)->daughter(k)->p4().mass();
+	    MC_ZZ_PT[i][l]   = mcIterZZ->daughter(j)->daughter(k)->p4().pt();
+	    MC_ZZ_ETA[i][l]  = mcIterZZ->daughter(j)->daughter(k)->p4().eta();
+	    MC_ZZ_PHI[i][l]  = mcIterZZ->daughter(j)->daughter(k)->p4().phi();
+	    MC_ZZ_THETA[i][l]= mcIterZZ->daughter(j)->daughter(k)->p4().theta();
+	    MC_ZZ_PDGID[i][l]= mcIterZZ->daughter(j)->daughter(k)->pdgId();
+	    kk++;
 	  }
+	}
+	ii++;	    	  
+      }
     }
-  }    
-}
+      
+    
+  }
   
 
   // MC Higgs 
@@ -5535,9 +5513,7 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<float,2>MC_Z_MASS,MC_Z_PT,MC_Z_ETA,MC_Z_PHI,MC_Z_THETA,MC_Z_PDGID;
 
   ArrayMDVector<float,2>MC_fourl_MASS,MC_fourl_PT,MC_fourl_PDGID;
-  ArrayMDVector<float,1>MC_ZZ_MASS,MC_ZZ_PT,MC_ZZ_ETA,MC_ZZ_PHI,MC_ZZ_THETA,MC_ZZ_PDGID;
-  ArrayMDVector<float,2>MC_ZZ_D_MASS,MC_ZZ_D_PT,MC_ZZ_D_ETA,MC_ZZ_D_PHI,MC_ZZ_D_THETA,MC_ZZ_D_PDGID;
-  ArrayMDVector<float,3>MC_ZZ_DD_MASS,MC_ZZ_DD_PT,MC_ZZ_DD_ETA,MC_ZZ_DD_PHI,MC_ZZ_DD_THETA,MC_ZZ_DD_PDGID;
+  ArrayMDVector<float,2>MC_ZZ_MASS,MC_ZZ_PT,MC_ZZ_ETA,MC_ZZ_PHI,MC_ZZ_THETA,MC_ZZ_PDGID;
 
   // RECO collection
  
