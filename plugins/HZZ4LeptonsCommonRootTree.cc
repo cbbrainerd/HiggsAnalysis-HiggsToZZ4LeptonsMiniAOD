@@ -46,8 +46,11 @@ HZZ4LeptonsCommonRootTree::HZZ4LeptonsCommonRootTree(const edm::ParameterSet& ps
 
   // Create the root file
   theFile_ = new TFile(rootFileName.c_str(), "RECREATE");
+  if(!theFile_) {
+    std::cerr << "ERROR! Could not open TFile \"" << rootFileName << "\"!\n";
+    exit(1);
+  }
   theFile_->cd();
-
   theTree_ = new TTree("HZZ4LeptonsAnalysis", "HZZ4Leptons Analysis Tree");
 
   //std::cout << "This is" << pset.getUntrackedParameter("fileName", std::string()) << std::endl;
@@ -243,7 +246,7 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   
   for (VertexCollection::const_iterator i=recoPrimaryVertexCollection->begin(); i!=recoPrimaryVertexCollection->end();i++) {
     //if(index_vertex>14) break;
-    if(index_vertex==15) std::cout << "Warning: number of recoPrimaryVertexCollection exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
+    if(index_vertex==15) break; // std::cout << "Warning: number of recoPrimaryVertexCollection exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
     RECO_VERTEX_x[index_vertex] = i->x();
     RECO_VERTEX_y[index_vertex] = i->y();
     RECO_VERTEX_z[index_vertex] = i->z();
