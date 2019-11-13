@@ -52,6 +52,7 @@
 //#include "DataFormats/EgammaCandidates/interface/Photon.h"
 //#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -77,6 +78,7 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
@@ -137,14 +139,22 @@
 
 //for muon Rochester correction
 
-#include "roccor_Run2_v2/RoccoR.h"
+#include "roccor_Run2_v3/RoccoR.h"
 #include "TRandom3.h"
 
 //chisquare
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
+//Muon MVA
+#include "MuonMVAReader/Reader/interface/MuonGBRForestReader.hpp"
+
+//JER
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 //ArrayVector hack
 #include "HiggsAnalysis/HiggsToZZ4Leptons/interface/ArrayMDVector.h"
+
+#include "XYMETCorrection.h"
 
 class MultiTrajectoryStateMode ;
 class EgammaTowerIsolation ;
@@ -175,6 +185,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   void beginJob();
   void endJob();
 
+  
+
   std::unique_ptr<RoccoR> calibrator; //muon calibrator 
  
   void respondToOpenInputFile(edm::FileBlock const& fb) {
@@ -187,6 +199,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     typedef std::vector<edm::InputTag> vtag;
     // Get the various input parameters
+    
+    year                      = pset.getParameter<int>("year"); //Which year of data/MC we are running over, for switching various settings
+    MuonMVAReader.reset(new MuonGBRForestReader(year));
     decaychannel              = pset.getParameter<std::string>("decaychannel");
     rootFileName              = pset.getUntrackedParameter<std::string>("rootFileName");
     useRECOformat             = pset.getUntrackedParameter<bool>("useRECOformat");
@@ -218,6 +233,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     triggerBits_              = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerbits"));
 
     //Reham 
+    ecalBadCalibFilterUpdate_token= consumes< bool >(edm::InputTag("ecalBadCalibReducedMINIAODFilter")); //NEW MET filter 2018
     noiseFilterTag_          =consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("noiseFilterTag"));
     HBHENoiseFilter_Selector_ = pset.getParameter<std::string>("HBHENoiseFilter_Selector_");
     EEBadScNoiseFilter_Selector_ = pset.getParameter<std::string>("EEBadScNoiseFilter_Selector_");
@@ -339,6 +355,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // Other objets
     photonsTag_              = consumes<edm::View<pat::Photon> >(pset.getParameter<edm::InputTag>("PhotonsLabel"));
+    fsrPhotonsSrc_           = consumes<edm::View<pat::PFParticle> >(pset.getParameter<edm::InputTag>("fsrPhotonsSrc"));   ///Added Walaa FSR
     //    tracksTag_               = consumes<std::vector<reco::Track> >(pset.getParameter<edm::InputTag>("TracksLabel"));
     jetsTag_                 = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel")); 
     //   jetsDataTag_             = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsDataLabel"));
@@ -584,6 +601,17 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOELE_MASS",cast_to_vector(&RECOELE_MASS)); 
     Tree_->Branch("RECOELE_CHARGE",cast_to_vector(&RECOELE_CHARGE)); 
   
+      /////////////////Added Walaa///////////////////
+    Tree_->Branch("RECOELE_SCV_PT",cast_to_vector(&RECOELE_SCV_PT));
+    Tree_->Branch("RECOELE_SCV_ETA",cast_to_vector(&RECOELE_SCV_ETA));
+    Tree_->Branch("RECOELE_SCV_PHI",cast_to_vector(&RECOELE_SCV_PHI));
+    
+//    Tree_->Branch("RECOELE_scv_PT",cast_to_vector(&RECOELE_scv_PT));
+//    Tree_->Branch("RECOELE_scv_ETA",cast_to_vector(&RECOELE_scv_ETA));
+//    Tree_->Branch("RECOELE_scv_PHI",cast_to_vector(&RECOELE_scv_PHI));
+      /////////////////End Walaa///////////////////
+
+
     //Reham
     Tree_->Branch("RECOELE_ID",cast_to_vector(&RECOELE_ID));
     Tree_->Branch("RECOELE_PT_uncorr",cast_to_vector(&RECOELE_PT_uncorr));
@@ -750,6 +778,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECOMU_isTrackerMu",cast_to_vector(&RECOMU_isTrackerMu));
     Tree_->Branch("RECOMU_isCaloMu",cast_to_vector(&RECOMU_isCaloMu));
     Tree_->Branch("RECOMU_isTrackerHighPtMu",cast_to_vector(&RECOMU_isTrackerHighPtMu));
+    Tree_->Branch("RECOMU_BDT_Id",cast_to_vector(&RECOMU_BDT_Id));
     Tree_->Branch("RECOMU_isME0Muon",cast_to_vector(&RECOMU_isME0Muon));
     Tree_->Branch("RECOMU_E",cast_to_vector(&RECOMU_E)); 
     Tree_->Branch("RECOMU_PT",cast_to_vector(&RECOMU_PT));
@@ -876,6 +905,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
 
     // Geom. Discri.
+/*
     Tree_->Branch("ftsigma",cast_to_vector(&ftsigma));
     Tree_->Branch("gdX",cast_to_vector(&gdX));
     Tree_->Branch("gdY",cast_to_vector(&gdY));
@@ -965,6 +995,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
      // constrintFit Dileptons
     Tree_->Branch("StdFitVertexChi2rDiLep",cast_to_vector(&StdFitVertexChi2rDiLep));
     Tree_->Branch("StdFitVertexProbDiLep",cast_to_vector(&StdFitVertexProbDiLep));
+*/
 
     // Conversions
     Tree_->Branch("ConvMapDist",cast_to_vector(&ConvMapDist));
@@ -1048,9 +1079,11 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // Photons
     Tree_->Branch("RECO_NPHOT", &RECO_NPHOT, "RECO_NPHOT/I");
+    Tree_->Branch("RECO_NFSR", &RECO_NFSR, "RECO_NFSR/I");
     Tree_->Branch("RECOPHOT_PT",cast_to_vector(&RECOPHOT_PT)); 
     Tree_->Branch("RECOPHOT_ETA",cast_to_vector(&RECOPHOT_ETA)); 
     Tree_->Branch("RECOPHOT_PHI",cast_to_vector(&RECOPHOT_PHI)); 
+    Tree_->Branch("RECOPHOT_ID",cast_to_vector(&RECOPHOT_ID));
     Tree_->Branch("RECOPHOT_THETA",cast_to_vector(&RECOPHOT_THETA)); 
     Tree_->Branch("RECOPHOT_TLE_ParentSC_X",cast_to_vector(&RECOPHOT_TLE_ParentSC_X));
     Tree_->Branch("RECOPHOT_TLE_ParentSC_Y",cast_to_vector(&RECOPHOT_TLE_ParentSC_Y));
@@ -1059,6 +1092,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("RECO_NPFPHOT", &RECO_NPFPHOT, "RECO_NPFPHOT/I");
     Tree_->Branch("RECOPFPHOT_PT",cast_to_vector(&RECOPFPHOT_PT)); 
     Tree_->Branch("RECOPFPHOT_PTError",cast_to_vector(&RECOPFPHOT_PTError));  
+    Tree_->Branch("RECOPHOTCOR_PT",cast_to_vector(&RECOPHOTCOR_PT)); 
+    Tree_->Branch("RECOPHOTCOR_PTError",cast_to_vector(&RECOPHOTCOR_PTError));  
     Tree_->Branch("RECOPFPHOT_ETA",cast_to_vector(&RECOPFPHOT_ETA)); 
     Tree_->Branch("RECOPFPHOT_PHI",cast_to_vector(&RECOPFPHOT_PHI)); 
     Tree_->Branch("RECOPFPHOT_THETA",cast_to_vector(&RECOPFPHOT_THETA)); 
@@ -1114,6 +1149,18 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFJET_PT",cast_to_vector(&RECO_PFJET_PT));
     Tree_->Branch( "RECO_PFJET_ETA",cast_to_vector(&RECO_PFJET_ETA));
     Tree_->Branch( "RECO_PFJET_PHI",cast_to_vector(&RECO_PFJET_PHI));
+    Tree_->Branch( "RECO_PFJET_MASS", cast_to_vector(&RECO_PFJET_MASS));
+    Tree_->Branch( "RECO_PFJET_PT_UP", cast_to_vector(& RECO_PFJET_PT_UP));
+    Tree_->Branch( "RECO_PFJET_ETA_UP", cast_to_vector(&RECO_PFJET_ETA_UP));
+    Tree_->Branch( "RECO_PFJET_PHI_UP", cast_to_vector(&RECO_PFJET_PHI_UP));
+    Tree_->Branch( "RECO_PFJET_MASS_UP", cast_to_vector(&RECO_PFJET_MASS_UP));
+    Tree_->Branch( "RECO_PFJET_PT_DN", cast_to_vector(& RECO_PFJET_PT_DN));
+    Tree_->Branch( "RECO_PFJET_ETA_ND", cast_to_vector(&RECO_PFJET_ETA_DN));
+    Tree_->Branch( "RECO_PFJET_PHI_DN", cast_to_vector(&RECO_PFJET_PHI_DN));
+    Tree_->Branch( "RECO_PFJET_MASS_DN", cast_to_vector(&RECO_PFJET_MASS_DN));
+    Tree_->Branch( "RECO_PFJET_RAWPT", cast_to_vector(& RECO_PFJET_RAWPT));
+    Tree_->Branch( "RECO_PFJET_PUID_loose", cast_to_vector(&RECO_PFJET_PUID_loose));
+    Tree_->Branch( "RECO_PFJET_PUID_medium", cast_to_vector(&RECO_PFJET_PUID_medium));
     Tree_->Branch( "RECO_PFJET_PUID_loose",cast_to_vector(&RECO_PFJET_PUID_loose));
     Tree_->Branch( "RECO_PFJET_PUID_medium",cast_to_vector(&RECO_PFJET_PUID_medium));
     Tree_->Branch( "RECO_PFJET_PUID",cast_to_vector(&RECO_PFJET_PUID));
@@ -1189,6 +1236,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFMET_PHI", &pfmet_phi, "RECO_PFMET_PHI/F");
     Tree_->Branch( "RECO_PFMET_THETA", &pfmet_theta, "RECO_PFMET_THETA/F");
 
+    Tree_->Branch( "RECO_PFMET_xycorr", &pfmet_xycorr, "RECO_PFMET_xycorr/F");
+    Tree_->Branch( "RECO_PFMET_PHI_xycorr", &pfmet_phi_xycorr, "RECO_PFMET_PHI_xycorr/F");
     //Uncorrected //Reham
     Tree_->Branch( "RECO_PFMET_uncorr", &pfmet_uncorr, "RECO_PFMET_uncorr/F");
     Tree_->Branch( "RECO_PFMET_X_uncorr", &pfmet_x_uncorr, "RECO_PFMET_X_uncorr/F");
@@ -1215,6 +1264,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     // decision of MET filter
     //Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &PassecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new
+    Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new filter 2018
     // Tree_->Branch( "RECO_PFMET_filterbadChCandidate", &filterbadChCandidate, "RECO_PFMET_filterbadChCandidate/I");
     // Tree_->Branch( "RECO_PFMET_filterbadPFMuon", &filterbadPFMuon, "RECO_PFMET_filterbadPFMuon/I");
    
@@ -1263,10 +1313,11 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     PU_BunchCrossing=-999;
 
     genmet=-999.,calomet=-999.;  
-    RECO_NMU=0,RECO_NELE=0;
+    RECO_NMU=0,RECO_NELE=0,RECO_NAssocPFcands=0;
     RECO_NTRACK=0;
+    PFCand=0;
     
-    RECO_NPHOT=0,RECO_NJET=0,RECO_NVTX=0;
+    RECO_NPHOT=0,RECO_NJET=0,RECO_NVTX=0,RECO_NFSR=0;
     RECO_NPFPHOT=0;
     
     // HLT flags   
@@ -1282,13 +1333,16 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     pfmet_phi=-999.;
     pfmet_theta=-999.;
 
+    pfmet_xycorr=-999.;
+    pfmet_phi_xycorr=-999.;
+
     pfmet_uncorr=-999.;
     pfmet_x_uncorr=-999.;
     pfmet_y_uncorr=-999.;
     pfmet_phi_uncorr=-999.;
     pfmet_theta_uncorr=-999.;
 
-    PassecalBadCalibFilterUpdated =-999;
+    passecalBadCalibFilterUpdated =-999;
     //filterbadChCandidate=-999;
     //filterbadPFMuon=-999;
 
@@ -1314,6 +1368,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECOMU_PT_MuHLTMatch.clear();
     RECOMU_ETA_MuHLTMatch.clear();
     RECOMU_PHI_MuHLTMatch.clear();
+    RECOMU_BDT_Id.clear();
     RECOELE_PT_EleHLTMatch.clear();
     RECOELE_ETA_EleHLTMatch.clear();
     RECOELE_PHI_EleHLTMatch.clear();
@@ -1407,6 +1462,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECO_EEEE_PT.clear();
     RECO_EEEE_ETA.clear();
     RECO_EEEE_PHI.clear();
+    RECOELE_SCV_PT.clear();
+    RECOELE_SCV_ETA.clear();
+    RECOELE_SCV_PHI.clear();
     RECO_EEEE_MASS_REFIT.clear();
     RECO_EEMM_MASS.clear();
     RECO_EEMM_PT.clear();
@@ -1578,6 +1636,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECOMU_isCaloMu.clear();
     RECOMU_isTrackerHighPtMu.clear();
     RECOMU_isME0Muon.clear();
+    RECOMU_BDT_Id.clear();
     RECOMU_E.clear();
     RECOMU_PT.clear();
     RECOMU_P.clear();
@@ -1808,12 +1867,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECOPHOT_PT.clear();
     RECOPHOT_ETA.clear();
     RECOPHOT_PHI.clear();
+    RECOPHOT_ID.clear();
     RECOPHOT_THETA.clear();
     RECOPHOT_TLE_ParentSC_X.clear();
     RECOPHOT_TLE_ParentSC_Y.clear();
     RECOPHOT_TLE_ParentSC_Z.clear();
     RECOPFPHOT_PT.clear();
     RECOPFPHOT_PTError.clear();
+    RECOPHOTCOR_PT.clear();
+    RECOPHOTCOR_PTError.clear();
     RECOPFPHOT_ETA.clear();
     RECOPFPHOT_PHI.clear();
     RECOPFPHOT_THETA.clear();
@@ -1852,6 +1914,18 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     RECO_PFJET_ET.clear();
     RECO_PFJET_PT.clear();
     RECO_PFJET_ETA.clear();
+    RECO_PFJET_MASS.clear();
+    RECO_PFJET_PT_UP.clear();
+    RECO_PFJET_MASS_UP.clear();
+    RECO_PFJET_ETA_UP.clear();
+    RECO_PFJET_PHI_UP.clear();
+    RECO_PFJET_PT_DN.clear();
+    RECO_PFJET_MASS_DN.clear();
+    RECO_PFJET_ETA_DN.clear();
+    RECO_PFJET_PHI_DN.clear();
+    RECO_PFJET_RAWPT.clear();
+    RECO_PFJET_PUID_loose.clear();
+    RECO_PFJET_PUID_medium.clear();
     RECO_PFJET_PHI.clear();
     RECO_PFJET_PUID_loose.clear();
     RECO_PFJET_PUID_medium.clear();
@@ -2116,7 +2190,28 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
             );
   }
 
-  
+    
+
+     double photonPfIso03 (pat::PFParticle pho, edm::Handle<pat::PackedCandidateCollection> pfcands) {
+     double ptsum=0.0;
+
+     for (const pat::PackedCandidate &pfc : *pfcands) {
+
+         double dr = deltaR(pho.p4(), pfc.p4());
+
+         if (dr>=0.3) continue;
+
+         if (pfc.charge()!=0 && abs(pfc.pdgId())==211 && pfc.pt()>0.2) {
+             if (dr>0.0001) ptsum+=pfc.pt();
+         }
+         else if (pfc.charge()==0 && (abs(pfc.pdgId())==22||abs(pfc.pdgId())==130) && pfc.pt()>0.5) {
+             if (dr>0.01) ptsum+=pfc.pt();
+         }
+
+     }
+     return ptsum;
+ }
+
   // PDT
   std::string getParticleName(int id) const{
     const ParticleData * pd = pdt_->particle( id );
@@ -2836,6 +2931,10 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     //Electron ID MVA Trig and Non Trig
     //edm::Handle<edm::ValueMap<float> >  mvaTrigV0map;
     //iEvent.getByToken(mvaTrigV0MapTag_, mvaTrigV0map);
+    //Electron ID MVA Walaa
+    edm::Handle<edm::ValueMap<float> >  mvamap;
+    iEvent.getByToken(mvaValuesMapToken_, mvamap);
+
     
     // edm::Handle<edm::ValueMap<float> >  mvaNonTrigV0map;
     //iEvent.getByToken(mvaNonTrigV0MapTag_, mvaNonTrigV0map);
@@ -2924,6 +3023,20 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOELE_MASS[index]    = corrP4.mass();
       RECOELE_CHARGE[index]  = cand->charge();
       RECOELE_PT_uncorr[index]   = cand->pt();
+
+    ////////////Added walaa//////////
+    for(size_t ecand = 0; ecand < cand->associatedPackedPFCandidates().size(); ecand++){
+      PFCand++;
+    RECOELE_SCV_ETA[index][ecand]  = cand->associatedPackedPFCandidates()[ecand]->eta();
+    RECOELE_SCV_PHI[index][ecand]  = cand->associatedPackedPFCandidates()[ecand]->phi();
+    RECOELE_SCV_PT[index][ecand]   = cand->associatedPackedPFCandidates()[ecand]->pt();
+    
+//    RECOELE_scv_ETA[index]  = cand->associatedPackedPFCandidates()[ecand]->eta();
+//    RECOELE_scv_PHI[index]  = cand->associatedPackedPFCandidates()[ecand]->phi();
+//    RECOELE_scv_PT[index]   = cand->associatedPackedPFCandidates()[ecand]->pt();
+}
+        ////////////END WALAA//////
+
 
 	//Reham error in PT and some systematic variables 
       
@@ -3400,7 +3513,10 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     edm::Handle<edm::ValueMap<float> > corrpterrormumap;
     iEvent.getByToken(muonCorrPtErrorMapTag_,corrpterrormumap);
 
+    edm::Handle<double> rhoHandle;
+    iEvent.getByToken(rhojetsTag_,rhoHandle); 
     ////////////////////////////////////////////
+
     //Kalman Muon Calibrator for 2016 data
 
     /*   //@ Miquias
@@ -3710,6 +3826,50 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOMU_MASS[indexbis]=cand->p4().mass();
       RECOMU_CHARGE[indexbis]=cand->charge();
       RECOMU_PT_uncorr[indexbis]=mu_uncorr_pt;
+
+        ///////////////////Start of BDT Walaa/////////////////////////////////////
+        float pt  = cand->pt();
+        float eta = cand->eta();
+        float PFChargedHadIso   = cand->pfIsolationR03().sumChargedHadronPt;
+        float PFNeutralHadIso   = cand->pfIsolationR03().sumNeutralHadronEt;
+        float PFPhotonIso       = cand->pfIsolationR03().sumPhotonEt;
+        float SIP               = std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D);
+        
+        float dxy = 999.;
+        float dz  = 999.;
+        dxy = fabs(cand->muonBestTrack()->dxy(pVertex));
+        dz  = fabs(cand->muonBestTrack()->dz(pVertex));
+        float mu_N_hits_, mu_chi_square_, mu_N_pixel_hits_, mu_N_tracker_hits_;
+        bool is_global_mu_  = cand->isGlobalMuon();
+        if ( is_global_mu_ )
+        {
+            mu_N_hits_ = (cand->globalTrack()->hitPattern().numberOfValidMuonHits());
+            mu_chi_square_ = (cand->globalTrack()->normalizedChi2());
+        }
+        else
+        {
+            mu_N_hits_     = -1;
+            mu_chi_square_ = -1;
+        }
+        bool valid_KF = false;
+        reco::TrackRef myTrackRef = cand->innerTrack();
+        valid_KF = (myTrackRef.isAvailable());
+        valid_KF = (myTrackRef.isNonnull());
+        if ( valid_KF )
+        {
+        mu_N_pixel_hits_ = cand->innerTrack()->hitPattern().numberOfValidPixelHits();
+        mu_N_tracker_hits_ =cand->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+        }
+        else
+        {
+            mu_N_pixel_hits_ = -1;
+            mu_N_tracker_hits_ = -1;
+        }
+        double rho = *rhoHandle;
+         RECOMU_BDT_Id[indexbis]= MuonMVAReader->Get_MVA_value(pt, eta, mu_N_hits_, mu_N_pixel_hits_, mu_N_tracker_hits_, mu_chi_square_, PFPhotonIso, PFChargedHadIso, PFNeutralHadIso, rho, SIP, dxy, dz);
+    //    std::cout << "RECOMU_BDT= "<< RECOMU_BDT_Id[indexbis]<< std::endl;
+      //@// ///////////////////////////End of DBT//////////////////////////
+
 
       //@//    
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "--kinematic:"
@@ -4235,6 +4395,10 @@ void fillTracks(const edm::Event& iEvent){
       pfmet_y     = i->corPy();
       pfmet_phi   = i->corPhi();
       pfmet_theta = i->corP3().theta();
+      
+      //Type1 XY correction
+
+      std::tie(pfmet_xycorr,pfmet_phi_xycorr)=METXYCorr_Met_MetPhi(pfmet,pfmet_phi,irun,year,!isData,RECO_NVTX);
       
       //uncorrected met Reham
       pfmet_uncorr       = i->uncorPt();     
@@ -5164,9 +5328,6 @@ void fillTracks(const edm::Event& iEvent){
 
     ////////////////////////////////////
     
-    edm::Handle<double> rhoHandle;
-
-    iEvent.getByToken(rhojetsTag_,rhoHandle); 
     if (rhoHandle.isValid() ) {
       RHO_mu=*rhoHandle;
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO mu fastjet= " << RHO_mu << std::endl; 
@@ -5268,6 +5429,7 @@ void fillTracks(const edm::Event& iEvent){
   std::string inputfileName;
 
   // Input tags
+  int year;
   std::string decaychannel;
   std::string flaginst;
   std::vector<std::string> flagtags;
@@ -5512,10 +5674,10 @@ void fillTracks(const edm::Event& iEvent){
   // counters
   int irun, ievt,ils,nevt;
   float Avginstlumi;
-
+  std::unique_ptr<MuonGBRForestReader> MuonMVAReader;
   // HLT
   int RECO_nMuHLTMatch,RECO_nEleHLTMatch;
-  ArrayMDVector<float,1,-999>RECOMU_PT_MuHLTMatch,RECOMU_ETA_MuHLTMatch,RECOMU_PHI_MuHLTMatch;
+  ArrayMDVector<float,1,-999>RECOMU_PT_MuHLTMatch,RECOMU_ETA_MuHLTMatch,RECOMU_PHI_MuHLTMatch,RECOMU_BDT_Id;
   ArrayMDVector<float,1,-999>RECOELE_PT_EleHLTMatch,RECOELE_ETA_EleHLTMatch,RECOELE_PHI_EleHLTMatch;
   
   char HLTPathsFired[20000];
@@ -5621,7 +5783,8 @@ void fillTracks(const edm::Event& iEvent){
   // RECO electrons
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
   ArrayMDVector<float,1,-999>RECOELE_E,RECOELE_PT,RECOELE_PTError,RECOELE_P,RECOELE_ETA,RECOELE_THETA,RECOELE_PHI,RECOELE_MASS;
-  ArrayMDVector<float,1,-999>RECOELE_CHARGE,RECOELE_ID, RECOELE_PT_uncorr ;
+  ArrayMDVector<float,1,-999>RECOELE_CHARGE,RECOELE_ID, RECOELE_PT_uncorr;
+  ArrayMDVector<float,2,-999>RECOELE_SCV_PT,RECOELE_SCV_ETA,RECOELE_SCV_PHI;
 
   ArrayMDVector<int,1,0> RECOELE_isEcalDriven, RECOELE_isTrackerDriven;
   ArrayMDVector<float,1,-999>    RECOELE_gsftrack_NPixHits,
@@ -5872,7 +6035,7 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
   float genmet;
   float calomet;
     //calometopt,calometoptnohf,calometoptnohfho,calometoptho,calometnohf,calometnohfho,calometho;       
-  float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr;
+  float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr,pfmet_xycorr,pfmet_phi_xycorr;
   float pfmet_JetEnUp, pfmet_JetEnDn, pfmet_ElectronEnUp, pfmet_ElectronEnDn, pfmet_MuonEnUp, pfmet_MuonEnDn;
   float pfmet_JetResUp, pfmet_JetResDn, pfmet_UnclusteredEnUp, pfmet_UnclusteredEnDn, pfmet_PhotonEnUp, pfmet_PhotonEnDn,pfmet_TauEnUp,pfmet_TauEnDown;
   int PassecalBadCalibFilterUpdated, filterbadChCandidate, filterbadPFMuon;
@@ -5894,7 +6057,7 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
     std::string EEBadScNoiseFilter_Selector_;                         
     std::string EcalBadCalibFilter_Selector_; 
   
-    int  passFilterGoodVtxNoise, passFilterGlobalSuperTightHalo2016NoiseFilter, passFilterHBHENoise, passFilterHBHENoiseIso, passFilterEcalDeadCellTriggerPrimitiveNoise, passFilterBadPFMuon, passFilterBadChargedCandidate, passFilterEEBadScNoise, passFilterEcalBadCalib; 
+    int  passFilterGoodVtxNoise, passFilterGlobalSuperTightHalo2016NoiseFilter, passFilterHBHENoise, passFilterHBHENoiseIso, passFilterEcalDeadCellTriggerPrimitiveNoise, passFilterBadPFMuon, passFilterBadChargedCandidate, passFilterEEBadScNoise, passFilterEcalBadCalib, passecalBadCalibFilterUpdated; 
 
   // Beam Spot
   double BeamSpot_X,BeamSpot_Y,BeamSpot_Z;	

@@ -13,5 +13,7 @@ git cms-merge-topic cms-egamma:EgammaID_949
 pushd ZZMatrixElement
 bash setup.sh
 popd
+git clone https://github.com/mkovac/MuonMVAReader.git
+git clone https://github.com/usarica/MelaAnalytics.git
 #Download Rochester corrections from https://twiki.cern.ch/twiki/bin/view/CMS/RochcorMuon
 ```

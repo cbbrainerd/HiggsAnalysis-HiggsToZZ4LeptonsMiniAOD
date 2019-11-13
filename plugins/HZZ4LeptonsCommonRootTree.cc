@@ -33,7 +33,6 @@
 // CommonRootTree
 #include "HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsCommonRootTree.h"
 
-
 // Namespaces
 using namespace std;
 
@@ -288,7 +287,8 @@ void HZZ4LeptonsCommonRootTree::analyze(const edm::Event& iEvent, const edm::Eve
   if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout <<"fill Muon test" << std::endl;
   fillMuons(iEvent,iSetup);
   if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout <<"fill photon test" << std::endl;
-  fillPhotons(iEvent);
+  //fillPhotons(iEvent);
+  fillPhotonsForFsr(iEvent);
 
 
 
