@@ -150,6 +150,7 @@ process.hTozzTo4leptonsCommonRootTreePresel.fillHLTinfo = cms.untracked.bool(Fal
 process.hTozzTo4leptonsCommonRootTreePresel.triggerFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
 process.hTozzTo4leptonsCommonRootTreePresel.triggerEleFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
 process.hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(True)    
+process.hTozzTo4leptonsCommonRootTreePresel.year = cms.untracked.int32(2017)
 process.hTozzTo4leptonsCommonRootTreePresel.isVBF  = cms.bool(False)
 #//@
 #This variable isData to apply muon calibrator inside commonRooTree.h and get the error on muon pT

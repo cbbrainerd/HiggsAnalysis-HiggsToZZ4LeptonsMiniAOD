@@ -2,11 +2,13 @@
 Package for  H->ZZ->4l anaysis for Run2 miniAOD  
 
 ```
-cmsrel CMSSW_9_4_10
-cd CMSSW_9_4_10/src
-cmsenv
+#!/bin/bash
+CMSSW_VERSION="CMSSW_10_2_15"
+cmsrel "$CMSSW_VERSION"
+cd "$CMSSW_VERSION"/src
+eval `scramv1 runtime -sh`
 git cms-init
-git clone https://github.com/cbbrainerd/HiggsAnalysis-HiggsToZZ4LeptonsMiniAOD HiggsAnalysis/HiggsToZZ4Leptons -b synchronization
+git clone https://github.com/cbbrainerd/HiggsAnalysis-HiggsToZZ4LeptonsMiniAOD HiggsAnalysis/HiggsToZZ4Leptons -b 2018
 git clone https://github.com/cms-analysis/HiggsAnalysis-ZZMatrixElement.git ZZMatrixElement
 git cms-merge-topic cms-egamma:EgammaPostRecoTools
 git cms-merge-topic cms-egamma:EgammaID_949

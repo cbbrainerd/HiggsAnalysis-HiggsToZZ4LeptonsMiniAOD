@@ -172,6 +172,8 @@ using namespace pat;
 //Quick hack to remove most output
 #define HZZ4LeptonsCommonRootTreeH_DEBUG 0
 
+template <class T>
+void clear_void(void* vp) { ((T*)vp)->clear(); }
 
 class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   
@@ -194,6 +196,14 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     std::cout << "Input Filename is=" << inputfileName.c_str() << std::endl;
   }
 	
+  std::map<void*,std::function<void(void*)> > clear_vectors_map;
+  
+  void clear_vectors() {
+    for(auto& it : clear_vectors_map) {
+        (it.second)(it.first);
+    }
+  }
+
   void ReadParameters(const edm::ParameterSet& pset){ 
     std::cout << "Reading parameters from cfg" << std::endl;
     
@@ -314,8 +324,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     //@// mvaNonTrigV0MapTag_      = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaNonTrigV0MapTag"));
     electronsMiniAODToken_    = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("electronsMiniAOD")); //REHAM
     eleIDToken_ = consumes<edm::ValueMap<bool>>(pset.getParameter<edm::InputTag>("elecID")); //REHAM 
-    //   mvaValuesMapToken_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaValuesMap"));
-    //  mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));   
+       mvaValuesMapToken_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaValuesMap"));
+      mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));   
     
     // PF photons
 //    pfphotonsTag_                 = consumes<edm::View<reco::PFCandidate>>(pset.getParameter<edm::InputTag>("PFPhotonsLabel"));
@@ -404,6 +414,13 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     offlineBeamSpot_      = consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("offlineBeamSpot"));
   }
   
+  template <class T>
+  void MakeBranch(TTree* tree,const char* branch_name,T* vec) {
+    tree->Branch(branch_name,cast_to_vector(vec));
+    //"Registers" each vector to be cleared in Initialize();
+    //Prevents the mistake where one vector is mistakenly not cleared
+    clear_vectors_map.insert(std::make_pair((void*)vec,clear_void<T>));
+  }
   
   void DefineBranches(TTree *Tree_){
     // Run event
@@ -419,61 +436,61 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     // HLT 
     Tree_->Branch("RECO_nMuHLTMatch",&RECO_nMuHLTMatch,"RECO_nMuHLTMatch/I");
-    Tree_->Branch("RECOMU_PT_MuHLTMatch",cast_to_vector(&RECOMU_PT_MuHLTMatch));//"std::vector<float>"); TEST
-    Tree_->Branch("RECOMU_ETA_MuHLTMatch",cast_to_vector(&RECOMU_ETA_MuHLTMatch));
-    Tree_->Branch("RECOMU_PHI_MuHLTMatch",cast_to_vector(&RECOMU_PHI_MuHLTMatch));
+    MakeBranch(Tree_,"RECOMU_PT_MuHLTMatch",(&RECOMU_PT_MuHLTMatch));//"std::vector<float>"); TEST
+    MakeBranch(Tree_,"RECOMU_ETA_MuHLTMatch",(&RECOMU_ETA_MuHLTMatch));
+    MakeBranch(Tree_,"RECOMU_PHI_MuHLTMatch",(&RECOMU_PHI_MuHLTMatch));
 
     Tree_->Branch("RECO_nEleHLTMatch",&RECO_nEleHLTMatch,"RECO_nEleHLTMatch/I");
-    Tree_->Branch("RECOELE_PT_EleHLTMatch",cast_to_vector(&RECOELE_PT_EleHLTMatch));
-    Tree_->Branch("RECOELE_ETA_EleHLTMatch",cast_to_vector(&RECOELE_ETA_EleHLTMatch));
-    Tree_->Branch("RECOELE_PHI_EleHLTMatch",cast_to_vector(&RECOELE_PHI_EleHLTMatch));
+    MakeBranch(Tree_,"RECOELE_PT_EleHLTMatch",(&RECOELE_PT_EleHLTMatch));
+    MakeBranch(Tree_,"RECOELE_ETA_EleHLTMatch",(&RECOELE_ETA_EleHLTMatch));
+    MakeBranch(Tree_,"RECOELE_PHI_EleHLTMatch",(&RECOELE_PHI_EleHLTMatch));
 
     Tree_->Branch("HLTPathsFired",HLTPathsFired,"HLTPathsFired/C");
 
    
     // MC block 
-    Tree_->Branch("MC_E",cast_to_vector(&MC_E)); 
-    Tree_->Branch("MC_PT",cast_to_vector(&MC_PT)); 
-    Tree_->Branch("MC_ETA",cast_to_vector(&MC_ETA)); 
-    Tree_->Branch("MC_THETA",cast_to_vector(&MC_THETA));
-    Tree_->Branch("MC_PHI",cast_to_vector(&MC_PHI));
-    Tree_->Branch("MC_MASS",cast_to_vector(&MC_MASS));
-    Tree_->Branch("MC_PDGID",cast_to_vector(&MC_PDGID));
+    MakeBranch(Tree_,"MC_E",(&MC_E)); 
+    MakeBranch(Tree_,"MC_PT",(&MC_PT)); 
+    MakeBranch(Tree_,"MC_ETA",(&MC_ETA)); 
+    MakeBranch(Tree_,"MC_THETA",(&MC_THETA));
+    MakeBranch(Tree_,"MC_PHI",(&MC_PHI));
+    MakeBranch(Tree_,"MC_MASS",(&MC_MASS));
+    MakeBranch(Tree_,"MC_PDGID",(&MC_PDGID));
    
 
     //  Leptons stable ordered in PT
-    Tree_->Branch("MC_LEPT_PT",cast_to_vector(&MC_LEPT_PT)); 
-    Tree_->Branch("MC_LEPT_ETA",cast_to_vector(&MC_LEPT_ETA)); 
-    Tree_->Branch("MC_LEPT_PHI",cast_to_vector(&MC_LEPT_PHI)); 
-    Tree_->Branch("MC_LEPT_THETA",cast_to_vector(&MC_LEPT_THETA)); 
-    Tree_->Branch("MC_LEPT_PDGID",cast_to_vector(&MC_LEPT_PDGID));
+    MakeBranch(Tree_,"MC_LEPT_PT",(&MC_LEPT_PT)); 
+    MakeBranch(Tree_,"MC_LEPT_ETA",(&MC_LEPT_ETA)); 
+    MakeBranch(Tree_,"MC_LEPT_PHI",(&MC_LEPT_PHI)); 
+    MakeBranch(Tree_,"MC_LEPT_THETA",(&MC_LEPT_THETA)); 
+    MakeBranch(Tree_,"MC_LEPT_PDGID",(&MC_LEPT_PDGID));
 
     // MC Z1, Z2 (first index) and daughter leptons and photon (second index, order: L1, L2, P1, P2 with PT ordering of the leptons and P1 associated to L1)
-    Tree_->Branch("MC_Z_PT",cast_to_vector(&MC_Z_PT));
-    Tree_->Branch("MC_Z_ETA",cast_to_vector(&MC_Z_ETA));
-    Tree_->Branch("MC_Z_PHI",cast_to_vector(&MC_Z_PHI));
-    Tree_->Branch("MC_Z_THETA",cast_to_vector(&MC_Z_THETA));
-    Tree_->Branch("MC_Z_MASS",cast_to_vector(&MC_Z_MASS));
-    Tree_->Branch("MC_Z_PDGID",cast_to_vector(&MC_Z_PDGID));
+    MakeBranch(Tree_,"MC_Z_PT",(&MC_Z_PT));
+    MakeBranch(Tree_,"MC_Z_ETA",(&MC_Z_ETA));
+    MakeBranch(Tree_,"MC_Z_PHI",(&MC_Z_PHI));
+    MakeBranch(Tree_,"MC_Z_THETA",(&MC_Z_THETA));
+    MakeBranch(Tree_,"MC_Z_MASS",(&MC_Z_MASS));
+    MakeBranch(Tree_,"MC_Z_PDGID",(&MC_Z_PDGID));
 
     // 4l from stable particles
-    Tree_->Branch("MC_fourl_MASS",cast_to_vector(&MC_fourl_MASS));
-    Tree_->Branch("MC_fourl_PT",cast_to_vector(&MC_fourl_PT));
-    Tree_->Branch("MC_fourl_PDGID",cast_to_vector(&MC_fourl_PDGID));
+    MakeBranch(Tree_,"MC_fourl_MASS",(&MC_fourl_MASS));
+    MakeBranch(Tree_,"MC_fourl_PT",(&MC_fourl_PT));
+    MakeBranch(Tree_,"MC_fourl_PDGID",(&MC_fourl_PDGID));
 
     // diZ
-    Tree_->Branch("MC_ZZ_MASS",cast_to_vector(&MC_ZZ_MASS));
-    Tree_->Branch("MC_ZZ_PT",cast_to_vector(&MC_ZZ_PT));
-    Tree_->Branch("MC_ZZ_ETA",cast_to_vector(&MC_ZZ_ETA));
-    Tree_->Branch("MC_ZZ_PHI",cast_to_vector(&MC_ZZ_PHI));
-    Tree_->Branch("MC_ZZ_THETA",cast_to_vector(&MC_ZZ_THETA));
-    Tree_->Branch("MC_ZZ_PDGID",cast_to_vector(&MC_ZZ_PDGID));
+    MakeBranch(Tree_,"MC_ZZ_MASS",(&MC_ZZ_MASS));
+    MakeBranch(Tree_,"MC_ZZ_PT",(&MC_ZZ_PT));
+    MakeBranch(Tree_,"MC_ZZ_ETA",(&MC_ZZ_ETA));
+    MakeBranch(Tree_,"MC_ZZ_PHI",(&MC_ZZ_PHI));
+    MakeBranch(Tree_,"MC_ZZ_THETA",(&MC_ZZ_THETA));
+    MakeBranch(Tree_,"MC_ZZ_PDGID",(&MC_ZZ_PDGID));
 
 
     // GenJet
-    Tree_->Branch( "MC_GENJET_PT",cast_to_vector(&MC_GENJET_PT));
-    Tree_->Branch( "MC_GENJET_ETA",cast_to_vector(&MC_GENJET_ETA));
-    Tree_->Branch( "MC_GENJET_PHI",cast_to_vector(&MC_GENJET_PHI));
+    MakeBranch(Tree_, "MC_GENJET_PT",(&MC_GENJET_PT));
+    MakeBranch(Tree_, "MC_GENJET_ETA",(&MC_GENJET_ETA));
+    MakeBranch(Tree_, "MC_GENJET_PHI",(&MC_GENJET_PHI));
 
     // GenMET  
     Tree_->Branch("MC_GENMET", &genmet, "MC_GENMET/F");
@@ -481,581 +498,581 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
   
      // RECORF block 2e2mu
     
-    Tree_->Branch("RECORF_2e2mu_cosTheta1_spin",cast_to_vector(&RECORF_2e2mu_cosTheta1_spin));
-    Tree_->Branch("RECORF_2e2mu_cosTheta2_spin",cast_to_vector(&RECORF_2e2mu_cosTheta2_spin));
-    Tree_->Branch("RECORF_2e2mu_cosThetaStar_spin",cast_to_vector(&RECORF_2e2mu_cosThetaStar_spin));
-    Tree_->Branch("RECORF_2e2mu_Phi_spin",cast_to_vector(&RECORF_2e2mu_Phi_spin));
-    Tree_->Branch("RECORF_2e2mu_Phi1_spin",cast_to_vector(&RECORF_2e2mu_Phi1_spin));
-    Tree_->Branch("RECORF_2e2mu_Phi2_spin",cast_to_vector(&RECORF_2e2mu_Phi2_spin));
-    Tree_->Branch("RECORF_2e2mu_phi1RF_spin",cast_to_vector(&RECORF_2e2mu_phi1RF_spin));
-    Tree_->Branch("RECORF_2e2mu_phi2RF_spin",cast_to_vector(&RECORF_2e2mu_phi2RF_spin));
-    Tree_->Branch("RECORF_2e2mu_MELA",cast_to_vector(&RECORF_2e2mu_MELA));
+    MakeBranch(Tree_,"RECORF_2e2mu_cosTheta1_spin",(&RECORF_2e2mu_cosTheta1_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_cosTheta2_spin",(&RECORF_2e2mu_cosTheta2_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_cosThetaStar_spin",(&RECORF_2e2mu_cosThetaStar_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_Phi_spin",(&RECORF_2e2mu_Phi_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_Phi1_spin",(&RECORF_2e2mu_Phi1_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_Phi2_spin",(&RECORF_2e2mu_Phi2_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_phi1RF_spin",(&RECORF_2e2mu_phi1RF_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_phi2RF_spin",(&RECORF_2e2mu_phi2RF_spin));
+    MakeBranch(Tree_,"RECORF_2e2mu_MELA",(&RECORF_2e2mu_MELA));
 
    
-    Tree_->Branch("RECORF_4e_cosTheta1_spin",cast_to_vector(&RECORF_4e_cosTheta1_spin));
-    Tree_->Branch("RECORF_4e_cosTheta2_spin",cast_to_vector(&RECORF_4e_cosTheta2_spin));
-    Tree_->Branch("RECORF_4e_cosThetaStar_spin",cast_to_vector(&RECORF_4e_cosThetaStar_spin));
-    Tree_->Branch("RECORF_4e_Phi_spin",cast_to_vector(&RECORF_4e_Phi_spin));
-    Tree_->Branch("RECORF_4e_Phi1_spin",cast_to_vector(&RECORF_4e_Phi1_spin));
-    Tree_->Branch("RECORF_4e_Phi2_spin",cast_to_vector(&RECORF_4e_Phi2_spin));
-    Tree_->Branch("RECORF_4e_phi1RF_spin",cast_to_vector(&RECORF_4e_phi1RF_spin));
-    Tree_->Branch("RECORF_4e_phi2RF_spin",cast_to_vector(&RECORF_4e_phi2RF_spin));
-    Tree_->Branch("RECORF_4e_MELA",cast_to_vector(&RECORF_4e_MELA));
+    MakeBranch(Tree_,"RECORF_4e_cosTheta1_spin",(&RECORF_4e_cosTheta1_spin));
+    MakeBranch(Tree_,"RECORF_4e_cosTheta2_spin",(&RECORF_4e_cosTheta2_spin));
+    MakeBranch(Tree_,"RECORF_4e_cosThetaStar_spin",(&RECORF_4e_cosThetaStar_spin));
+    MakeBranch(Tree_,"RECORF_4e_Phi_spin",(&RECORF_4e_Phi_spin));
+    MakeBranch(Tree_,"RECORF_4e_Phi1_spin",(&RECORF_4e_Phi1_spin));
+    MakeBranch(Tree_,"RECORF_4e_Phi2_spin",(&RECORF_4e_Phi2_spin));
+    MakeBranch(Tree_,"RECORF_4e_phi1RF_spin",(&RECORF_4e_phi1RF_spin));
+    MakeBranch(Tree_,"RECORF_4e_phi2RF_spin",(&RECORF_4e_phi2RF_spin));
+    MakeBranch(Tree_,"RECORF_4e_MELA",(&RECORF_4e_MELA));
      
-    Tree_->Branch("RECORF_4mu_cosTheta1_spin",cast_to_vector(&RECORF_4mu_cosTheta1_spin));
-    Tree_->Branch("RECORF_4mu_cosTheta2_spin",cast_to_vector(&RECORF_4mu_cosTheta2_spin));
-    Tree_->Branch("RECORF_4mu_cosThetaStar_spin",cast_to_vector(&RECORF_4mu_cosThetaStar_spin));
-    Tree_->Branch("RECORF_4mu_Phi_spin",cast_to_vector(&RECORF_4mu_Phi_spin));
-    Tree_->Branch("RECORF_4mu_Phi1_spin",cast_to_vector(&RECORF_4mu_Phi1_spin));
-    Tree_->Branch("RECORF_4mu_Phi2_spin",cast_to_vector(&RECORF_4mu_Phi2_spin));
-    Tree_->Branch("RECORF_4mu_phi1RF_spin",cast_to_vector(&RECORF_4mu_phi1RF_spin));
-    Tree_->Branch("RECORF_4mu_phi2RF_spin",cast_to_vector(&RECORF_4mu_phi2RF_spin));
-    Tree_->Branch("RECORF_4mu_MELA",cast_to_vector(&RECORF_4mu_MELA));
+    MakeBranch(Tree_,"RECORF_4mu_cosTheta1_spin",(&RECORF_4mu_cosTheta1_spin));
+    MakeBranch(Tree_,"RECORF_4mu_cosTheta2_spin",(&RECORF_4mu_cosTheta2_spin));
+    MakeBranch(Tree_,"RECORF_4mu_cosThetaStar_spin",(&RECORF_4mu_cosThetaStar_spin));
+    MakeBranch(Tree_,"RECORF_4mu_Phi_spin",(&RECORF_4mu_Phi_spin));
+    MakeBranch(Tree_,"RECORF_4mu_Phi1_spin",(&RECORF_4mu_Phi1_spin));
+    MakeBranch(Tree_,"RECORF_4mu_Phi2_spin",(&RECORF_4mu_Phi2_spin));
+    MakeBranch(Tree_,"RECORF_4mu_phi1RF_spin",(&RECORF_4mu_phi1RF_spin));
+    MakeBranch(Tree_,"RECORF_4mu_phi2RF_spin",(&RECORF_4mu_phi2RF_spin));
+    MakeBranch(Tree_,"RECORF_4mu_MELA",(&RECORF_4mu_MELA));
 
 
 
     // RECO additional block for reconstructed higgs, Z and their daughters
-    Tree_->Branch("RECO_ZMM_MASS",cast_to_vector(&RECO_ZMM_MASS));
-    Tree_->Branch("RECO_ZEE_MASS",cast_to_vector(&RECO_ZEE_MASS));
-    Tree_->Branch("RECO_DiLep_MASS",cast_to_vector(&RECO_DiLep_MASS));
-    Tree_->Branch("RECO_ZMM_PT",cast_to_vector(&RECO_ZMM_PT));
-    Tree_->Branch("RECO_ZEE_PT",cast_to_vector(&RECO_ZEE_PT));  
-    Tree_->Branch("RECO_DiLep_PT",cast_to_vector(&RECO_DiLep_PT));  
-    Tree_->Branch("RECO_ZMM_ETA",cast_to_vector(&RECO_ZMM_ETA));
-    Tree_->Branch("RECO_ZEE_ETA",cast_to_vector(&RECO_ZEE_ETA));
-    Tree_->Branch("RECO_DiLep_ETA",cast_to_vector(&RECO_DiLep_ETA));  
-    Tree_->Branch("RECO_ZMM_PHI",cast_to_vector(&RECO_ZMM_PHI));
-    Tree_->Branch("RECO_ZEE_PHI",cast_to_vector(&RECO_ZEE_PHI));
-    Tree_->Branch("RECO_DiLep_PHI",cast_to_vector(&RECO_DiLep_PHI));  
+    MakeBranch(Tree_,"RECO_ZMM_MASS",(&RECO_ZMM_MASS));
+    MakeBranch(Tree_,"RECO_ZEE_MASS",(&RECO_ZEE_MASS));
+    MakeBranch(Tree_,"RECO_DiLep_MASS",(&RECO_DiLep_MASS));
+    MakeBranch(Tree_,"RECO_ZMM_PT",(&RECO_ZMM_PT));
+    MakeBranch(Tree_,"RECO_ZEE_PT",(&RECO_ZEE_PT));  
+    MakeBranch(Tree_,"RECO_DiLep_PT",(&RECO_DiLep_PT));  
+    MakeBranch(Tree_,"RECO_ZMM_ETA",(&RECO_ZMM_ETA));
+    MakeBranch(Tree_,"RECO_ZEE_ETA",(&RECO_ZEE_ETA));
+    MakeBranch(Tree_,"RECO_DiLep_ETA",(&RECO_DiLep_ETA));  
+    MakeBranch(Tree_,"RECO_ZMM_PHI",(&RECO_ZMM_PHI));
+    MakeBranch(Tree_,"RECO_ZEE_PHI",(&RECO_ZEE_PHI));
+    MakeBranch(Tree_,"RECO_DiLep_PHI",(&RECO_DiLep_PHI));  
                               
-    Tree_->Branch("RECO_ZMMss_MASS",cast_to_vector(&RECO_ZMMss_MASS));
-    Tree_->Branch("RECO_ZEEss_MASS",cast_to_vector(&RECO_ZEEss_MASS));
-    Tree_->Branch("RECO_ZEM_MASS",cast_to_vector(&RECO_ZEM_MASS));
-    Tree_->Branch("RECO_ZMMss_PT",cast_to_vector(&RECO_ZMMss_PT));
-    Tree_->Branch("RECO_ZEEss_PT",cast_to_vector(&RECO_ZEEss_PT));
-    Tree_->Branch("RECO_ZEM_PT",cast_to_vector(&RECO_ZEM_PT));
-    Tree_->Branch("RECO_ZMMss_ETA",cast_to_vector(&RECO_ZMMss_ETA));
-    Tree_->Branch("RECO_ZEEss_ETA",cast_to_vector(&RECO_ZEEss_ETA));
-    Tree_->Branch("RECO_ZEM_ETA",cast_to_vector(&RECO_ZEM_ETA));
-    Tree_->Branch("RECO_ZMMss_PHI",cast_to_vector(&RECO_ZMMss_PHI));
-    Tree_->Branch("RECO_ZEEss_PHI",cast_to_vector(&RECO_ZEEss_PHI));
-    Tree_->Branch("RECO_ZEM_PHI",cast_to_vector(&RECO_ZEM_PHI));
+    MakeBranch(Tree_,"RECO_ZMMss_MASS",(&RECO_ZMMss_MASS));
+    MakeBranch(Tree_,"RECO_ZEEss_MASS",(&RECO_ZEEss_MASS));
+    MakeBranch(Tree_,"RECO_ZEM_MASS",(&RECO_ZEM_MASS));
+    MakeBranch(Tree_,"RECO_ZMMss_PT",(&RECO_ZMMss_PT));
+    MakeBranch(Tree_,"RECO_ZEEss_PT",(&RECO_ZEEss_PT));
+    MakeBranch(Tree_,"RECO_ZEM_PT",(&RECO_ZEM_PT));
+    MakeBranch(Tree_,"RECO_ZMMss_ETA",(&RECO_ZMMss_ETA));
+    MakeBranch(Tree_,"RECO_ZEEss_ETA",(&RECO_ZEEss_ETA));
+    MakeBranch(Tree_,"RECO_ZEM_ETA",(&RECO_ZEM_ETA));
+    MakeBranch(Tree_,"RECO_ZMMss_PHI",(&RECO_ZMMss_PHI));
+    MakeBranch(Tree_,"RECO_ZEEss_PHI",(&RECO_ZEEss_PHI));
+    MakeBranch(Tree_,"RECO_ZEM_PHI",(&RECO_ZEM_PHI));
 
     
-    Tree_->Branch("RECO_MMMM_MASS",cast_to_vector(&RECO_MMMM_MASS));
-    Tree_->Branch("RECO_MMMM_PT",cast_to_vector(&RECO_MMMM_PT));
-    Tree_->Branch("RECO_MMMM_ETA",cast_to_vector(&RECO_MMMM_ETA));
-    Tree_->Branch("RECO_MMMM_PHI",cast_to_vector(&RECO_MMMM_PHI));
-    Tree_->Branch("RECO_MMMM_MASS_REFIT",cast_to_vector(&RECO_MMMM_MASS_REFIT));
+    MakeBranch(Tree_,"RECO_MMMM_MASS",(&RECO_MMMM_MASS));
+    MakeBranch(Tree_,"RECO_MMMM_PT",(&RECO_MMMM_PT));
+    MakeBranch(Tree_,"RECO_MMMM_ETA",(&RECO_MMMM_ETA));
+    MakeBranch(Tree_,"RECO_MMMM_PHI",(&RECO_MMMM_PHI));
+    MakeBranch(Tree_,"RECO_MMMM_MASS_REFIT",(&RECO_MMMM_MASS_REFIT));
 
-    Tree_->Branch("RECO_EEEE_MASS",cast_to_vector(&RECO_EEEE_MASS));
-    Tree_->Branch("RECO_EEEE_PT",cast_to_vector(&RECO_EEEE_PT)); 
-    Tree_->Branch("RECO_EEEE_ETA",cast_to_vector(&RECO_EEEE_ETA));
-    Tree_->Branch("RECO_EEEE_PHI",cast_to_vector(&RECO_EEEE_PHI));
-    Tree_->Branch("RECO_EEEE_MASS_REFIT",cast_to_vector(&RECO_EEEE_MASS_REFIT));
+    MakeBranch(Tree_,"RECO_EEEE_MASS",(&RECO_EEEE_MASS));
+    MakeBranch(Tree_,"RECO_EEEE_PT",(&RECO_EEEE_PT)); 
+    MakeBranch(Tree_,"RECO_EEEE_ETA",(&RECO_EEEE_ETA));
+    MakeBranch(Tree_,"RECO_EEEE_PHI",(&RECO_EEEE_PHI));
+    MakeBranch(Tree_,"RECO_EEEE_MASS_REFIT",(&RECO_EEEE_MASS_REFIT));
 
-    Tree_->Branch("RECO_EEMM_MASS",cast_to_vector(&RECO_EEMM_MASS));
-    Tree_->Branch("RECO_EEMM_PT",cast_to_vector(&RECO_EEMM_PT));
-    Tree_->Branch("RECO_EEMM_ETA",cast_to_vector(&RECO_EEMM_ETA));
-    Tree_->Branch("RECO_EEMM_PHI",cast_to_vector(&RECO_EEMM_PHI));
-    Tree_->Branch("RECO_EEMM_MASS_REFIT",cast_to_vector(&RECO_EEMM_MASS_REFIT));
+    MakeBranch(Tree_,"RECO_EEMM_MASS",(&RECO_EEMM_MASS));
+    MakeBranch(Tree_,"RECO_EEMM_PT",(&RECO_EEMM_PT));
+    MakeBranch(Tree_,"RECO_EEMM_ETA",(&RECO_EEMM_ETA));
+    MakeBranch(Tree_,"RECO_EEMM_PHI",(&RECO_EEMM_PHI));
+    MakeBranch(Tree_,"RECO_EEMM_MASS_REFIT",(&RECO_EEMM_MASS_REFIT));
 
-    Tree_->Branch("RECO_LLL0_MASS",cast_to_vector(&RECO_LLL0_MASS)); 
-    Tree_->Branch("RECO_LLL1_MASS",cast_to_vector(&RECO_LLL1_MASS)); 
-    Tree_->Branch("RECO_LLL2_MASS",cast_to_vector(&RECO_LLL2_MASS)); 
-    Tree_->Branch("RECO_LLL3_MASS",cast_to_vector(&RECO_LLL3_MASS)); 
-    Tree_->Branch("RECO_LLL0_PT",cast_to_vector(&RECO_LLL0_PT)); 
-    Tree_->Branch("RECO_LLL1_PT",cast_to_vector(&RECO_LLL1_PT)); 
-    Tree_->Branch("RECO_LLL2_PT",cast_to_vector(&RECO_LLL2_PT)); 
-    Tree_->Branch("RECO_LLL3_PT",cast_to_vector(&RECO_LLL3_PT)); 
+    MakeBranch(Tree_,"RECO_LLL0_MASS",(&RECO_LLL0_MASS)); 
+    MakeBranch(Tree_,"RECO_LLL1_MASS",(&RECO_LLL1_MASS)); 
+    MakeBranch(Tree_,"RECO_LLL2_MASS",(&RECO_LLL2_MASS)); 
+    MakeBranch(Tree_,"RECO_LLL3_MASS",(&RECO_LLL3_MASS)); 
+    MakeBranch(Tree_,"RECO_LLL0_PT",(&RECO_LLL0_PT)); 
+    MakeBranch(Tree_,"RECO_LLL1_PT",(&RECO_LLL1_PT)); 
+    MakeBranch(Tree_,"RECO_LLL2_PT",(&RECO_LLL2_PT)); 
+    MakeBranch(Tree_,"RECO_LLL3_PT",(&RECO_LLL3_PT)); 
 
-    Tree_->Branch("RECO_LLLl0_MASS",cast_to_vector(&RECO_LLLl0_MASS)); 
-    Tree_->Branch("RECO_LLLl1_MASS",cast_to_vector(&RECO_LLLl1_MASS)); 
-    Tree_->Branch("RECO_LLLl0_PT",cast_to_vector(&RECO_LLLl0_PT)); 
-    Tree_->Branch("RECO_LLLl1_PT",cast_to_vector(&RECO_LLLl1_PT)); 
+    MakeBranch(Tree_,"RECO_LLLl0_MASS",(&RECO_LLLl0_MASS)); 
+    MakeBranch(Tree_,"RECO_LLLl1_MASS",(&RECO_LLLl1_MASS)); 
+    MakeBranch(Tree_,"RECO_LLLl0_PT",(&RECO_LLLl0_PT)); 
+    MakeBranch(Tree_,"RECO_LLLl1_PT",(&RECO_LLLl1_PT)); 
 
-    Tree_->Branch("RECO_LLLL0ss_MASS",cast_to_vector(&RECO_LLLL0ss_MASS)); 
-    Tree_->Branch("RECO_LLLL0ss_PT",cast_to_vector(&RECO_LLLL0ss_PT)); 
-    Tree_->Branch("RECO_LLLL1ss_MASS",cast_to_vector(&RECO_LLLL1ss_MASS)); 
-    Tree_->Branch("RECO_LLLL1ss_PT",cast_to_vector(&RECO_LLLL1ss_PT)); 
-    Tree_->Branch("RECO_LLLL2ss_MASS",cast_to_vector(&RECO_LLLL2ss_MASS)); 
-    Tree_->Branch("RECO_LLLL2ss_PT",cast_to_vector(&RECO_LLLL2ss_PT)); 
+    MakeBranch(Tree_,"RECO_LLLL0ss_MASS",(&RECO_LLLL0ss_MASS)); 
+    MakeBranch(Tree_,"RECO_LLLL0ss_PT",(&RECO_LLLL0ss_PT)); 
+    MakeBranch(Tree_,"RECO_LLLL1ss_MASS",(&RECO_LLLL1ss_MASS)); 
+    MakeBranch(Tree_,"RECO_LLLL1ss_PT",(&RECO_LLLL1ss_PT)); 
+    MakeBranch(Tree_,"RECO_LLLL2ss_MASS",(&RECO_LLLL2ss_MASS)); 
+    MakeBranch(Tree_,"RECO_LLLL2ss_PT",(&RECO_LLLL2ss_PT)); 
        
-    //Tree_->Branch("RECOcollNameLLLLssos_MASS",cast_to_vector(&RECOcollNameLLLLssos_MASS));
-    //Tree_->Branch("RECOcollNameLLLLssos_PT",cast_to_vector(&RECOcollNameLLLLssos_PT));
+    //MakeBranch(Tree_,"RECOcollNameLLLLssos_MASS",(&RECOcollNameLLLLssos_MASS));
+    //MakeBranch(Tree_,"RECOcollNameLLLLssos_PT",(&RECOcollNameLLLLssos_PT));
 
-    Tree_->Branch("RECO_LLLL_MASS",cast_to_vector(&RECO_LLLL_MASS));
-    Tree_->Branch("RECO_LLLL_PT",cast_to_vector(&RECO_LLLL_PT));
-    Tree_->Branch("RECO_LLLL_ETA",cast_to_vector(&RECO_LLLL_ETA));
-    Tree_->Branch("RECO_LLLL_PHI",cast_to_vector(&RECO_LLLL_PHI));
+    MakeBranch(Tree_,"RECO_LLLL_MASS",(&RECO_LLLL_MASS));
+    MakeBranch(Tree_,"RECO_LLLL_PT",(&RECO_LLLL_PT));
+    MakeBranch(Tree_,"RECO_LLLL_ETA",(&RECO_LLLL_ETA));
+    MakeBranch(Tree_,"RECO_LLLL_PHI",(&RECO_LLLL_PHI));
  
    
     // Electron block
-    Tree_->Branch("RECOELE_E",cast_to_vector(&RECOELE_E)); 
-    Tree_->Branch("RECOELE_PT",cast_to_vector(&RECOELE_PT));
-    Tree_->Branch("RECOELE_PTError",cast_to_vector(&RECOELE_PTError));
-    Tree_->Branch("RECOELE_P",cast_to_vector(&RECOELE_P));
-    Tree_->Branch("RECOELE_ETA",cast_to_vector(&RECOELE_ETA)); 
-    Tree_->Branch("RECOELE_THETA",cast_to_vector(&RECOELE_THETA)); 
-    Tree_->Branch("RECOELE_PHI",cast_to_vector(&RECOELE_PHI)); 
-    Tree_->Branch("RECOELE_MASS",cast_to_vector(&RECOELE_MASS)); 
-    Tree_->Branch("RECOELE_CHARGE",cast_to_vector(&RECOELE_CHARGE)); 
+    MakeBranch(Tree_,"RECOELE_E",(&RECOELE_E)); 
+    MakeBranch(Tree_,"RECOELE_PT",(&RECOELE_PT));
+    MakeBranch(Tree_,"RECOELE_PTError",(&RECOELE_PTError));
+    MakeBranch(Tree_,"RECOELE_P",(&RECOELE_P));
+    MakeBranch(Tree_,"RECOELE_ETA",(&RECOELE_ETA)); 
+    MakeBranch(Tree_,"RECOELE_THETA",(&RECOELE_THETA)); 
+    MakeBranch(Tree_,"RECOELE_PHI",(&RECOELE_PHI)); 
+    MakeBranch(Tree_,"RECOELE_MASS",(&RECOELE_MASS)); 
+    MakeBranch(Tree_,"RECOELE_CHARGE",(&RECOELE_CHARGE)); 
   
       /////////////////Added Walaa///////////////////
-    Tree_->Branch("RECOELE_SCV_PT",cast_to_vector(&RECOELE_SCV_PT));
-    Tree_->Branch("RECOELE_SCV_ETA",cast_to_vector(&RECOELE_SCV_ETA));
-    Tree_->Branch("RECOELE_SCV_PHI",cast_to_vector(&RECOELE_SCV_PHI));
+    MakeBranch(Tree_,"RECOELE_SCV_PT",(&RECOELE_SCV_PT));
+    MakeBranch(Tree_,"RECOELE_SCV_ETA",(&RECOELE_SCV_ETA));
+    MakeBranch(Tree_,"RECOELE_SCV_PHI",(&RECOELE_SCV_PHI));
     
-//    Tree_->Branch("RECOELE_scv_PT",cast_to_vector(&RECOELE_scv_PT));
-//    Tree_->Branch("RECOELE_scv_ETA",cast_to_vector(&RECOELE_scv_ETA));
-//    Tree_->Branch("RECOELE_scv_PHI",cast_to_vector(&RECOELE_scv_PHI));
+//    MakeBranch(Tree_,"RECOELE_scv_PT",(&RECOELE_scv_PT));
+//    MakeBranch(Tree_,"RECOELE_scv_ETA",(&RECOELE_scv_ETA));
+//    MakeBranch(Tree_,"RECOELE_scv_PHI",(&RECOELE_scv_PHI));
       /////////////////End Walaa///////////////////
 
 
     //Reham
-    Tree_->Branch("RECOELE_ID",cast_to_vector(&RECOELE_ID));
-    Tree_->Branch("RECOELE_PT_uncorr",cast_to_vector(&RECOELE_PT_uncorr));
+    MakeBranch(Tree_,"RECOELE_ID",(&RECOELE_ID));
+    MakeBranch(Tree_,"RECOELE_PT_uncorr",(&RECOELE_PT_uncorr));
 
     // Core attributes
-    Tree_->Branch("RECOELE_isEcalDriven",cast_to_vector(&RECOELE_isEcalDriven));   
-    Tree_->Branch("RECOELE_isTrackerDriven",cast_to_vector(&RECOELE_isTrackerDriven));  
-    Tree_->Branch("RECOELE_gsftrack_NPixHits",cast_to_vector(&RECOELE_gsftrack_NPixHits));
-    Tree_->Branch("RECOELE_gsftrack_NStripHits",cast_to_vector(&RECOELE_gsftrack_NStripHits));
-    Tree_->Branch("RECOELE_gsftrack_chi2",cast_to_vector(&RECOELE_gsftrack_chi2));
-    Tree_->Branch("RECOELE_gsftrack_dxyB",cast_to_vector(&RECOELE_gsftrack_dxyB));
-    Tree_->Branch("RECOELE_gsftrack_dxy",cast_to_vector(&RECOELE_gsftrack_dxy));
-    Tree_->Branch("RECOELE_gsftrack_dxyError",cast_to_vector(&RECOELE_gsftrack_dxyError));
-    Tree_->Branch("RECOELE_gsftrack_dzB",cast_to_vector(&RECOELE_gsftrack_dzB));
-    Tree_->Branch("RECOELE_gsftrack_dz",cast_to_vector(&RECOELE_gsftrack_dz));
-    Tree_->Branch("RECOELE_gsftrack_dzError",cast_to_vector(&RECOELE_gsftrack_dzError));
-    Tree_->Branch("RECOELE_gsftrack_losthits",cast_to_vector(&RECOELE_gsftrack_losthits));
-    Tree_->Branch("RECOELE_gsftrack_validhits",cast_to_vector(&RECOELE_gsftrack_validhits));
-    Tree_->Branch("RECOELE_gsftrack_expected_inner_hits",cast_to_vector(&RECOELE_gsftrack_expected_inner_hits)) ; 
-    Tree_->Branch("RECOELE_scl_E",cast_to_vector(&RECOELE_scl_E));
-    Tree_->Branch("RECOELE_scl_Et",cast_to_vector(&RECOELE_scl_Et));
-    Tree_->Branch("RECOELE_scl_Eta",cast_to_vector(&RECOELE_scl_Eta));
-    Tree_->Branch("RECOELE_scl_Phi",cast_to_vector(&RECOELE_scl_Phi));    
-    Tree_->Branch("RECOELE_ecalEnergy",cast_to_vector(&RECOELE_ecalEnergy));
+    MakeBranch(Tree_,"RECOELE_isEcalDriven",(&RECOELE_isEcalDriven));   
+    MakeBranch(Tree_,"RECOELE_isTrackerDriven",(&RECOELE_isTrackerDriven));  
+    MakeBranch(Tree_,"RECOELE_gsftrack_NPixHits",(&RECOELE_gsftrack_NPixHits));
+    MakeBranch(Tree_,"RECOELE_gsftrack_NStripHits",(&RECOELE_gsftrack_NStripHits));
+    MakeBranch(Tree_,"RECOELE_gsftrack_chi2",(&RECOELE_gsftrack_chi2));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dxyB",(&RECOELE_gsftrack_dxyB));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dxy",(&RECOELE_gsftrack_dxy));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dxyError",(&RECOELE_gsftrack_dxyError));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dzB",(&RECOELE_gsftrack_dzB));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dz",(&RECOELE_gsftrack_dz));
+    MakeBranch(Tree_,"RECOELE_gsftrack_dzError",(&RECOELE_gsftrack_dzError));
+    MakeBranch(Tree_,"RECOELE_gsftrack_losthits",(&RECOELE_gsftrack_losthits));
+    MakeBranch(Tree_,"RECOELE_gsftrack_validhits",(&RECOELE_gsftrack_validhits));
+    MakeBranch(Tree_,"RECOELE_gsftrack_expected_inner_hits",(&RECOELE_gsftrack_expected_inner_hits)) ; 
+    MakeBranch(Tree_,"RECOELE_scl_E",(&RECOELE_scl_E));
+    MakeBranch(Tree_,"RECOELE_scl_Et",(&RECOELE_scl_Et));
+    MakeBranch(Tree_,"RECOELE_scl_Eta",(&RECOELE_scl_Eta));
+    MakeBranch(Tree_,"RECOELE_scl_Phi",(&RECOELE_scl_Phi));    
+    MakeBranch(Tree_,"RECOELE_ecalEnergy",(&RECOELE_ecalEnergy));
 
     // Track-Cluster Matching    
-    Tree_->Branch("RECOELE_ep",cast_to_vector(&RECOELE_ep));
-    Tree_->Branch("RECOELE_eSeedp",cast_to_vector(&RECOELE_eSeedp));
-    Tree_->Branch("RECOELE_eSeedpout",cast_to_vector(&RECOELE_eSeedpout));
-    Tree_->Branch("RECOELE_eElepout",cast_to_vector(&RECOELE_eElepout));
-    Tree_->Branch("RECOELE_deltaEtaIn",cast_to_vector(&RECOELE_deltaEtaIn));
-    Tree_->Branch("RECOELE_deltaEtaSeed",cast_to_vector(&RECOELE_deltaEtaSeed));
-    Tree_->Branch("RECOELE_deltaEtaEle",cast_to_vector(&RECOELE_deltaEtaEle));
-    Tree_->Branch("RECOELE_deltaPhiIn",cast_to_vector(&RECOELE_deltaPhiIn));
-    Tree_->Branch("RECOELE_deltaPhiSeed",cast_to_vector(&RECOELE_deltaPhiSeed));
-    Tree_->Branch("RECOELE_deltaPhiEle",cast_to_vector(&RECOELE_deltaPhiEle));
+    MakeBranch(Tree_,"RECOELE_ep",(&RECOELE_ep));
+    MakeBranch(Tree_,"RECOELE_eSeedp",(&RECOELE_eSeedp));
+    MakeBranch(Tree_,"RECOELE_eSeedpout",(&RECOELE_eSeedpout));
+    MakeBranch(Tree_,"RECOELE_eElepout",(&RECOELE_eElepout));
+    MakeBranch(Tree_,"RECOELE_deltaEtaIn",(&RECOELE_deltaEtaIn));
+    MakeBranch(Tree_,"RECOELE_deltaEtaSeed",(&RECOELE_deltaEtaSeed));
+    MakeBranch(Tree_,"RECOELE_deltaEtaEle",(&RECOELE_deltaEtaEle));
+    MakeBranch(Tree_,"RECOELE_deltaPhiIn",(&RECOELE_deltaPhiIn));
+    MakeBranch(Tree_,"RECOELE_deltaPhiSeed",(&RECOELE_deltaPhiSeed));
+    MakeBranch(Tree_,"RECOELE_deltaPhiEle",(&RECOELE_deltaPhiEle));
     // Fiducial flags
-    Tree_->Branch("RECOELE_isbarrel",cast_to_vector(&RECOELE_isbarrel));   
-    Tree_->Branch("RECOELE_isendcap",cast_to_vector(&RECOELE_isendcap));   
-    Tree_->Branch("RECOELE_isGap",cast_to_vector(&RECOELE_isGap));
-    Tree_->Branch("RECOELE_isEBetaGap",cast_to_vector(&RECOELE_isEBetaGap));   
-    Tree_->Branch("RECOELE_isEBphiGap",cast_to_vector(&RECOELE_isEBphiGap));   
-    Tree_->Branch("RECOELE_isEEdeeGap",cast_to_vector(&RECOELE_isEEdeeGap));   
-    Tree_->Branch("RECOELE_isEEringGap",cast_to_vector(&RECOELE_isEEringGap));   
+    MakeBranch(Tree_,"RECOELE_isbarrel",(&RECOELE_isbarrel));   
+    MakeBranch(Tree_,"RECOELE_isendcap",(&RECOELE_isendcap));   
+    MakeBranch(Tree_,"RECOELE_isGap",(&RECOELE_isGap));
+    MakeBranch(Tree_,"RECOELE_isEBetaGap",(&RECOELE_isEBetaGap));   
+    MakeBranch(Tree_,"RECOELE_isEBphiGap",(&RECOELE_isEBphiGap));   
+    MakeBranch(Tree_,"RECOELE_isEEdeeGap",(&RECOELE_isEEdeeGap));   
+    MakeBranch(Tree_,"RECOELE_isEEringGap",(&RECOELE_isEEringGap));   
     // Shower shape
-    Tree_->Branch("RECOELE_sigmaIetaIeta",cast_to_vector(&RECOELE_sigmaIetaIeta));   
-    Tree_->Branch("RECOELE_sigmaEtaEta",cast_to_vector(&RECOELE_sigmaEtaEta));   
-    Tree_->Branch("RECOELE_e15",cast_to_vector(&RECOELE_e15));   
-    Tree_->Branch("RECOELE_e25max",cast_to_vector(&RECOELE_e25max));   
-    Tree_->Branch("RECOELE_e55",cast_to_vector(&RECOELE_e55));   
-    Tree_->Branch("RECOELE_he",cast_to_vector(&RECOELE_he));   
-    Tree_->Branch("RECOELE_r9",cast_to_vector(&RECOELE_r9));   
+    MakeBranch(Tree_,"RECOELE_sigmaIetaIeta",(&RECOELE_sigmaIetaIeta));   
+    MakeBranch(Tree_,"RECOELE_sigmaEtaEta",(&RECOELE_sigmaEtaEta));   
+    MakeBranch(Tree_,"RECOELE_e15",(&RECOELE_e15));   
+    MakeBranch(Tree_,"RECOELE_e25max",(&RECOELE_e25max));   
+    MakeBranch(Tree_,"RECOELE_e55",(&RECOELE_e55));   
+    MakeBranch(Tree_,"RECOELE_he",(&RECOELE_he));   
+    MakeBranch(Tree_,"RECOELE_r9",(&RECOELE_r9));   
     // Particle flow
-    Tree_->Branch("RECOELE_mva",cast_to_vector(&RECOELE_mva));   
+    MakeBranch(Tree_,"RECOELE_mva",(&RECOELE_mva));   
     // Brem & Classifaction
-    Tree_->Branch("RECOELE_fbrem",cast_to_vector(&RECOELE_fbrem));   
-    Tree_->Branch("RECOELE_nbrems",cast_to_vector(&RECOELE_nbrems));   
+    MakeBranch(Tree_,"RECOELE_fbrem",(&RECOELE_fbrem));   
+    MakeBranch(Tree_,"RECOELE_nbrems",(&RECOELE_nbrems));   
     //  golden/bigbrem/(narrow)/showering/crack
-    Tree_->Branch("RECOELE_Class",cast_to_vector(&RECOELE_Class));  
+    MakeBranch(Tree_,"RECOELE_Class",(&RECOELE_Class));  
     //fBrem addition
-    Tree_->Branch("RECOELE_fbrem_mode",cast_to_vector(&RECOELE_fbrem_mode));
-    Tree_->Branch("RECOELE_fbrem_mean",cast_to_vector(&RECOELE_fbrem_mean));
+    MakeBranch(Tree_,"RECOELE_fbrem_mode",(&RECOELE_fbrem_mode));
+    MakeBranch(Tree_,"RECOELE_fbrem_mean",(&RECOELE_fbrem_mean));
     
     // Isolation
-    Tree_->Branch("RECOELE_EGMTRACKISO",cast_to_vector(&RECOELE_EGMTRACKISO));  
-    Tree_->Branch("RECOELE_EGMHCALISO",cast_to_vector(&RECOELE_EGMHCALISO));  
-    Tree_->Branch("RECOELE_EGMECALISO",cast_to_vector(&RECOELE_EGMECALISO)); 
-    Tree_->Branch("RECOELE_EGMX",cast_to_vector(&RECOELE_EGMX)); 
+    MakeBranch(Tree_,"RECOELE_EGMTRACKISO",(&RECOELE_EGMTRACKISO));  
+    MakeBranch(Tree_,"RECOELE_EGMHCALISO",(&RECOELE_EGMHCALISO));  
+    MakeBranch(Tree_,"RECOELE_EGMECALISO",(&RECOELE_EGMECALISO)); 
+    MakeBranch(Tree_,"RECOELE_EGMX",(&RECOELE_EGMX)); 
 
     // PF isolation
-    Tree_->Branch("RECOELE_PFchAllPart",cast_to_vector(&RECOELE_PFchAllPart));
-    Tree_->Branch("RECOELE_PFchHad",cast_to_vector(&RECOELE_PFchHad));
-    Tree_->Branch("RECOELE_PFneuHad",cast_to_vector(&RECOELE_PFneuHad));
-    Tree_->Branch("RECOELE_PFphoton",cast_to_vector(&RECOELE_PFphoton));
-    Tree_->Branch("RECOELE_PFPUchAllPart",cast_to_vector(&RECOELE_PFPUchAllPart));
-    Tree_->Branch("RECOELE_PFX_dB",cast_to_vector(&RECOELE_PFX_dB));
-    Tree_->Branch("RECOELE_PFX_rho",cast_to_vector(&RECOELE_PFX_rho));
+    MakeBranch(Tree_,"RECOELE_PFchAllPart",(&RECOELE_PFchAllPart));
+    MakeBranch(Tree_,"RECOELE_PFchHad",(&RECOELE_PFchHad));
+    MakeBranch(Tree_,"RECOELE_PFneuHad",(&RECOELE_PFneuHad));
+    MakeBranch(Tree_,"RECOELE_PFphoton",(&RECOELE_PFphoton));
+    MakeBranch(Tree_,"RECOELE_PFPUchAllPart",(&RECOELE_PFPUchAllPart));
+    MakeBranch(Tree_,"RECOELE_PFX_dB",(&RECOELE_PFX_dB));
+    MakeBranch(Tree_,"RECOELE_PFX_rho",(&RECOELE_PFX_rho));
 
     // Electron Regression
-    Tree_->Branch("RECOELE_regEnergy",cast_to_vector(&RECOELE_regEnergy));
-    Tree_->Branch("RECOELE_regEnergyError",cast_to_vector(&RECOELE_regEnergyError));
+    MakeBranch(Tree_,"RECOELE_regEnergy",(&RECOELE_regEnergy));
+    MakeBranch(Tree_,"RECOELE_regEnergyError",(&RECOELE_regEnergyError));
     
     // Vertexing DA and KF
-    Tree_->Branch("RECOELE_SIP",cast_to_vector(&RECOELE_SIP)); 
-    Tree_->Branch("RECOELE_IP",cast_to_vector(&RECOELE_IP)); 
-    Tree_->Branch("RECOELE_IPERROR",cast_to_vector(&RECOELE_IPERROR)); 
-    Tree_->Branch("RECOELE_SIP_KF",cast_to_vector(&RECOELE_SIP_KF)); 
-    Tree_->Branch("RECOELE_IP_KF",cast_to_vector(&RECOELE_IP_KF)); 
-    Tree_->Branch("RECOELE_IPERROR_KF",cast_to_vector(&RECOELE_IPERROR_KF)); 
+    MakeBranch(Tree_,"RECOELE_SIP",(&RECOELE_SIP)); 
+    MakeBranch(Tree_,"RECOELE_IP",(&RECOELE_IP)); 
+    MakeBranch(Tree_,"RECOELE_IPERROR",(&RECOELE_IPERROR)); 
+    MakeBranch(Tree_,"RECOELE_SIP_KF",(&RECOELE_SIP_KF)); 
+    MakeBranch(Tree_,"RECOELE_IP_KF",(&RECOELE_IP_KF)); 
+    MakeBranch(Tree_,"RECOELE_IPERROR_KF",(&RECOELE_IPERROR_KF)); 
 
      // GD vertex
-    Tree_->Branch("RECOELE_SIP_GD",cast_to_vector(&RECOELE_SIP_GD)); //2e2mu
-    Tree_->Branch("RECOELE_SIP_GDEEEE",cast_to_vector(&RECOELE_SIP_GDEEEE));  //4e
+    MakeBranch(Tree_,"RECOELE_SIP_GD",(&RECOELE_SIP_GD)); //2e2mu
+    MakeBranch(Tree_,"RECOELE_SIP_GDEEEE",(&RECOELE_SIP_GDEEEE));  //4e
     // Std vertex
-    Tree_->Branch("RECOELE_SIP_Std",cast_to_vector(&RECOELE_SIP_Std)); //2e2mu
-    Tree_->Branch("RECOELE_SIP_StdEEEE",cast_to_vector(&RECOELE_SIP_StdEEEE));  //4e
+    MakeBranch(Tree_,"RECOELE_SIP_Std",(&RECOELE_SIP_Std)); //2e2mu
+    MakeBranch(Tree_,"RECOELE_SIP_StdEEEE",(&RECOELE_SIP_StdEEEE));  //4e
     // Kin vertex
-    Tree_->Branch("RECOELE_SIP_Kin",cast_to_vector(&RECOELE_SIP_Kin)); //2e2mu
-    Tree_->Branch("RECOELE_SIP_KinEEEE",cast_to_vector(&RECOELE_SIP_KinEEEE));  //4e
+    MakeBranch(Tree_,"RECOELE_SIP_Kin",(&RECOELE_SIP_Kin)); //2e2mu
+    MakeBranch(Tree_,"RECOELE_SIP_KinEEEE",(&RECOELE_SIP_KinEEEE));  //4e
 
 
-    Tree_->Branch("RECOELE_STIP",cast_to_vector(&RECOELE_STIP)); 
-    Tree_->Branch("RECOELE_SLIP",cast_to_vector(&RECOELE_SLIP)); 
-    Tree_->Branch("RECOELE_TIP",cast_to_vector(&RECOELE_TIP)); 
-    Tree_->Branch("RECOELE_LIP",cast_to_vector(&RECOELE_LIP)); 
-    Tree_->Branch("RECOELE_TIPERROR",cast_to_vector(&RECOELE_TIPERROR)); 
-    Tree_->Branch("RECOELE_LIPERROR",cast_to_vector(&RECOELE_LIPERROR)); 
+    MakeBranch(Tree_,"RECOELE_STIP",(&RECOELE_STIP)); 
+    MakeBranch(Tree_,"RECOELE_SLIP",(&RECOELE_SLIP)); 
+    MakeBranch(Tree_,"RECOELE_TIP",(&RECOELE_TIP)); 
+    MakeBranch(Tree_,"RECOELE_LIP",(&RECOELE_LIP)); 
+    MakeBranch(Tree_,"RECOELE_TIPERROR",(&RECOELE_TIPERROR)); 
+    MakeBranch(Tree_,"RECOELE_LIPERROR",(&RECOELE_LIPERROR)); 
 
-    Tree_->Branch("RECOELE_sclRawE",cast_to_vector(&ele_sclRawE));
-    Tree_->Branch("RECOELE_sclX",cast_to_vector(&ele_sclX)); 
-    Tree_->Branch("RECOELE_sclY",cast_to_vector(&ele_sclY)); 
-    Tree_->Branch("RECOELE_sclZ",cast_to_vector(&ele_sclZ));
-    Tree_->Branch("RECOELE_seedSubdet1",cast_to_vector(&ele_seedSubdet1));
-    Tree_->Branch("RECOELE_seedDphi1",cast_to_vector(&ele_seedDphi1)); 
-    Tree_->Branch("RECOELE_seedDrz1",cast_to_vector(&ele_seedDrz1));
-    Tree_->Branch("RECOELE_seedSubdet2",cast_to_vector(&ele_seedSubdet2));
-    Tree_->Branch("RECOELE_seedDphi2",cast_to_vector(&ele_seedDphi2)); 
-    Tree_->Branch("RECOELE_seedDrz2",cast_to_vector(&ele_seedDrz2));
-    Tree_->Branch("RECOELE_eidVeryLoose",cast_to_vector(&ele_eidVeryLoose)); 
-    Tree_->Branch("RECOELE_eidLoose",cast_to_vector(&ele_eidLoose)); 
-    Tree_->Branch("RECOELE_eidMedium",cast_to_vector(&ele_eidMedium)); 
-    Tree_->Branch("RECOELE_eidTight",cast_to_vector(&ele_eidTight)); 
-    Tree_->Branch("RECOELE_eidHZZVeryLoose",cast_to_vector(&ele_eidHZZVeryLoose)); 
-    Tree_->Branch("RECOELE_eidHZZLoose",cast_to_vector(&ele_eidHZZLoose)); 
-    Tree_->Branch("RECOELE_eidHZZMedium",cast_to_vector(&ele_eidHZZMedium)); 
-    Tree_->Branch("RECOELE_eidHZZTight",cast_to_vector(&ele_eidHZZTight)); 
-    Tree_->Branch("RECOELE_mvaTrigV0",cast_to_vector(&RECOELE_mvaTrigV0));     
-    Tree_->Branch("RECOELE_mvaNonTrigV0",cast_to_vector(&RECOELE_mvaNonTrigV0)); 
-    Tree_->Branch("RECOELE_COV",cast_to_vector(&RECOELE_COV)); 
+    MakeBranch(Tree_,"RECOELE_sclRawE",(&ele_sclRawE));
+    MakeBranch(Tree_,"RECOELE_sclX",(&ele_sclX)); 
+    MakeBranch(Tree_,"RECOELE_sclY",(&ele_sclY)); 
+    MakeBranch(Tree_,"RECOELE_sclZ",(&ele_sclZ));
+    MakeBranch(Tree_,"RECOELE_seedSubdet1",(&ele_seedSubdet1));
+    MakeBranch(Tree_,"RECOELE_seedDphi1",(&ele_seedDphi1)); 
+    MakeBranch(Tree_,"RECOELE_seedDrz1",(&ele_seedDrz1));
+    MakeBranch(Tree_,"RECOELE_seedSubdet2",(&ele_seedSubdet2));
+    MakeBranch(Tree_,"RECOELE_seedDphi2",(&ele_seedDphi2)); 
+    MakeBranch(Tree_,"RECOELE_seedDrz2",(&ele_seedDrz2));
+    MakeBranch(Tree_,"RECOELE_eidVeryLoose",(&ele_eidVeryLoose)); 
+    MakeBranch(Tree_,"RECOELE_eidLoose",(&ele_eidLoose)); 
+    MakeBranch(Tree_,"RECOELE_eidMedium",(&ele_eidMedium)); 
+    MakeBranch(Tree_,"RECOELE_eidTight",(&ele_eidTight)); 
+    MakeBranch(Tree_,"RECOELE_eidHZZVeryLoose",(&ele_eidHZZVeryLoose)); 
+    MakeBranch(Tree_,"RECOELE_eidHZZLoose",(&ele_eidHZZLoose)); 
+    MakeBranch(Tree_,"RECOELE_eidHZZMedium",(&ele_eidHZZMedium)); 
+    MakeBranch(Tree_,"RECOELE_eidHZZTight",(&ele_eidHZZTight)); 
+    MakeBranch(Tree_,"RECOELE_mvaTrigV0",(&RECOELE_mvaTrigV0));     
+    MakeBranch(Tree_,"RECOELE_mvaNonTrigV0",(&RECOELE_mvaNonTrigV0)); 
+    MakeBranch(Tree_,"RECOELE_COV",(&RECOELE_COV)); 
 
-    Tree_->Branch("RECOELE_TLE_ParentSC_X",cast_to_vector(&RECOELE_TLE_ParentSC_X));
-    Tree_->Branch("RECOELE_TLE_ParentSC_Y",cast_to_vector(&RECOELE_TLE_ParentSC_Y));
-    Tree_->Branch("RECOELE_TLE_ParentSC_Z",cast_to_vector(&RECOELE_TLE_ParentSC_Z));
+    MakeBranch(Tree_,"RECOELE_TLE_ParentSC_X",(&RECOELE_TLE_ParentSC_X));
+    MakeBranch(Tree_,"RECOELE_TLE_ParentSC_Y",(&RECOELE_TLE_ParentSC_Y));
+    MakeBranch(Tree_,"RECOELE_TLE_ParentSC_Z",(&RECOELE_TLE_ParentSC_Z));
 
 
     //Reham Electron systematic variables
 
-    Tree_->Branch("RECOELE_ecalTrkEnergyPreCorr",cast_to_vector(&RECOELE_ecalTrkEnergyPreCorr));
-    Tree_->Branch("RECOELE_ecalTrkEnergyErrPreCorr",cast_to_vector(&RECOELE_ecalTrkEnergyErrPreCorr));
-    Tree_->Branch("RECOELE_ecalTrkEnergyErrPostCorr",cast_to_vector(&RECOELE_ecalTrkEnergyErrPostCorr));
-    Tree_->Branch("RECOELE_energyScaleValue",cast_to_vector(&RECOELE_energyScaleValue));       
-    Tree_->Branch("RECOELE_energySigmaValue",cast_to_vector(&RECOELE_energySigmaValue));
-    Tree_->Branch("RECOELE_energyScaleUp",cast_to_vector(&RECOELE_energyScaleUp));     
-    Tree_->Branch("RECOELE_energyScaleDown",cast_to_vector(&RECOELE_energyScaleDown));       
-    Tree_->Branch("RECOELE_energyScaleStatUp",cast_to_vector(&RECOELE_energyScaleStatUp));       
-    Tree_->Branch("RECOELE_energyScaleStatDown",cast_to_vector(&RECOELE_energyScaleStatDown));        
-    Tree_->Branch("RECOELE_energyScaleSystUp",cast_to_vector(&RECOELE_energyScaleSystUp));        
-    Tree_->Branch("RECOELE_energyScaleSystDown",cast_to_vector(&RECOELE_energyScaleSystDown));        
-    Tree_->Branch("RECOELE_energyScaleGainUp",cast_to_vector(&RECOELE_energyScaleGainUp));        
-    Tree_->Branch("RECOELE_energyScaleGainDown",cast_to_vector(&RECOELE_energyScaleGainDown));      
-    Tree_->Branch("RECOELE_energyScaleEtUp",cast_to_vector(&RECOELE_energyScaleEtUp));       
-    Tree_->Branch("RECOELE_energyScaleEtDown",cast_to_vector(&RECOELE_energyScaleEtDown));       
-    Tree_->Branch("RECOELE_energySigmaUp",cast_to_vector(&RECOELE_energySigmaUp));         
-    Tree_->Branch("RECOELE_energySigmaDown",cast_to_vector(&RECOELE_energySigmaDown));       
-    Tree_->Branch("RECOELE_energySigmaPhiUp",cast_to_vector(&RECOELE_energySigmaPhiUp));        
-    Tree_->Branch("RECOELE_energySigmaPhiDown",cast_to_vector(&RECOELE_energySigmaPhiDown));     
-    Tree_->Branch("RECOELE_energySigmaRhoUp",cast_to_vector(&RECOELE_energySigmaRhoUp));        
-    Tree_->Branch("RECOELE_energySigmaRhoDown",cast_to_vector(&RECOELE_energySigmaRhoDown));      
+    MakeBranch(Tree_,"RECOELE_ecalTrkEnergyPreCorr",(&RECOELE_ecalTrkEnergyPreCorr));
+    MakeBranch(Tree_,"RECOELE_ecalTrkEnergyErrPreCorr",(&RECOELE_ecalTrkEnergyErrPreCorr));
+    MakeBranch(Tree_,"RECOELE_ecalTrkEnergyErrPostCorr",(&RECOELE_ecalTrkEnergyErrPostCorr));
+    MakeBranch(Tree_,"RECOELE_energyScaleValue",(&RECOELE_energyScaleValue));       
+    MakeBranch(Tree_,"RECOELE_energySigmaValue",(&RECOELE_energySigmaValue));
+    MakeBranch(Tree_,"RECOELE_energyScaleUp",(&RECOELE_energyScaleUp));     
+    MakeBranch(Tree_,"RECOELE_energyScaleDown",(&RECOELE_energyScaleDown));       
+    MakeBranch(Tree_,"RECOELE_energyScaleStatUp",(&RECOELE_energyScaleStatUp));       
+    MakeBranch(Tree_,"RECOELE_energyScaleStatDown",(&RECOELE_energyScaleStatDown));        
+    MakeBranch(Tree_,"RECOELE_energyScaleSystUp",(&RECOELE_energyScaleSystUp));        
+    MakeBranch(Tree_,"RECOELE_energyScaleSystDown",(&RECOELE_energyScaleSystDown));        
+    MakeBranch(Tree_,"RECOELE_energyScaleGainUp",(&RECOELE_energyScaleGainUp));        
+    MakeBranch(Tree_,"RECOELE_energyScaleGainDown",(&RECOELE_energyScaleGainDown));      
+    MakeBranch(Tree_,"RECOELE_energyScaleEtUp",(&RECOELE_energyScaleEtUp));       
+    MakeBranch(Tree_,"RECOELE_energyScaleEtDown",(&RECOELE_energyScaleEtDown));       
+    MakeBranch(Tree_,"RECOELE_energySigmaUp",(&RECOELE_energySigmaUp));         
+    MakeBranch(Tree_,"RECOELE_energySigmaDown",(&RECOELE_energySigmaDown));       
+    MakeBranch(Tree_,"RECOELE_energySigmaPhiUp",(&RECOELE_energySigmaPhiUp));        
+    MakeBranch(Tree_,"RECOELE_energySigmaPhiDown",(&RECOELE_energySigmaPhiDown));     
+    MakeBranch(Tree_,"RECOELE_energySigmaRhoUp",(&RECOELE_energySigmaRhoUp));        
+    MakeBranch(Tree_,"RECOELE_energySigmaRhoDown",(&RECOELE_energySigmaRhoDown));      
 
     // Muon block
-    Tree_->Branch("RECOMU_isPFMu",cast_to_vector(&RECOMU_isPFMu));
-    Tree_->Branch("RECOMU_isGlobalMu",cast_to_vector(&RECOMU_isGlobalMu));
-    Tree_->Branch("RECOMU_isStandAloneMu",cast_to_vector(&RECOMU_isStandAloneMu));
-    Tree_->Branch("RECOMU_isTrackerMu",cast_to_vector(&RECOMU_isTrackerMu));
-    Tree_->Branch("RECOMU_isCaloMu",cast_to_vector(&RECOMU_isCaloMu));
-    Tree_->Branch("RECOMU_isTrackerHighPtMu",cast_to_vector(&RECOMU_isTrackerHighPtMu));
-    Tree_->Branch("RECOMU_BDT_Id",cast_to_vector(&RECOMU_BDT_Id));
-    Tree_->Branch("RECOMU_isME0Muon",cast_to_vector(&RECOMU_isME0Muon));
-    Tree_->Branch("RECOMU_E",cast_to_vector(&RECOMU_E)); 
-    Tree_->Branch("RECOMU_PT",cast_to_vector(&RECOMU_PT));
-    Tree_->Branch("RECOMU_P",cast_to_vector(&RECOMU_P)); 
-    Tree_->Branch("RECOMU_ETA",cast_to_vector(&RECOMU_ETA)); 
-    Tree_->Branch("RECOMU_THETA",cast_to_vector(&RECOMU_THETA)); 
-    Tree_->Branch("RECOMU_PHI",cast_to_vector(&RECOMU_PHI)); 
-    Tree_->Branch("RECOMU_MASS",cast_to_vector(&RECOMU_MASS)); 
-    Tree_->Branch("RECOMU_CHARGE",cast_to_vector(&RECOMU_CHARGE));
-    // Tree_->Branch("RECOMU_Roch_calib_error",cast_to_vector(&RECOMU_Roch_calib_error));
-    Tree_->Branch("RECOMU_PT_uncorr",cast_to_vector(&RECOMU_PT_uncorr));
+    MakeBranch(Tree_,"RECOMU_isPFMu",(&RECOMU_isPFMu));
+    MakeBranch(Tree_,"RECOMU_isGlobalMu",(&RECOMU_isGlobalMu));
+    MakeBranch(Tree_,"RECOMU_isStandAloneMu",(&RECOMU_isStandAloneMu));
+    MakeBranch(Tree_,"RECOMU_isTrackerMu",(&RECOMU_isTrackerMu));
+    MakeBranch(Tree_,"RECOMU_isCaloMu",(&RECOMU_isCaloMu));
+    MakeBranch(Tree_,"RECOMU_isTrackerHighPtMu",(&RECOMU_isTrackerHighPtMu));
+    MakeBranch(Tree_,"RECOMU_BDT_Id",(&RECOMU_BDT_Id));
+    MakeBranch(Tree_,"RECOMU_isME0Muon",(&RECOMU_isME0Muon));
+    MakeBranch(Tree_,"RECOMU_E",(&RECOMU_E)); 
+    MakeBranch(Tree_,"RECOMU_PT",(&RECOMU_PT));
+    MakeBranch(Tree_,"RECOMU_P",(&RECOMU_P)); 
+    MakeBranch(Tree_,"RECOMU_ETA",(&RECOMU_ETA)); 
+    MakeBranch(Tree_,"RECOMU_THETA",(&RECOMU_THETA)); 
+    MakeBranch(Tree_,"RECOMU_PHI",(&RECOMU_PHI)); 
+    MakeBranch(Tree_,"RECOMU_MASS",(&RECOMU_MASS)); 
+    MakeBranch(Tree_,"RECOMU_CHARGE",(&RECOMU_CHARGE));
+    // MakeBranch(Tree_,"RECOMU_Roch_calib_error",(&RECOMU_Roch_calib_error));
+    MakeBranch(Tree_,"RECOMU_PT_uncorr",(&RECOMU_PT_uncorr));
 
-    Tree_->Branch("RECOMU_COV",cast_to_vector(&RECOMU_COV)); 
+    MakeBranch(Tree_,"RECOMU_COV",(&RECOMU_COV)); 
 
-    Tree_->Branch("RECOMU_TRACKISO",cast_to_vector(&RECOMU_TRACKISO));  
-    Tree_->Branch("RECOMU_TRACKISO_SUMPT",cast_to_vector(&RECOMU_TRACKISO_SUMPT));  
-    Tree_->Branch("RECOMU_HCALISO",cast_to_vector(&RECOMU_HCALISO));  
-    Tree_->Branch("RECOMU_ECALISO",cast_to_vector(&RECOMU_ECALISO)); 
-    Tree_->Branch("RECOMU_X",cast_to_vector(&RECOMU_X));
+    MakeBranch(Tree_,"RECOMU_TRACKISO",(&RECOMU_TRACKISO));  
+    MakeBranch(Tree_,"RECOMU_TRACKISO_SUMPT",(&RECOMU_TRACKISO_SUMPT));  
+    MakeBranch(Tree_,"RECOMU_HCALISO",(&RECOMU_HCALISO));  
+    MakeBranch(Tree_,"RECOMU_ECALISO",(&RECOMU_ECALISO)); 
+    MakeBranch(Tree_,"RECOMU_X",(&RECOMU_X));
 
-    Tree_->Branch("RECOMU_PFchHad",cast_to_vector(&RECOMU_PFchHad));
-    Tree_->Branch("RECOMU_PFneuHad",cast_to_vector(&RECOMU_PFneuHad));
-    Tree_->Branch("RECOMU_PFphoton",cast_to_vector(&RECOMU_PFphoton));
-    Tree_->Branch("RECOMU_PFPUchAllPart",cast_to_vector(&RECOMU_PFPUchAllPart));
-    Tree_->Branch("RECOMU_PFX_dB",cast_to_vector(&RECOMU_PFX_dB));
-    Tree_->Branch("RECOMU_PFX_rho",cast_to_vector(&RECOMU_PFX_rho));
+    MakeBranch(Tree_,"RECOMU_PFchHad",(&RECOMU_PFchHad));
+    MakeBranch(Tree_,"RECOMU_PFneuHad",(&RECOMU_PFneuHad));
+    MakeBranch(Tree_,"RECOMU_PFphoton",(&RECOMU_PFphoton));
+    MakeBranch(Tree_,"RECOMU_PFPUchAllPart",(&RECOMU_PFPUchAllPart));
+    MakeBranch(Tree_,"RECOMU_PFX_dB",(&RECOMU_PFX_dB));
+    MakeBranch(Tree_,"RECOMU_PFX_rho",(&RECOMU_PFX_rho));
 
 
     // photon
-    Tree_->Branch("RECOPFPHOT_PFchHad",cast_to_vector(&RECOPFPHOT_PFchHad));
-    Tree_->Branch("RECOPFPHOT_PFneuHad",cast_to_vector(&RECOPFPHOT_PFneuHad));
-    Tree_->Branch("RECOPFPHOT_PFphoton",cast_to_vector(&RECOPFPHOT_PFphoton));
-    Tree_->Branch("RECOPFPHOT_PFPUchAllPart",cast_to_vector(&RECOPFPHOT_PFPUchAllPart));
-    Tree_->Branch("RECOPFPHOT_PFX_rho",cast_to_vector(&RECOPFPHOT_PFX_rho));
+    MakeBranch(Tree_,"RECOPFPHOT_PFchHad",(&RECOPFPHOT_PFchHad));
+    MakeBranch(Tree_,"RECOPFPHOT_PFneuHad",(&RECOPFPHOT_PFneuHad));
+    MakeBranch(Tree_,"RECOPFPHOT_PFphoton",(&RECOPFPHOT_PFphoton));
+    MakeBranch(Tree_,"RECOPFPHOT_PFPUchAllPart",(&RECOPFPHOT_PFPUchAllPart));
+    MakeBranch(Tree_,"RECOPFPHOT_PFX_rho",(&RECOPFPHOT_PFX_rho));
 
     // vertexing DA and KF
-    Tree_->Branch("RECOMU_SIP",cast_to_vector(&RECOMU_SIP)); 
-    Tree_->Branch("RECOMU_IP",cast_to_vector(&RECOMU_IP)); 
-    Tree_->Branch("RECOMU_IPERROR",cast_to_vector(&RECOMU_IPERROR)); 
-    Tree_->Branch("RECOMU_SIP_KF",cast_to_vector(&RECOMU_SIP_KF)); 
-    Tree_->Branch("RECOMU_IP_KF",cast_to_vector(&RECOMU_IP_KF)); 
-    Tree_->Branch("RECOMU_IPERROR_KF",cast_to_vector(&RECOMU_IPERROR_KF)); 
+    MakeBranch(Tree_,"RECOMU_SIP",(&RECOMU_SIP)); 
+    MakeBranch(Tree_,"RECOMU_IP",(&RECOMU_IP)); 
+    MakeBranch(Tree_,"RECOMU_IPERROR",(&RECOMU_IPERROR)); 
+    MakeBranch(Tree_,"RECOMU_SIP_KF",(&RECOMU_SIP_KF)); 
+    MakeBranch(Tree_,"RECOMU_IP_KF",(&RECOMU_IP_KF)); 
+    MakeBranch(Tree_,"RECOMU_IPERROR_KF",(&RECOMU_IPERROR_KF)); 
 
     // GD vertex
-    Tree_->Branch("RECOMU_SIP_GD",cast_to_vector(&RECOMU_SIP_GD)); //2e2mu
-    Tree_->Branch("RECOMU_SIP_GDMMMM",cast_to_vector(&RECOMU_SIP_GDMMMM));  //4mu
+    MakeBranch(Tree_,"RECOMU_SIP_GD",(&RECOMU_SIP_GD)); //2e2mu
+    MakeBranch(Tree_,"RECOMU_SIP_GDMMMM",(&RECOMU_SIP_GDMMMM));  //4mu
     // Std vertex
-    Tree_->Branch("RECOMU_SIP_Std",cast_to_vector(&RECOMU_SIP_Std)); //2e2mu
-    Tree_->Branch("RECOMU_SIP_StdMMMM",cast_to_vector(&RECOMU_SIP_StdMMMM));  //4mu
+    MakeBranch(Tree_,"RECOMU_SIP_Std",(&RECOMU_SIP_Std)); //2e2mu
+    MakeBranch(Tree_,"RECOMU_SIP_StdMMMM",(&RECOMU_SIP_StdMMMM));  //4mu
     // Kin vertex
-    Tree_->Branch("RECOMU_SIP_Kin",cast_to_vector(&RECOMU_SIP_Kin)); //2e2mu
-    Tree_->Branch("RECOMU_SIP_KinMMMM",cast_to_vector(&RECOMU_SIP_KinMMMM));  //4mu
+    MakeBranch(Tree_,"RECOMU_SIP_Kin",(&RECOMU_SIP_Kin)); //2e2mu
+    MakeBranch(Tree_,"RECOMU_SIP_KinMMMM",(&RECOMU_SIP_KinMMMM));  //4mu
 
 
 
-    Tree_->Branch("RECOMU_STIP",cast_to_vector(&RECOMU_STIP)); 
-    Tree_->Branch("RECOMU_SLIP",cast_to_vector(&RECOMU_SLIP)); 
-    Tree_->Branch("RECOMU_TIP",cast_to_vector(&RECOMU_TIP)); 
-    Tree_->Branch("RECOMU_LIP",cast_to_vector(&RECOMU_LIP)); 
-    Tree_->Branch("RECOMU_TIPERROR",cast_to_vector(&RECOMU_TIPERROR)); 
-    Tree_->Branch("RECOMU_LIPERROR",cast_to_vector(&RECOMU_LIPERROR)); 
+    MakeBranch(Tree_,"RECOMU_STIP",(&RECOMU_STIP)); 
+    MakeBranch(Tree_,"RECOMU_SLIP",(&RECOMU_SLIP)); 
+    MakeBranch(Tree_,"RECOMU_TIP",(&RECOMU_TIP)); 
+    MakeBranch(Tree_,"RECOMU_LIP",(&RECOMU_LIP)); 
+    MakeBranch(Tree_,"RECOMU_TIPERROR",(&RECOMU_TIPERROR)); 
+    MakeBranch(Tree_,"RECOMU_LIPERROR",(&RECOMU_LIPERROR)); 
     
  
 
-    Tree_->Branch("RECOMU_caloCompatibility",cast_to_vector(&RECOMU_caloCompatibility));
-    Tree_->Branch("RECOMU_segmentCompatibility",cast_to_vector(&RECOMU_segmentCompatibility)); 
-    Tree_->Branch("RECOMU_numberOfMatches",cast_to_vector(&RECOMU_numberOfMatches));
-    Tree_->Branch("RECOMU_numberOfMatchedStations",cast_to_vector(&RECOMU_numberOfMatchedStations));
-    Tree_->Branch("RECOMU_glbmuPromptTight",cast_to_vector(&RECOMU_glbmuPromptTight));
+    MakeBranch(Tree_,"RECOMU_caloCompatibility",(&RECOMU_caloCompatibility));
+    MakeBranch(Tree_,"RECOMU_segmentCompatibility",(&RECOMU_segmentCompatibility)); 
+    MakeBranch(Tree_,"RECOMU_numberOfMatches",(&RECOMU_numberOfMatches));
+    MakeBranch(Tree_,"RECOMU_numberOfMatchedStations",(&RECOMU_numberOfMatchedStations));
+    MakeBranch(Tree_,"RECOMU_glbmuPromptTight",(&RECOMU_glbmuPromptTight));
  
     // track variables from muons:
-    Tree_->Branch( "RECOMU_trkmuArbitration",cast_to_vector(&RECOMU_trkmuArbitration));
-    Tree_->Branch( "RECOMU_trkmu2DCompatibilityLoose",cast_to_vector(&RECOMU_trkmu2DCompatibilityLoose));
-    Tree_->Branch( "RECOMU_trkmu2DCompatibilityTight",cast_to_vector(&RECOMU_trkmu2DCompatibilityTight));
-    Tree_->Branch( "RECOMU_trkmuOneStationLoose",cast_to_vector(&RECOMU_trkmuOneStationLoose));
-    Tree_->Branch( "RECOMU_trkmuOneStationTight",cast_to_vector(&RECOMU_trkmuOneStationTight));
-    Tree_->Branch( "RECOMU_trkmuLastStationLoose",cast_to_vector(&RECOMU_trkmuLastStationLoose));
-    Tree_->Branch( "RECOMU_trkmuLastStationTight",cast_to_vector(&RECOMU_trkmuLastStationTight));
-    Tree_->Branch( "RECOMU_trkmuOneStationAngLoose",cast_to_vector(&RECOMU_trkmuOneStationAngLoose));
-    Tree_->Branch( "RECOMU_trkmuOneStationAngTight",cast_to_vector(&RECOMU_trkmuOneStationAngTight));
-    Tree_->Branch( "RECOMU_trkmuLastStationAngLoose",cast_to_vector(&RECOMU_trkmuLastStationAngLoose));
-    Tree_->Branch( "RECOMU_trkmuLastStationAngTight",cast_to_vector(&RECOMU_trkmuLastStationAngTight));
-    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtLoose",cast_to_vector(&RECOMU_trkmuLastStationOptimizedLowPtLoose));
-    Tree_->Branch( "RECOMU_trkmuLastStationOptimizedLowPtTight",cast_to_vector(&RECOMU_trkmuLastStationOptimizedLowPtTight));
+    MakeBranch(Tree_, "RECOMU_trkmuArbitration",(&RECOMU_trkmuArbitration));
+    MakeBranch(Tree_, "RECOMU_trkmu2DCompatibilityLoose",(&RECOMU_trkmu2DCompatibilityLoose));
+    MakeBranch(Tree_, "RECOMU_trkmu2DCompatibilityTight",(&RECOMU_trkmu2DCompatibilityTight));
+    MakeBranch(Tree_, "RECOMU_trkmuOneStationLoose",(&RECOMU_trkmuOneStationLoose));
+    MakeBranch(Tree_, "RECOMU_trkmuOneStationTight",(&RECOMU_trkmuOneStationTight));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationLoose",(&RECOMU_trkmuLastStationLoose));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationTight",(&RECOMU_trkmuLastStationTight));
+    MakeBranch(Tree_, "RECOMU_trkmuOneStationAngLoose",(&RECOMU_trkmuOneStationAngLoose));
+    MakeBranch(Tree_, "RECOMU_trkmuOneStationAngTight",(&RECOMU_trkmuOneStationAngTight));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationAngLoose",(&RECOMU_trkmuLastStationAngLoose));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationAngTight",(&RECOMU_trkmuLastStationAngTight));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationOptimizedLowPtLoose",(&RECOMU_trkmuLastStationOptimizedLowPtLoose));
+    MakeBranch(Tree_, "RECOMU_trkmuLastStationOptimizedLowPtTight",(&RECOMU_trkmuLastStationOptimizedLowPtTight));
 
-    Tree_->Branch( "RECOMU_mutrkPT",cast_to_vector(&RECOMU_mutrkPT));
-    Tree_->Branch( "RECOMU_mutrkPTError",cast_to_vector(&RECOMU_mutrkPTError));
-    Tree_->Branch( "RECOMU_mutrkDxy",cast_to_vector(&RECOMU_mutrkDxy));
-    Tree_->Branch( "RECOMU_mutrkDxyError",cast_to_vector(&RECOMU_mutrkDxyError));
-    Tree_->Branch( "RECOMU_mutrkDxyB",cast_to_vector(&RECOMU_mutrkDxyB));
-    Tree_->Branch( "RECOMU_mutrkDz",cast_to_vector(&RECOMU_mutrkDz));
-    Tree_->Branch( "RECOMU_mutrkDzError",cast_to_vector(&RECOMU_mutrkDzError));
-    Tree_->Branch( "RECOMU_mutrkDzB",cast_to_vector(&RECOMU_mutrkDzB));
-    Tree_->Branch( "RECOMU_mutrkChi2PerNdof",cast_to_vector(&RECOMU_mutrkChi2PerNdof));
-    Tree_->Branch( "RECOMU_mutrkCharge",cast_to_vector(&RECOMU_mutrkCharge));
-    Tree_->Branch( "RECOMU_mutrkNHits",cast_to_vector(&RECOMU_mutrkNHits));
-    Tree_->Branch( "RECOMU_mutrkNStripHits",cast_to_vector(&RECOMU_mutrkNStripHits));
-    Tree_->Branch( "RECOMU_mutrkNPixHits",cast_to_vector(&RECOMU_mutrkNPixHits));
-    Tree_->Branch( "RECOMU_mutrkNMuonHits",cast_to_vector(&RECOMU_mutrkNMuonHits));
-    Tree_->Branch( "RECOMU_mutrktrackerLayersWithMeasurement",cast_to_vector(&RECOMU_mutrktrackerLayersWithMeasurement));
+    MakeBranch(Tree_, "RECOMU_mutrkPT",(&RECOMU_mutrkPT));
+    MakeBranch(Tree_, "RECOMU_mutrkPTError",(&RECOMU_mutrkPTError));
+    MakeBranch(Tree_, "RECOMU_mutrkDxy",(&RECOMU_mutrkDxy));
+    MakeBranch(Tree_, "RECOMU_mutrkDxyError",(&RECOMU_mutrkDxyError));
+    MakeBranch(Tree_, "RECOMU_mutrkDxyB",(&RECOMU_mutrkDxyB));
+    MakeBranch(Tree_, "RECOMU_mutrkDz",(&RECOMU_mutrkDz));
+    MakeBranch(Tree_, "RECOMU_mutrkDzError",(&RECOMU_mutrkDzError));
+    MakeBranch(Tree_, "RECOMU_mutrkDzB",(&RECOMU_mutrkDzB));
+    MakeBranch(Tree_, "RECOMU_mutrkChi2PerNdof",(&RECOMU_mutrkChi2PerNdof));
+    MakeBranch(Tree_, "RECOMU_mutrkCharge",(&RECOMU_mutrkCharge));
+    MakeBranch(Tree_, "RECOMU_mutrkNHits",(&RECOMU_mutrkNHits));
+    MakeBranch(Tree_, "RECOMU_mutrkNStripHits",(&RECOMU_mutrkNStripHits));
+    MakeBranch(Tree_, "RECOMU_mutrkNPixHits",(&RECOMU_mutrkNPixHits));
+    MakeBranch(Tree_, "RECOMU_mutrkNMuonHits",(&RECOMU_mutrkNMuonHits));
+    MakeBranch(Tree_, "RECOMU_mutrktrackerLayersWithMeasurement",(&RECOMU_mutrktrackerLayersWithMeasurement));
     
-    Tree_->Branch( "RECOMU_muInnertrkDxy",cast_to_vector(&RECOMU_muInnertrkDxy));
-    Tree_->Branch( "RECOMU_muInnertrkDxyError",cast_to_vector(&RECOMU_muInnertrkDxyError));
-    Tree_->Branch( "RECOMU_muInnertrkDxyB",cast_to_vector(&RECOMU_muInnertrkDxyB));
-    Tree_->Branch( "RECOMU_muInnertrkDz",cast_to_vector(&RECOMU_muInnertrkDz));
-    Tree_->Branch( "RECOMU_muInnertrkDzError",cast_to_vector(&RECOMU_muInnertrkDzError));
-    Tree_->Branch( "RECOMU_muInnertrkDzB",cast_to_vector(&RECOMU_muInnertrkDzB));
-    Tree_->Branch( "RECOMU_muInnertrkChi2PerNdof",cast_to_vector(&RECOMU_muInnertrkChi2PerNdof));
-    Tree_->Branch( "RECOMU_muInnertrktrackerLayersWithMeasurement",cast_to_vector(&RECOMU_muInnertrktrackerLayersWithMeasurement));
-    Tree_->Branch( "RECOMU_muInnertrkPT",cast_to_vector(&RECOMU_muInnertrkPT));
-    Tree_->Branch( "RECOMU_muInnertrkPTError",cast_to_vector(&RECOMU_muInnertrkPTError));
-    Tree_->Branch( "RECOMU_muInnertrkCharge",cast_to_vector(&RECOMU_muInnertrkCharge));
-    Tree_->Branch( "RECOMU_muInnertrkNHits",cast_to_vector(&RECOMU_muInnertrkNHits));
-    Tree_->Branch( "RECOMU_muInnertrkNStripHits",cast_to_vector(&RECOMU_muInnertrkNStripHits));
-    Tree_->Branch( "RECOMU_muInnertrkNPixHits",cast_to_vector(&RECOMU_muInnertrkNPixHits));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDxy",(&RECOMU_muInnertrkDxy));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDxyError",(&RECOMU_muInnertrkDxyError));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDxyB",(&RECOMU_muInnertrkDxyB));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDz",(&RECOMU_muInnertrkDz));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDzError",(&RECOMU_muInnertrkDzError));
+    MakeBranch(Tree_, "RECOMU_muInnertrkDzB",(&RECOMU_muInnertrkDzB));
+    MakeBranch(Tree_, "RECOMU_muInnertrkChi2PerNdof",(&RECOMU_muInnertrkChi2PerNdof));
+    MakeBranch(Tree_, "RECOMU_muInnertrktrackerLayersWithMeasurement",(&RECOMU_muInnertrktrackerLayersWithMeasurement));
+    MakeBranch(Tree_, "RECOMU_muInnertrkPT",(&RECOMU_muInnertrkPT));
+    MakeBranch(Tree_, "RECOMU_muInnertrkPTError",(&RECOMU_muInnertrkPTError));
+    MakeBranch(Tree_, "RECOMU_muInnertrkCharge",(&RECOMU_muInnertrkCharge));
+    MakeBranch(Tree_, "RECOMU_muInnertrkNHits",(&RECOMU_muInnertrkNHits));
+    MakeBranch(Tree_, "RECOMU_muInnertrkNStripHits",(&RECOMU_muInnertrkNStripHits));
+    MakeBranch(Tree_, "RECOMU_muInnertrkNPixHits",(&RECOMU_muInnertrkNPixHits));
     // best tracks for 13 TeV analysis
-    Tree_->Branch( "RECOMU_mubesttrkType",cast_to_vector(&RECOMU_mubesttrkType));
-    Tree_->Branch( "RECOMU_mubesttrkDxy",cast_to_vector(&RECOMU_mubesttrkDxy));
-    Tree_->Branch( "RECOMU_mubesttrkDxyError",cast_to_vector(&RECOMU_mubesttrkDxyError));
-    Tree_->Branch( "RECOMU_mubesttrkDz",cast_to_vector(&RECOMU_mubesttrkDz));
-    Tree_->Branch( "RECOMU_mubesttrkDzError",cast_to_vector(&RECOMU_mubesttrkDzError));
-    Tree_->Branch( "RECOMU_mubesttrkPTError",cast_to_vector(&RECOMU_mubesttrkPTError));
-    Tree_->Branch( "RECOMU_Rochester_Error",cast_to_vector(&RECOMU_Rochester_Error));
+    MakeBranch(Tree_, "RECOMU_mubesttrkType",(&RECOMU_mubesttrkType));
+    MakeBranch(Tree_, "RECOMU_mubesttrkDxy",(&RECOMU_mubesttrkDxy));
+    MakeBranch(Tree_, "RECOMU_mubesttrkDxyError",(&RECOMU_mubesttrkDxyError));
+    MakeBranch(Tree_, "RECOMU_mubesttrkDz",(&RECOMU_mubesttrkDz));
+    MakeBranch(Tree_, "RECOMU_mubesttrkDzError",(&RECOMU_mubesttrkDzError));
+    MakeBranch(Tree_, "RECOMU_mubesttrkPTError",(&RECOMU_mubesttrkPTError));
+    MakeBranch(Tree_, "RECOMU_Rochester_Error",(&RECOMU_Rochester_Error));
 
 
     // Geom. Discri.
 /*
-    Tree_->Branch("ftsigma",cast_to_vector(&ftsigma));
-    Tree_->Branch("gdX",cast_to_vector(&gdX));
-    Tree_->Branch("gdY",cast_to_vector(&gdY));
-    Tree_->Branch("gdZ",cast_to_vector(&gdZ));
-    Tree_->Branch("ftsigmalag",cast_to_vector(&ftsigmalag));
-    Tree_->Branch("gdlagX",cast_to_vector(&gdlagX));
-    Tree_->Branch("gdlagY",cast_to_vector(&gdlagY));
-    Tree_->Branch("gdlagZ",cast_to_vector(&gdlagZ));
-    Tree_->Branch("gdlagProb",cast_to_vector(&gdlagProb));
-    Tree_->Branch("gdlagNdof",cast_to_vector(&gdlagNdof));
-    Tree_->Branch("ftsigmaMMMM",cast_to_vector(&ftsigmaMMMM));
-    Tree_->Branch("gdXMMMM",cast_to_vector(&gdXMMMM));
-    Tree_->Branch("gdYMMMM",cast_to_vector(&gdYMMMM));
-    Tree_->Branch("gdZMMMM",cast_to_vector(&gdZMMMM));
-    Tree_->Branch("ftsigmalagMMMM",cast_to_vector(&ftsigmalagMMMM));
-    Tree_->Branch("gdlagXMMMM",cast_to_vector(&gdlagXMMMM));
-    Tree_->Branch("gdlagYMMMM",cast_to_vector(&gdlagYMMMM));
-    Tree_->Branch("gdlagZMMMM",cast_to_vector(&gdlagZMMMM));
-    Tree_->Branch("gdlagProbMMMM",cast_to_vector(&gdlagProbMMMM));
-    Tree_->Branch("gdlagNdofMMMM",cast_to_vector(&gdlagNdofMMMM));
-    Tree_->Branch("ftsigmaEEEE",cast_to_vector(&ftsigmaEEEE));
-    Tree_->Branch("gdXEEEE",cast_to_vector(&gdXEEEE));
-    Tree_->Branch("gdYEEEE",cast_to_vector(&gdYEEEE));
-    Tree_->Branch("gdZEEEE",cast_to_vector(&gdZEEEE));
-    Tree_->Branch("ftsigmalagEEEE",cast_to_vector(&ftsigmalagEEEE));
-    Tree_->Branch("gdlagXEEEE",cast_to_vector(&gdlagXEEEE));
-    Tree_->Branch("gdlagYEEEE",cast_to_vector(&gdlagYEEEE));
-    Tree_->Branch("gdlagZEEEE",cast_to_vector(&gdlagZEEEE));
-    Tree_->Branch("gdlagProbEEEE",cast_to_vector(&gdlagProbEEEE));
-    Tree_->Branch("gdlagNdofEEEE",cast_to_vector(&gdlagNdofEEEE));
+    MakeBranch(Tree_,"ftsigma",(&ftsigma));
+    MakeBranch(Tree_,"gdX",(&gdX));
+    MakeBranch(Tree_,"gdY",(&gdY));
+    MakeBranch(Tree_,"gdZ",(&gdZ));
+    MakeBranch(Tree_,"ftsigmalag",(&ftsigmalag));
+    MakeBranch(Tree_,"gdlagX",(&gdlagX));
+    MakeBranch(Tree_,"gdlagY",(&gdlagY));
+    MakeBranch(Tree_,"gdlagZ",(&gdlagZ));
+    MakeBranch(Tree_,"gdlagProb",(&gdlagProb));
+    MakeBranch(Tree_,"gdlagNdof",(&gdlagNdof));
+    MakeBranch(Tree_,"ftsigmaMMMM",(&ftsigmaMMMM));
+    MakeBranch(Tree_,"gdXMMMM",(&gdXMMMM));
+    MakeBranch(Tree_,"gdYMMMM",(&gdYMMMM));
+    MakeBranch(Tree_,"gdZMMMM",(&gdZMMMM));
+    MakeBranch(Tree_,"ftsigmalagMMMM",(&ftsigmalagMMMM));
+    MakeBranch(Tree_,"gdlagXMMMM",(&gdlagXMMMM));
+    MakeBranch(Tree_,"gdlagYMMMM",(&gdlagYMMMM));
+    MakeBranch(Tree_,"gdlagZMMMM",(&gdlagZMMMM));
+    MakeBranch(Tree_,"gdlagProbMMMM",(&gdlagProbMMMM));
+    MakeBranch(Tree_,"gdlagNdofMMMM",(&gdlagNdofMMMM));
+    MakeBranch(Tree_,"ftsigmaEEEE",(&ftsigmaEEEE));
+    MakeBranch(Tree_,"gdXEEEE",(&gdXEEEE));
+    MakeBranch(Tree_,"gdYEEEE",(&gdYEEEE));
+    MakeBranch(Tree_,"gdZEEEE",(&gdZEEEE));
+    MakeBranch(Tree_,"ftsigmalagEEEE",(&ftsigmalagEEEE));
+    MakeBranch(Tree_,"gdlagXEEEE",(&gdlagXEEEE));
+    MakeBranch(Tree_,"gdlagYEEEE",(&gdlagYEEEE));
+    MakeBranch(Tree_,"gdlagZEEEE",(&gdlagZEEEE));
+    MakeBranch(Tree_,"gdlagProbEEEE",(&gdlagProbEEEE));
+    MakeBranch(Tree_,"gdlagNdofEEEE",(&gdlagNdofEEEE));
     
     // ConstraintFit 4l
-    Tree_->Branch("StdFitVertexX",cast_to_vector(&StdFitVertexX));
-    Tree_->Branch("StdFitVertexY",cast_to_vector(&StdFitVertexY));
-    Tree_->Branch("StdFitVertexZ",cast_to_vector(&StdFitVertexZ));
-    Tree_->Branch("StdFitVertexChi2r",cast_to_vector(&StdFitVertexChi2r));
-    Tree_->Branch("StdFitVertexProb",cast_to_vector(&StdFitVertexProb));
-    Tree_->Branch("StdFitVertexTrack_PT",cast_to_vector(&StdFitVertexTrack_PT));
-    Tree_->Branch("StdFitVertexTrack_ETA",cast_to_vector(&StdFitVertexTrack_ETA));
-    Tree_->Branch("StdFitVertexTrack_PHI",cast_to_vector(&StdFitVertexTrack_PHI));
-    Tree_->Branch("KinFitVertexX",cast_to_vector(&KinFitVertexX));
-    Tree_->Branch("KinFitVertexY",cast_to_vector(&KinFitVertexY));
-    Tree_->Branch("KinFitVertexZ",cast_to_vector(&KinFitVertexZ));
-    Tree_->Branch("KinFitVertexChi2r",cast_to_vector(&KinFitVertexChi2r));
-    Tree_->Branch("KinFitVertexProb",cast_to_vector(&KinFitVertexProb));
+    MakeBranch(Tree_,"StdFitVertexX",(&StdFitVertexX));
+    MakeBranch(Tree_,"StdFitVertexY",(&StdFitVertexY));
+    MakeBranch(Tree_,"StdFitVertexZ",(&StdFitVertexZ));
+    MakeBranch(Tree_,"StdFitVertexChi2r",(&StdFitVertexChi2r));
+    MakeBranch(Tree_,"StdFitVertexProb",(&StdFitVertexProb));
+    MakeBranch(Tree_,"StdFitVertexTrack_PT",(&StdFitVertexTrack_PT));
+    MakeBranch(Tree_,"StdFitVertexTrack_ETA",(&StdFitVertexTrack_ETA));
+    MakeBranch(Tree_,"StdFitVertexTrack_PHI",(&StdFitVertexTrack_PHI));
+    MakeBranch(Tree_,"KinFitVertexX",(&KinFitVertexX));
+    MakeBranch(Tree_,"KinFitVertexY",(&KinFitVertexY));
+    MakeBranch(Tree_,"KinFitVertexZ",(&KinFitVertexZ));
+    MakeBranch(Tree_,"KinFitVertexChi2r",(&KinFitVertexChi2r));
+    MakeBranch(Tree_,"KinFitVertexProb",(&KinFitVertexProb));
 
-    Tree_->Branch("StdFitVertexXMMMM",cast_to_vector(&StdFitVertexXMMMM));
-    Tree_->Branch("StdFitVertexYMMMM",cast_to_vector(&StdFitVertexYMMMM));
-    Tree_->Branch("StdFitVertexZMMMM",cast_to_vector(&StdFitVertexZMMMM));
-    Tree_->Branch("StdFitVertexChi2rMMMM",cast_to_vector(&StdFitVertexChi2rMMMM));
-    Tree_->Branch("StdFitVertexProbMMMM",cast_to_vector(&StdFitVertexProbMMMM));
-    Tree_->Branch("StdFitVertexTrackMMMM_PT",cast_to_vector(&StdFitVertexTrackMMMM_PT));
-    Tree_->Branch("StdFitVertexTrackMMMM_ETA",cast_to_vector(&StdFitVertexTrackMMMM_ETA));
-    Tree_->Branch("StdFitVertexTrackMMMM_PHI",cast_to_vector(&StdFitVertexTrackMMMM_PHI));
-    Tree_->Branch("KinFitVertexXMMMM",cast_to_vector(&KinFitVertexXMMMM));
-    Tree_->Branch("KinFitVertexYMMMM",cast_to_vector(&KinFitVertexYMMMM));
-    Tree_->Branch("KinFitVertexZMMMM",cast_to_vector(&KinFitVertexZMMMM));
-    Tree_->Branch("KinFitVertexChi2rMMMM",cast_to_vector(&KinFitVertexChi2rMMMM));
-    Tree_->Branch("KinFitVertexProbMMMM",cast_to_vector(&KinFitVertexProbMMMM));
+    MakeBranch(Tree_,"StdFitVertexXMMMM",(&StdFitVertexXMMMM));
+    MakeBranch(Tree_,"StdFitVertexYMMMM",(&StdFitVertexYMMMM));
+    MakeBranch(Tree_,"StdFitVertexZMMMM",(&StdFitVertexZMMMM));
+    MakeBranch(Tree_,"StdFitVertexChi2rMMMM",(&StdFitVertexChi2rMMMM));
+    MakeBranch(Tree_,"StdFitVertexProbMMMM",(&StdFitVertexProbMMMM));
+    MakeBranch(Tree_,"StdFitVertexTrackMMMM_PT",(&StdFitVertexTrackMMMM_PT));
+    MakeBranch(Tree_,"StdFitVertexTrackMMMM_ETA",(&StdFitVertexTrackMMMM_ETA));
+    MakeBranch(Tree_,"StdFitVertexTrackMMMM_PHI",(&StdFitVertexTrackMMMM_PHI));
+    MakeBranch(Tree_,"KinFitVertexXMMMM",(&KinFitVertexXMMMM));
+    MakeBranch(Tree_,"KinFitVertexYMMMM",(&KinFitVertexYMMMM));
+    MakeBranch(Tree_,"KinFitVertexZMMMM",(&KinFitVertexZMMMM));
+    MakeBranch(Tree_,"KinFitVertexChi2rMMMM",(&KinFitVertexChi2rMMMM));
+    MakeBranch(Tree_,"KinFitVertexProbMMMM",(&KinFitVertexProbMMMM));
     
 
-    Tree_->Branch("StdFitVertexXEEEE",cast_to_vector(&StdFitVertexXEEEE));
-    Tree_->Branch("StdFitVertexYEEEE",cast_to_vector(&StdFitVertexYEEEE));
-    Tree_->Branch("StdFitVertexZEEEE",cast_to_vector(&StdFitVertexZEEEE));
-    Tree_->Branch("StdFitVertexChi2rEEEE",cast_to_vector(&StdFitVertexChi2rEEEE));
-    Tree_->Branch("StdFitVertexProbEEEE",cast_to_vector(&StdFitVertexProbEEEE));
-    Tree_->Branch("StdFitVertexTrackEEEE_PT",cast_to_vector(&StdFitVertexTrackEEEE_PT));
-    Tree_->Branch("StdFitVertexTrackEEEE_ETA",cast_to_vector(&StdFitVertexTrackEEEE_ETA));
-    Tree_->Branch("StdFitVertexTrackEEEE_PHI",cast_to_vector(&StdFitVertexTrackEEEE_PHI));
-    Tree_->Branch("KinFitVertexXEEEE",cast_to_vector(&KinFitVertexXEEEE));
-    Tree_->Branch("KinFitVertexYEEEE",cast_to_vector(&KinFitVertexYEEEE));
-    Tree_->Branch("KinFitVertexZEEEE",cast_to_vector(&KinFitVertexZEEEE));
-    Tree_->Branch("KinFitVertexChi2rEEEE",cast_to_vector(&KinFitVertexChi2rEEEE));
-    Tree_->Branch("KinFitVertexProbEEEE",cast_to_vector(&KinFitVertexProbEEEE));
+    MakeBranch(Tree_,"StdFitVertexXEEEE",(&StdFitVertexXEEEE));
+    MakeBranch(Tree_,"StdFitVertexYEEEE",(&StdFitVertexYEEEE));
+    MakeBranch(Tree_,"StdFitVertexZEEEE",(&StdFitVertexZEEEE));
+    MakeBranch(Tree_,"StdFitVertexChi2rEEEE",(&StdFitVertexChi2rEEEE));
+    MakeBranch(Tree_,"StdFitVertexProbEEEE",(&StdFitVertexProbEEEE));
+    MakeBranch(Tree_,"StdFitVertexTrackEEEE_PT",(&StdFitVertexTrackEEEE_PT));
+    MakeBranch(Tree_,"StdFitVertexTrackEEEE_ETA",(&StdFitVertexTrackEEEE_ETA));
+    MakeBranch(Tree_,"StdFitVertexTrackEEEE_PHI",(&StdFitVertexTrackEEEE_PHI));
+    MakeBranch(Tree_,"KinFitVertexXEEEE",(&KinFitVertexXEEEE));
+    MakeBranch(Tree_,"KinFitVertexYEEEE",(&KinFitVertexYEEEE));
+    MakeBranch(Tree_,"KinFitVertexZEEEE",(&KinFitVertexZEEEE));
+    MakeBranch(Tree_,"KinFitVertexChi2rEEEE",(&KinFitVertexChi2rEEEE));
+    MakeBranch(Tree_,"KinFitVertexProbEEEE",(&KinFitVertexProbEEEE));
 
     // constrintFit 3l
-    Tree_->Branch("StdFitVertexChi2rMMM",cast_to_vector(&StdFitVertexChi2rMMM));
-    Tree_->Branch("StdFitVertexProbMMM",cast_to_vector(&StdFitVertexProbMMM));
-    Tree_->Branch("StdFitVertexChi2rMME",cast_to_vector(&StdFitVertexChi2rMME));
-    Tree_->Branch("StdFitVertexProbMME",cast_to_vector(&StdFitVertexProbMME));
-    Tree_->Branch("StdFitVertexChi2rEEE",cast_to_vector(&StdFitVertexChi2rEEE));
-    Tree_->Branch("StdFitVertexProbEEE",cast_to_vector(&StdFitVertexProbEEE));
-    Tree_->Branch("StdFitVertexChi2rMEE",cast_to_vector(&StdFitVertexChi2rMEE));
-    Tree_->Branch("StdFitVertexProbMEE",cast_to_vector(&StdFitVertexProbMEE));
+    MakeBranch(Tree_,"StdFitVertexChi2rMMM",(&StdFitVertexChi2rMMM));
+    MakeBranch(Tree_,"StdFitVertexProbMMM",(&StdFitVertexProbMMM));
+    MakeBranch(Tree_,"StdFitVertexChi2rMME",(&StdFitVertexChi2rMME));
+    MakeBranch(Tree_,"StdFitVertexProbMME",(&StdFitVertexProbMME));
+    MakeBranch(Tree_,"StdFitVertexChi2rEEE",(&StdFitVertexChi2rEEE));
+    MakeBranch(Tree_,"StdFitVertexProbEEE",(&StdFitVertexProbEEE));
+    MakeBranch(Tree_,"StdFitVertexChi2rMEE",(&StdFitVertexChi2rMEE));
+    MakeBranch(Tree_,"StdFitVertexProbMEE",(&StdFitVertexProbMEE));
 
 
      // constrintFit Dileptons
-    Tree_->Branch("StdFitVertexChi2rDiLep",cast_to_vector(&StdFitVertexChi2rDiLep));
-    Tree_->Branch("StdFitVertexProbDiLep",cast_to_vector(&StdFitVertexProbDiLep));
+    MakeBranch(Tree_,"StdFitVertexChi2rDiLep",(&StdFitVertexChi2rDiLep));
+    MakeBranch(Tree_,"StdFitVertexProbDiLep",(&StdFitVertexProbDiLep));
 */
 
     // Conversions
-    Tree_->Branch("ConvMapDist",cast_to_vector(&ConvMapDist));
-    Tree_->Branch("ConvMapDcot",cast_to_vector(&ConvMapDcot));
+    MakeBranch(Tree_,"ConvMapDist",(&ConvMapDist));
+    MakeBranch(Tree_,"ConvMapDcot",(&ConvMapDcot));
 
 
 
     //MatchingMC:
     //Muons:
-    Tree_->Branch("RECOMU_MatchingMCTruth",cast_to_vector(&RECOMU_MatchingMCTruth));
-    Tree_->Branch("RECOMU_MatchingMCpT",cast_to_vector(&RECOMU_MatchingMCpT));
-    Tree_->Branch("RECOMU_MatchingMCEta",cast_to_vector(&RECOMU_MatchingMCEta));
-    Tree_->Branch("RECOMU_MatchingMCPhi",cast_to_vector(&RECOMU_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOMU_MatchingMCTruth",(&RECOMU_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOMU_MatchingMCpT",(&RECOMU_MatchingMCpT));
+    MakeBranch(Tree_,"RECOMU_MatchingMCEta",(&RECOMU_MatchingMCEta));
+    MakeBranch(Tree_,"RECOMU_MatchingMCPhi",(&RECOMU_MatchingMCPhi));
 
     //Electrons:
-    Tree_->Branch("RECOELE_MatchingMCTruth",cast_to_vector(&RECOELE_MatchingMCTruth));
-    Tree_->Branch("RECOELE_MatchingMCpT",cast_to_vector(&RECOELE_MatchingMCpT));
-    Tree_->Branch("RECOELE_MatchingMCEta",cast_to_vector(&RECOELE_MatchingMCEta));
-    Tree_->Branch("RECOELE_MatchingMCPhi",cast_to_vector(&RECOELE_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOELE_MatchingMCTruth",(&RECOELE_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOELE_MatchingMCpT",(&RECOELE_MatchingMCpT));
+    MakeBranch(Tree_,"RECOELE_MatchingMCEta",(&RECOELE_MatchingMCEta));
+    MakeBranch(Tree_,"RECOELE_MatchingMCPhi",(&RECOELE_MatchingMCPhi));
 
     //Gamma:
-    Tree_->Branch("RECOPHOT_MatchingMCTruth",cast_to_vector(&RECOPHOT_MatchingMCTruth));
-    Tree_->Branch("RECOPHOT_MatchingMCpT",cast_to_vector(&RECOPHOT_MatchingMCpT));
-    Tree_->Branch("RECOPHOT_MatchingMCEta",cast_to_vector(&RECOPHOT_MatchingMCEta));
-    Tree_->Branch("RECOPHOT_MatchingMCPhi",cast_to_vector(&RECOPHOT_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOPHOT_MatchingMCTruth",(&RECOPHOT_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOPHOT_MatchingMCpT",(&RECOPHOT_MatchingMCpT));
+    MakeBranch(Tree_,"RECOPHOT_MatchingMCEta",(&RECOPHOT_MatchingMCEta));
+    MakeBranch(Tree_,"RECOPHOT_MatchingMCPhi",(&RECOPHOT_MatchingMCPhi));
 
     //ZtoMuMu:
-    Tree_->Branch("RECOzMuMu_MatchingMCTruth",cast_to_vector(&RECOzMuMu_MatchingMCTruth));
-    Tree_->Branch("RECOzMuMu_MatchingMCpT",cast_to_vector(&RECOzMuMu_MatchingMCpT));
-    Tree_->Branch("RECOzMuMu_MatchingMCmass",cast_to_vector(&RECOzMuMu_MatchingMCmass));
-    Tree_->Branch("RECOzMuMu_MatchingMCEta",cast_to_vector(&RECOzMuMu_MatchingMCEta));
-    Tree_->Branch("RECOzMuMu_MatchingMCPhi",cast_to_vector(&RECOzMuMu_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOzMuMu_MatchingMCTruth",(&RECOzMuMu_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOzMuMu_MatchingMCpT",(&RECOzMuMu_MatchingMCpT));
+    MakeBranch(Tree_,"RECOzMuMu_MatchingMCmass",(&RECOzMuMu_MatchingMCmass));
+    MakeBranch(Tree_,"RECOzMuMu_MatchingMCEta",(&RECOzMuMu_MatchingMCEta));
+    MakeBranch(Tree_,"RECOzMuMu_MatchingMCPhi",(&RECOzMuMu_MatchingMCPhi));
 
     //ZtoEE:
-    Tree_->Branch("RECOzEE_MatchingMCTruth",cast_to_vector(&RECOzEE_MatchingMCTruth));
-    Tree_->Branch("RECOzEE_MatchingMCpT",cast_to_vector(&RECOzEE_MatchingMCpT));
-    Tree_->Branch("RECOzEE_MatchingMCmass",cast_to_vector(&RECOzEE_MatchingMCmass));
-    Tree_->Branch("RECOzEE_MatchingMCEta",cast_to_vector(&RECOzEE_MatchingMCEta));
-    Tree_->Branch("RECOzEE_MatchingMCPhi",cast_to_vector(&RECOzEE_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOzEE_MatchingMCTruth",(&RECOzEE_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOzEE_MatchingMCpT",(&RECOzEE_MatchingMCpT));
+    MakeBranch(Tree_,"RECOzEE_MatchingMCmass",(&RECOzEE_MatchingMCmass));
+    MakeBranch(Tree_,"RECOzEE_MatchingMCEta",(&RECOzEE_MatchingMCEta));
+    MakeBranch(Tree_,"RECOzEE_MatchingMCPhi",(&RECOzEE_MatchingMCPhi));
 
     //HtoZtoEEEE:
-    Tree_->Branch("RECOHzzEEEE_MatchingMCTruth",cast_to_vector(&RECOHzzEEEE_MatchingMCTruth));
-    Tree_->Branch("RECOHzzEEEE_MatchingMCpT",cast_to_vector(&RECOHzzEEEE_MatchingMCpT));
-    Tree_->Branch("RECOHzzEEEE_MatchingMCmass",cast_to_vector(&RECOHzzEEEE_MatchingMCmass));
-    Tree_->Branch("RECOHzzEEEE_MatchingMCEta",cast_to_vector(&RECOHzzEEEE_MatchingMCEta));
-    Tree_->Branch("RECOHzzEEEE_MatchingMCPhi",cast_to_vector(&RECOHzzEEEE_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOHzzEEEE_MatchingMCTruth",(&RECOHzzEEEE_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOHzzEEEE_MatchingMCpT",(&RECOHzzEEEE_MatchingMCpT));
+    MakeBranch(Tree_,"RECOHzzEEEE_MatchingMCmass",(&RECOHzzEEEE_MatchingMCmass));
+    MakeBranch(Tree_,"RECOHzzEEEE_MatchingMCEta",(&RECOHzzEEEE_MatchingMCEta));
+    MakeBranch(Tree_,"RECOHzzEEEE_MatchingMCPhi",(&RECOHzzEEEE_MatchingMCPhi));
 
     //HtoZtoEEMM:
-    Tree_->Branch("RECOHzzEEMM_MatchingMCTruth",cast_to_vector(&RECOHzzEEMM_MatchingMCTruth));
-    Tree_->Branch("RECOHzzEEMM_MatchingMCpT",cast_to_vector(&RECOHzzEEMM_MatchingMCpT));
-    Tree_->Branch("RECOHzzEEMM_MatchingMCmass",cast_to_vector(&RECOHzzEEMM_MatchingMCmass));
-    Tree_->Branch("RECOHzzEEMM_MatchingMCEta",cast_to_vector(&RECOHzzEEMM_MatchingMCEta));
-    Tree_->Branch("RECOHzzEEMM_MatchingMCPhi",cast_to_vector(&RECOHzzEEMM_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOHzzEEMM_MatchingMCTruth",(&RECOHzzEEMM_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOHzzEEMM_MatchingMCpT",(&RECOHzzEEMM_MatchingMCpT));
+    MakeBranch(Tree_,"RECOHzzEEMM_MatchingMCmass",(&RECOHzzEEMM_MatchingMCmass));
+    MakeBranch(Tree_,"RECOHzzEEMM_MatchingMCEta",(&RECOHzzEEMM_MatchingMCEta));
+    MakeBranch(Tree_,"RECOHzzEEMM_MatchingMCPhi",(&RECOHzzEEMM_MatchingMCPhi));
 
     //HtoZtoMMMM:
-    Tree_->Branch("RECOHzzMMMM_MatchingMCTruth",cast_to_vector(&RECOHzzMMMM_MatchingMCTruth));
-    Tree_->Branch("RECOHzzMMMM_MatchingMCpT",cast_to_vector(&RECOHzzMMMM_MatchingMCpT));
-    Tree_->Branch("RECOHzzMMMM_MatchingMCmass",cast_to_vector(&RECOHzzMMMM_MatchingMCmass));
-    Tree_->Branch("RECOHzzMMMM_MatchingMCEta",cast_to_vector(&RECOHzzMMMM_MatchingMCEta));
-    Tree_->Branch("RECOHzzMMMM_MatchingMCPhi",cast_to_vector(&RECOHzzMMMM_MatchingMCPhi));
+    MakeBranch(Tree_,"RECOHzzMMMM_MatchingMCTruth",(&RECOHzzMMMM_MatchingMCTruth));
+    MakeBranch(Tree_,"RECOHzzMMMM_MatchingMCpT",(&RECOHzzMMMM_MatchingMCpT));
+    MakeBranch(Tree_,"RECOHzzMMMM_MatchingMCmass",(&RECOHzzMMMM_MatchingMCmass));
+    MakeBranch(Tree_,"RECOHzzMMMM_MatchingMCEta",(&RECOHzzMMMM_MatchingMCEta));
+    MakeBranch(Tree_,"RECOHzzMMMM_MatchingMCPhi",(&RECOHzzMMMM_MatchingMCPhi));
 
 
 
@@ -1065,66 +1082,66 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // Tracks
     Tree_->Branch( "RECO_NTRACK", &RECO_NTRACK, "RECO_NTRACK/I");
-    Tree_->Branch( "RECO_TRACK_PT",cast_to_vector(&RECO_TRACK_PT));
-    Tree_->Branch( "RECO_TRACK_ETA",cast_to_vector(&RECO_TRACK_ETA));
-    Tree_->Branch( "RECO_TRACK_PHI",cast_to_vector(&RECO_TRACK_PHI));
-    Tree_->Branch( "RECO_TRACK_CHI2",cast_to_vector(&RECO_TRACK_CHI2));
-    Tree_->Branch( "RECO_TRACK_CHI2RED",cast_to_vector(&RECO_TRACK_CHI2RED));
-    Tree_->Branch( "RECO_TRACK_CHI2PROB",cast_to_vector(&RECO_TRACK_CHI2PROB));
-    Tree_->Branch( "RECO_TRACK_NHITS",cast_to_vector(&RECO_TRACK_NHITS));
-    Tree_->Branch( "RECO_TRACK_DXY",cast_to_vector(&RECO_TRACK_DXY));
-    Tree_->Branch( "RECO_TRACK_DXYERR",cast_to_vector(&RECO_TRACK_DXYERR));
-    Tree_->Branch( "RECO_TRACK_DZ",cast_to_vector(&RECO_TRACK_DZ));
-    Tree_->Branch( "RECO_TRACK_DZERR",cast_to_vector(&RECO_TRACK_DZERR));
+    MakeBranch(Tree_, "RECO_TRACK_PT",(&RECO_TRACK_PT));
+    MakeBranch(Tree_, "RECO_TRACK_ETA",(&RECO_TRACK_ETA));
+    MakeBranch(Tree_, "RECO_TRACK_PHI",(&RECO_TRACK_PHI));
+    MakeBranch(Tree_, "RECO_TRACK_CHI2",(&RECO_TRACK_CHI2));
+    MakeBranch(Tree_, "RECO_TRACK_CHI2RED",(&RECO_TRACK_CHI2RED));
+    MakeBranch(Tree_, "RECO_TRACK_CHI2PROB",(&RECO_TRACK_CHI2PROB));
+    MakeBranch(Tree_, "RECO_TRACK_NHITS",(&RECO_TRACK_NHITS));
+    MakeBranch(Tree_, "RECO_TRACK_DXY",(&RECO_TRACK_DXY));
+    MakeBranch(Tree_, "RECO_TRACK_DXYERR",(&RECO_TRACK_DXYERR));
+    MakeBranch(Tree_, "RECO_TRACK_DZ",(&RECO_TRACK_DZ));
+    MakeBranch(Tree_, "RECO_TRACK_DZERR",(&RECO_TRACK_DZERR));
     
     // Photons
     Tree_->Branch("RECO_NPHOT", &RECO_NPHOT, "RECO_NPHOT/I");
     Tree_->Branch("RECO_NFSR", &RECO_NFSR, "RECO_NFSR/I");
-    Tree_->Branch("RECOPHOT_PT",cast_to_vector(&RECOPHOT_PT)); 
-    Tree_->Branch("RECOPHOT_ETA",cast_to_vector(&RECOPHOT_ETA)); 
-    Tree_->Branch("RECOPHOT_PHI",cast_to_vector(&RECOPHOT_PHI)); 
-    Tree_->Branch("RECOPHOT_ID",cast_to_vector(&RECOPHOT_ID));
-    Tree_->Branch("RECOPHOT_THETA",cast_to_vector(&RECOPHOT_THETA)); 
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_X",cast_to_vector(&RECOPHOT_TLE_ParentSC_X));
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_Y",cast_to_vector(&RECOPHOT_TLE_ParentSC_Y));
-    Tree_->Branch("RECOPHOT_TLE_ParentSC_Z",cast_to_vector(&RECOPHOT_TLE_ParentSC_Z));
+    MakeBranch(Tree_,"RECOPHOT_PT",(&RECOPHOT_PT)); 
+    MakeBranch(Tree_,"RECOPHOT_ETA",(&RECOPHOT_ETA)); 
+    MakeBranch(Tree_,"RECOPHOT_PHI",(&RECOPHOT_PHI)); 
+    MakeBranch(Tree_,"RECOPHOT_ID",(&RECOPHOT_ID));
+    MakeBranch(Tree_,"RECOPHOT_THETA",(&RECOPHOT_THETA)); 
+    MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_X",(&RECOPHOT_TLE_ParentSC_X));
+    MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_Y",(&RECOPHOT_TLE_ParentSC_Y));
+    MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_Z",(&RECOPHOT_TLE_ParentSC_Z));
 
     Tree_->Branch("RECO_NPFPHOT", &RECO_NPFPHOT, "RECO_NPFPHOT/I");
-    Tree_->Branch("RECOPFPHOT_PT",cast_to_vector(&RECOPFPHOT_PT)); 
-    Tree_->Branch("RECOPFPHOT_PTError",cast_to_vector(&RECOPFPHOT_PTError));  
-    Tree_->Branch("RECOPHOTCOR_PT",cast_to_vector(&RECOPHOTCOR_PT)); 
-    Tree_->Branch("RECOPHOTCOR_PTError",cast_to_vector(&RECOPHOTCOR_PTError));  
-    Tree_->Branch("RECOPFPHOT_ETA",cast_to_vector(&RECOPFPHOT_ETA)); 
-    Tree_->Branch("RECOPFPHOT_PHI",cast_to_vector(&RECOPFPHOT_PHI)); 
-    Tree_->Branch("RECOPFPHOT_THETA",cast_to_vector(&RECOPFPHOT_THETA)); 
+    MakeBranch(Tree_,"RECOPFPHOT_PT",(&RECOPFPHOT_PT)); 
+    MakeBranch(Tree_,"RECOPFPHOT_PTError",(&RECOPFPHOT_PTError));  
+    MakeBranch(Tree_,"RECOPHOTCOR_PT",(&RECOPHOTCOR_PT)); 
+    MakeBranch(Tree_,"RECOPHOTCOR_PTError",(&RECOPHOTCOR_PTError));  
+    MakeBranch(Tree_,"RECOPFPHOT_ETA",(&RECOPFPHOT_ETA)); 
+    MakeBranch(Tree_,"RECOPFPHOT_PHI",(&RECOPFPHOT_PHI)); 
+    MakeBranch(Tree_,"RECOPFPHOT_THETA",(&RECOPFPHOT_THETA)); 
     
     //Reham
 
-     Tree_->Branch("RECOPFPHOT_PT_uncorr",cast_to_vector(&RECOPFPHOT_PT_uncorr));
+     MakeBranch(Tree_,"RECOPFPHOT_PT_uncorr",(&RECOPFPHOT_PT_uncorr));
 
     //Reham photn systematic variables
 
-    Tree_->Branch("RECOPFPHOT_ecalEnergyPreCorr",cast_to_vector(&RECOPFPHOT_ecalEnergyPreCorr));
-    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPreCorr",cast_to_vector(&RECOPFPHOT_ecalEnergyErrPreCorr));   
-    Tree_->Branch("RECOPFPHOT_ecalEnergyErrPostCorr",cast_to_vector(&RECOPFPHOT_ecalEnergyErrPostCorr));
-    Tree_->Branch("RECOPFPHOT_energyScaleValue",cast_to_vector(&RECOPFPHOT_energyScaleValue));       
-    Tree_->Branch("RECOPFPHOT_energySigmaValue",cast_to_vector(&RECOPFPHOT_energySigmaValue));
-    Tree_->Branch("RECOPFPHOT_energyScaleUp",cast_to_vector(&RECOPFPHOT_energyScaleUp));     
-    Tree_->Branch("RECOPFPHOT_energyScaleDown",cast_to_vector(&RECOPFPHOT_energyScaleDown));       
-    Tree_->Branch("RECOPFPHOT_energyScaleStatUp",cast_to_vector(&RECOPFPHOT_energyScaleStatUp));       
-    Tree_->Branch("RECOPFPHOT_energyScaleStatDown",cast_to_vector(&RECOPFPHOT_energyScaleStatDown));        
-    Tree_->Branch("RECOPFPHOT_energyScaleSystUp",cast_to_vector(&RECOPFPHOT_energyScaleSystUp));        
-    Tree_->Branch("RECOPFPHOT_energyScaleSystDown",cast_to_vector(&RECOPFPHOT_energyScaleSystDown));        
-    Tree_->Branch("RECOPFPHOT_energyScaleGainUp",cast_to_vector(&RECOPFPHOT_energyScaleGainUp));        
-    Tree_->Branch("RECOPFPHOT_energyScaleGainDown",cast_to_vector(&RECOPFPHOT_energyScaleGainDown));      
-    Tree_->Branch("RECOPFPHOT_energyScaleEtUp",cast_to_vector(&RECOPFPHOT_energyScaleEtUp));       
-    Tree_->Branch("RECOPFPHOT_energyScaleEtDown",cast_to_vector(&RECOPFPHOT_energyScaleEtDown));       
-    Tree_->Branch("RECOPFPHOT_energySigmaUp",cast_to_vector(&RECOPFPHOT_energySigmaUp));         
-    Tree_->Branch("RECOPFPHOT_energySigmaDown",cast_to_vector(&RECOPFPHOT_energySigmaDown));       
-    Tree_->Branch("RECOPFPHOT_energySigmaPhiUp",cast_to_vector(&RECOPFPHOT_energySigmaPhiUp));        
-    Tree_->Branch("RECOPFPHOT_energySigmaPhiDown",cast_to_vector(&RECOPFPHOT_energySigmaPhiDown));     
-    Tree_->Branch("RECOPFPHOT_energySigmaRhoUp",cast_to_vector(&RECOPFPHOT_energySigmaRhoUp));        
-    Tree_->Branch("RECOPFPHOT_energySigmaRhoDown",cast_to_vector(&RECOPFPHOT_energySigmaRhoDown)); 
+    MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyPreCorr",(&RECOPFPHOT_ecalEnergyPreCorr));
+    MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyErrPreCorr",(&RECOPFPHOT_ecalEnergyErrPreCorr));   
+    MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyErrPostCorr",(&RECOPFPHOT_ecalEnergyErrPostCorr));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleValue",(&RECOPFPHOT_energyScaleValue));       
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaValue",(&RECOPFPHOT_energySigmaValue));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleUp",(&RECOPFPHOT_energyScaleUp));     
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleDown",(&RECOPFPHOT_energyScaleDown));       
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatUp",(&RECOPFPHOT_energyScaleStatUp));       
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatDown",(&RECOPFPHOT_energyScaleStatDown));        
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystUp",(&RECOPFPHOT_energyScaleSystUp));        
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystDown",(&RECOPFPHOT_energyScaleSystDown));        
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainUp",(&RECOPFPHOT_energyScaleGainUp));        
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainDown",(&RECOPFPHOT_energyScaleGainDown));      
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtUp",(&RECOPFPHOT_energyScaleEtUp));       
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtDown",(&RECOPFPHOT_energyScaleEtDown));       
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaUp",(&RECOPFPHOT_energySigmaUp));         
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaDown",(&RECOPFPHOT_energySigmaDown));       
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiUp",(&RECOPFPHOT_energySigmaPhiUp));        
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiDown",(&RECOPFPHOT_energySigmaPhiDown));     
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoUp",(&RECOPFPHOT_energySigmaRhoUp));        
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoDown",(&RECOPFPHOT_energySigmaRhoDown)); 
     
     //Beam Spot position
     Tree_->Branch("BeamSpot_X",&BeamSpot_X,"BeamSpot_X/D");
@@ -1132,89 +1149,89 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch("BeamSpot_Z",&BeamSpot_Z,"BeamSpot_Z/D");
     // Vertices
     Tree_->Branch( "RECO_NVTX", &RECO_NVTX, "RECO_NVTX/I");
-    Tree_->Branch( "RECO_VERTEX_x",cast_to_vector(&RECO_VERTEX_x));
-    Tree_->Branch( "RECO_VERTEX_y",cast_to_vector(&RECO_VERTEX_y));
-    Tree_->Branch( "RECO_VERTEX_z",cast_to_vector(&RECO_VERTEX_z));
-    Tree_->Branch( "RECO_VERTEX_ndof",cast_to_vector(&RECO_VERTEX_ndof));
-    Tree_->Branch( "RECO_VERTEX_chi2",cast_to_vector(&RECO_VERTEX_chi2));
-    Tree_->Branch( "RECO_VERTEX_ntracks",cast_to_vector(&RECO_VERTEX_ntracks));
-    Tree_->Branch( "RECO_VERTEXPROB",cast_to_vector(&RECO_VERTEXPROB));
-    Tree_->Branch( "RECO_VERTEX_isValid",cast_to_vector(&RECO_VERTEX_isValid));
-    Tree_->Branch( "RECO_VERTEX_TRACK_PT",cast_to_vector(&RECO_VERTEX_TRACK_PT));
+    MakeBranch(Tree_, "RECO_VERTEX_x",(&RECO_VERTEX_x));
+    MakeBranch(Tree_, "RECO_VERTEX_y",(&RECO_VERTEX_y));
+    MakeBranch(Tree_, "RECO_VERTEX_z",(&RECO_VERTEX_z));
+    MakeBranch(Tree_, "RECO_VERTEX_ndof",(&RECO_VERTEX_ndof));
+    MakeBranch(Tree_, "RECO_VERTEX_chi2",(&RECO_VERTEX_chi2));
+    MakeBranch(Tree_, "RECO_VERTEX_ntracks",(&RECO_VERTEX_ntracks));
+    MakeBranch(Tree_, "RECO_VERTEXPROB",(&RECO_VERTEXPROB));
+    MakeBranch(Tree_, "RECO_VERTEX_isValid",(&RECO_VERTEX_isValid));
+    MakeBranch(Tree_, "RECO_VERTEX_TRACK_PT",(&RECO_VERTEX_TRACK_PT));
     
     // PFJets
     Tree_->Branch( "RECO_PFJET_N",   &RECO_PFJET_N,   "RECO_PFJET_N/I");
-    Tree_->Branch( "RECO_PFJET_CHARGE",cast_to_vector(&RECO_PFJET_CHARGE));
-    Tree_->Branch( "RECO_PFJET_ET",cast_to_vector(&RECO_PFJET_ET));
-    Tree_->Branch( "RECO_PFJET_PT",cast_to_vector(&RECO_PFJET_PT));
-    Tree_->Branch( "RECO_PFJET_ETA",cast_to_vector(&RECO_PFJET_ETA));
-    Tree_->Branch( "RECO_PFJET_PHI",cast_to_vector(&RECO_PFJET_PHI));
-    Tree_->Branch( "RECO_PFJET_MASS", cast_to_vector(&RECO_PFJET_MASS));
-    Tree_->Branch( "RECO_PFJET_PT_UP", cast_to_vector(& RECO_PFJET_PT_UP));
-    Tree_->Branch( "RECO_PFJET_ETA_UP", cast_to_vector(&RECO_PFJET_ETA_UP));
-    Tree_->Branch( "RECO_PFJET_PHI_UP", cast_to_vector(&RECO_PFJET_PHI_UP));
-    Tree_->Branch( "RECO_PFJET_MASS_UP", cast_to_vector(&RECO_PFJET_MASS_UP));
-    Tree_->Branch( "RECO_PFJET_PT_DN", cast_to_vector(& RECO_PFJET_PT_DN));
-    Tree_->Branch( "RECO_PFJET_ETA_ND", cast_to_vector(&RECO_PFJET_ETA_DN));
-    Tree_->Branch( "RECO_PFJET_PHI_DN", cast_to_vector(&RECO_PFJET_PHI_DN));
-    Tree_->Branch( "RECO_PFJET_MASS_DN", cast_to_vector(&RECO_PFJET_MASS_DN));
-    Tree_->Branch( "RECO_PFJET_RAWPT", cast_to_vector(& RECO_PFJET_RAWPT));
-    Tree_->Branch( "RECO_PFJET_PUID_loose", cast_to_vector(&RECO_PFJET_PUID_loose));
-    Tree_->Branch( "RECO_PFJET_PUID_medium", cast_to_vector(&RECO_PFJET_PUID_medium));
-    Tree_->Branch( "RECO_PFJET_PUID_loose",cast_to_vector(&RECO_PFJET_PUID_loose));
-    Tree_->Branch( "RECO_PFJET_PUID_medium",cast_to_vector(&RECO_PFJET_PUID_medium));
-    Tree_->Branch( "RECO_PFJET_PUID",cast_to_vector(&RECO_PFJET_PUID));
-    Tree_->Branch( "RECO_PFJET_PUID_MVA",cast_to_vector(&RECO_PFJET_PUID_MVA));
-    Tree_->Branch( "RECO_PFJET_QG_Likelihood",cast_to_vector(&RECO_PFJET_QG_Likelihood));//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_axis2",cast_to_vector(&RECO_PFJET_QG_axis2));//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_ptd",cast_to_vector(&RECO_PFJET_QG_ptd));//REHAM QG tagger
-    Tree_->Branch( "RECO_PFJET_QG_mult",cast_to_vector(&RECO_PFJET_QG_mult));//REHAM QG tagger
+    MakeBranch(Tree_, "RECO_PFJET_CHARGE",(&RECO_PFJET_CHARGE));
+    MakeBranch(Tree_, "RECO_PFJET_ET",(&RECO_PFJET_ET));
+    MakeBranch(Tree_, "RECO_PFJET_PT",(&RECO_PFJET_PT));
+    MakeBranch(Tree_, "RECO_PFJET_ETA",(&RECO_PFJET_ETA));
+    MakeBranch(Tree_, "RECO_PFJET_PHI",(&RECO_PFJET_PHI));
+    MakeBranch(Tree_, "RECO_PFJET_MASS", (&RECO_PFJET_MASS));
+    MakeBranch(Tree_, "RECO_PFJET_PT_UP", (& RECO_PFJET_PT_UP));
+    MakeBranch(Tree_, "RECO_PFJET_ETA_UP", (&RECO_PFJET_ETA_UP));
+    MakeBranch(Tree_, "RECO_PFJET_PHI_UP", (&RECO_PFJET_PHI_UP));
+    MakeBranch(Tree_, "RECO_PFJET_MASS_UP", (&RECO_PFJET_MASS_UP));
+    MakeBranch(Tree_, "RECO_PFJET_PT_DN", (& RECO_PFJET_PT_DN));
+    MakeBranch(Tree_, "RECO_PFJET_ETA_ND", (&RECO_PFJET_ETA_DN));
+    MakeBranch(Tree_, "RECO_PFJET_PHI_DN", (&RECO_PFJET_PHI_DN));
+    MakeBranch(Tree_, "RECO_PFJET_MASS_DN", (&RECO_PFJET_MASS_DN));
+    MakeBranch(Tree_, "RECO_PFJET_RAWPT", (& RECO_PFJET_RAWPT));
+    MakeBranch(Tree_, "RECO_PFJET_PUID_loose", (&RECO_PFJET_PUID_loose));
+    MakeBranch(Tree_, "RECO_PFJET_PUID_medium", (&RECO_PFJET_PUID_medium));
+    MakeBranch(Tree_, "RECO_PFJET_PUID_loose",(&RECO_PFJET_PUID_loose));
+    MakeBranch(Tree_, "RECO_PFJET_PUID_medium",(&RECO_PFJET_PUID_medium));
+    MakeBranch(Tree_, "RECO_PFJET_PUID",(&RECO_PFJET_PUID));
+    MakeBranch(Tree_, "RECO_PFJET_PUID_MVA",(&RECO_PFJET_PUID_MVA));
+    MakeBranch(Tree_, "RECO_PFJET_QG_Likelihood",(&RECO_PFJET_QG_Likelihood));//REHAM QG tagger
+    MakeBranch(Tree_, "RECO_PFJET_QG_axis2",(&RECO_PFJET_QG_axis2));//REHAM QG tagger
+    MakeBranch(Tree_, "RECO_PFJET_QG_ptd",(&RECO_PFJET_QG_ptd));//REHAM QG tagger
+    MakeBranch(Tree_, "RECO_PFJET_QG_mult",(&RECO_PFJET_QG_mult));//REHAM QG tagger
     Tree_->Branch( "RHO_ele", &RHO_ele, "RHO_ele/D");
     Tree_->Branch( "RHO_mu", &RHO_mu, "RHO_mu/D");
 
  //@
     Tree_->Branch("LHE_PARTON_N", &LHE_PARTON_N, "LHE_PARTON_N/I");
-    Tree_->Branch("LHE_PARTON_CLEAR",cast_to_vector(&LHE_PARTON_CLEAR));
-    Tree_->Branch("LHE_PARTON_PDGID",cast_to_vector(&LHE_PARTON_PDGID));
-    Tree_->Branch("LHE_PARTON_PT",cast_to_vector(&LHE_PARTON_PT));
-    Tree_->Branch("LHE_PARTON_ETA",cast_to_vector(&LHE_PARTON_ETA));
-    Tree_->Branch("LHE_PARTON_PHI",cast_to_vector(&LHE_PARTON_PHI));
-    Tree_->Branch("LHE_PARTON_E",cast_to_vector(&LHE_PARTON_E));
-    Tree_->Branch("RECO_PFJET_PT_UncUp",cast_to_vector(&RECO_PFJET_PT_UncUp));
-    Tree_->Branch("RECO_PFJET_PT_UncDn",cast_to_vector(&RECO_PFJET_PT_UncDn));
-    Tree_->Branch("RECO_PFJET_AREA",cast_to_vector(&RECO_PFJET_AREA));
-    Tree_->Branch("RECO_PFJET_PTD",cast_to_vector(&RECO_PFJET_PTD));
-    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_ENERGY",cast_to_vector(&RECO_PFJET_CHARGED_HADRON_ENERGY));
-    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_ENERGY",cast_to_vector(&RECO_PFJET_NEUTRAL_HADRON_ENERGY));
-    Tree_->Branch("RECO_PFJET_PHOTON_ENERGY",cast_to_vector(&RECO_PFJET_PHOTON_ENERGY));
-    Tree_->Branch("RECO_PFJET_ELECTRON_ENERGY",cast_to_vector(&RECO_PFJET_ELECTRON_ENERGY));
-    Tree_->Branch("RECO_PFJET_MUON_ENERGY",cast_to_vector(&RECO_PFJET_MUON_ENERGY));
-    Tree_->Branch("RECO_PFJET_HF_HADRON_ENERGY",cast_to_vector(&RECO_PFJET_HF_HADRON_ENERGY));
-    Tree_->Branch("RECO_PFJET_HF_EM_ENERGY",cast_to_vector(&RECO_PFJET_HF_EM_ENERGY));
-    Tree_->Branch("RECO_PFJET_CHARGED_EM_ENERGY",cast_to_vector(&RECO_PFJET_CHARGED_EM_ENERGY));
-    Tree_->Branch("RECO_PFJET_CHARGED_MU_ENERGY",cast_to_vector(&RECO_PFJET_CHARGED_MU_ENERGY));
-    Tree_->Branch("RECO_PFJET_NEUTRAL_EM_ENERGY",cast_to_vector(&RECO_PFJET_NEUTRAL_EM_ENERGY));
-    Tree_->Branch("RECO_PFJET_CHARGED_HADRON_MULTIPLICITY",cast_to_vector(&RECO_PFJET_CHARGED_HADRON_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY",cast_to_vector(&RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_PHOTON_MULTIPLICITY",cast_to_vector(&RECO_PFJET_PHOTON_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_ELECTRON_MULTIPLICITY",cast_to_vector(&RECO_PFJET_ELECTRON_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_MUON_MULTIPLICITY",cast_to_vector(&RECO_PFJET_MUON_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_HF_HADRON_MULTIPLICTY",cast_to_vector(&RECO_PFJET_HF_HADRON_MULTIPLICTY));
-    Tree_->Branch("RECO_PFJET_HF_EM_MULTIPLICITY",cast_to_vector(&RECO_PFJET_HF_EM_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_CHARGED_MULTIPLICITY",cast_to_vector(&RECO_PFJET_CHARGED_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_NEUTRAL_MULTIPLICITY",cast_to_vector(&RECO_PFJET_NEUTRAL_MULTIPLICITY));
-    Tree_->Branch("RECO_PFJET_NCOMPONENTS",cast_to_vector(&RECO_PFJET_NCOMPONENTS));
-    Tree_->Branch("RECO_PFJET_COMPONENT_PDGID",cast_to_vector(&RECO_PFJET_COMPONENT_PDGID));
-    Tree_->Branch("RECO_PFJET_COMPONENT_PT",cast_to_vector(&RECO_PFJET_COMPONENT_PT));
-    Tree_->Branch("RECO_PFJET_COMPONENT_ETA",cast_to_vector(&RECO_PFJET_COMPONENT_ETA));
-    Tree_->Branch("RECO_PFJET_COMPONENT_PHI",cast_to_vector(&RECO_PFJET_COMPONENT_PHI));
-    Tree_->Branch("RECO_PFJET_COMPONENT_E",cast_to_vector(&RECO_PFJET_COMPONENT_E));
-    Tree_->Branch("RECO_PFJET_COMPONENT_CHARGE",cast_to_vector(&RECO_PFJET_COMPONENT_CHARGE));
-    Tree_->Branch("RECO_PFJET_COMPONENT_TRANSVERSE_MASS",cast_to_vector(&RECO_PFJET_COMPONENT_TRANSVERSE_MASS));
-    Tree_->Branch("RECO_PFJET_COMPONENT_XVERTEX",cast_to_vector(&RECO_PFJET_COMPONENT_XVERTEX));
-    Tree_->Branch("RECO_PFJET_COMPONENT_YVERTEX",cast_to_vector(&RECO_PFJET_COMPONENT_YVERTEX));
-    Tree_->Branch("RECO_PFJET_COMPONENT_ZVERTEX",cast_to_vector(&RECO_PFJET_COMPONENT_ZVERTEX));
-    Tree_->Branch("RECO_PFJET_COMPONENT_VERTEX_CHI2",cast_to_vector(&RECO_PFJET_COMPONENT_VERTEX_CHI2));
+    MakeBranch(Tree_,"LHE_PARTON_CLEAR",(&LHE_PARTON_CLEAR));
+    MakeBranch(Tree_,"LHE_PARTON_PDGID",(&LHE_PARTON_PDGID));
+    MakeBranch(Tree_,"LHE_PARTON_PT",(&LHE_PARTON_PT));
+    MakeBranch(Tree_,"LHE_PARTON_ETA",(&LHE_PARTON_ETA));
+    MakeBranch(Tree_,"LHE_PARTON_PHI",(&LHE_PARTON_PHI));
+    MakeBranch(Tree_,"LHE_PARTON_E",(&LHE_PARTON_E));
+    MakeBranch(Tree_,"RECO_PFJET_PT_UncUp",(&RECO_PFJET_PT_UncUp));
+    MakeBranch(Tree_,"RECO_PFJET_PT_UncDn",(&RECO_PFJET_PT_UncDn));
+    MakeBranch(Tree_,"RECO_PFJET_AREA",(&RECO_PFJET_AREA));
+    MakeBranch(Tree_,"RECO_PFJET_PTD",(&RECO_PFJET_PTD));
+    MakeBranch(Tree_,"RECO_PFJET_CHARGED_HADRON_ENERGY",(&RECO_PFJET_CHARGED_HADRON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_NEUTRAL_HADRON_ENERGY",(&RECO_PFJET_NEUTRAL_HADRON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_PHOTON_ENERGY",(&RECO_PFJET_PHOTON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_ELECTRON_ENERGY",(&RECO_PFJET_ELECTRON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_MUON_ENERGY",(&RECO_PFJET_MUON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_HF_HADRON_ENERGY",(&RECO_PFJET_HF_HADRON_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_HF_EM_ENERGY",(&RECO_PFJET_HF_EM_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_CHARGED_EM_ENERGY",(&RECO_PFJET_CHARGED_EM_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_CHARGED_MU_ENERGY",(&RECO_PFJET_CHARGED_MU_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_NEUTRAL_EM_ENERGY",(&RECO_PFJET_NEUTRAL_EM_ENERGY));
+    MakeBranch(Tree_,"RECO_PFJET_CHARGED_HADRON_MULTIPLICITY",(&RECO_PFJET_CHARGED_HADRON_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY",(&RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_PHOTON_MULTIPLICITY",(&RECO_PFJET_PHOTON_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_ELECTRON_MULTIPLICITY",(&RECO_PFJET_ELECTRON_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_MUON_MULTIPLICITY",(&RECO_PFJET_MUON_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_HF_HADRON_MULTIPLICTY",(&RECO_PFJET_HF_HADRON_MULTIPLICTY));
+    MakeBranch(Tree_,"RECO_PFJET_HF_EM_MULTIPLICITY",(&RECO_PFJET_HF_EM_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_CHARGED_MULTIPLICITY",(&RECO_PFJET_CHARGED_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_NEUTRAL_MULTIPLICITY",(&RECO_PFJET_NEUTRAL_MULTIPLICITY));
+    MakeBranch(Tree_,"RECO_PFJET_NCOMPONENTS",(&RECO_PFJET_NCOMPONENTS));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_PDGID",(&RECO_PFJET_COMPONENT_PDGID));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_PT",(&RECO_PFJET_COMPONENT_PT));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_ETA",(&RECO_PFJET_COMPONENT_ETA));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_PHI",(&RECO_PFJET_COMPONENT_PHI));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_E",(&RECO_PFJET_COMPONENT_E));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_CHARGE",(&RECO_PFJET_COMPONENT_CHARGE));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_TRANSVERSE_MASS",(&RECO_PFJET_COMPONENT_TRANSVERSE_MASS));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_XVERTEX",(&RECO_PFJET_COMPONENT_XVERTEX));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_YVERTEX",(&RECO_PFJET_COMPONENT_YVERTEX));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_ZVERTEX",(&RECO_PFJET_COMPONENT_ZVERTEX));
+    MakeBranch(Tree_,"RECO_PFJET_COMPONENT_VERTEX_CHI2",(&RECO_PFJET_COMPONENT_VERTEX_CHI2));
     
     
     //CaloMET
@@ -1286,23 +1303,25 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
    
 
     // Btagging jets and discriminators
-    Tree_->Branch("tCHighEff_BTagJet_PT",cast_to_vector(&tCHighEff_BTagJet_PT));
-    Tree_->Branch("tCHighPur_BTagJet_PT",cast_to_vector(&tCHighPur_BTagJet_PT));
-    Tree_->Branch("cSV_BTagJet_PT",cast_to_vector(&cSV_BTagJet_PT));
-    Tree_->Branch("tCHighEff_BTagJet_ETA",cast_to_vector(&tCHighEff_BTagJet_ETA));
-    Tree_->Branch("tCHighPur_BTagJet_ETA",cast_to_vector(&tCHighPur_BTagJet_ETA));
-    Tree_->Branch("cSV_BTagJet_ETA",cast_to_vector(&cSV_BTagJet_ETA));
-    Tree_->Branch("tCHighEff_BTagJet_PHI",cast_to_vector(&tCHighEff_BTagJet_PHI));
-    Tree_->Branch("tCHighPur_BTagJet_PHI",cast_to_vector(&tCHighPur_BTagJet_PHI));
-    Tree_->Branch("cSV_BTagJet_PHI",cast_to_vector(&cSV_BTagJet_PHI));
-    Tree_->Branch("cSV_BTagJet_ET",cast_to_vector(&cSV_BTagJet_ET));
-    Tree_->Branch("tCHighEff_BTagJet_DISCR",cast_to_vector(&tCHighEff_BTagJet_DISCR));
-    Tree_->Branch("tCHighPur_BTagJet_DISCR",cast_to_vector(&tCHighPur_BTagJet_DISCR));
-    Tree_->Branch("cSV_BTagJet_DISCR",cast_to_vector(&cSV_BTagJet_DISCR));     
+    MakeBranch(Tree_,"tCHighEff_BTagJet_PT",(&tCHighEff_BTagJet_PT));
+    MakeBranch(Tree_,"tCHighPur_BTagJet_PT",(&tCHighPur_BTagJet_PT));
+    MakeBranch(Tree_,"cSV_BTagJet_PT",(&cSV_BTagJet_PT));
+    MakeBranch(Tree_,"tCHighEff_BTagJet_ETA",(&tCHighEff_BTagJet_ETA));
+    MakeBranch(Tree_,"tCHighPur_BTagJet_ETA",(&tCHighPur_BTagJet_ETA));
+    MakeBranch(Tree_,"cSV_BTagJet_ETA",(&cSV_BTagJet_ETA));
+    MakeBranch(Tree_,"tCHighEff_BTagJet_PHI",(&tCHighEff_BTagJet_PHI));
+    MakeBranch(Tree_,"tCHighPur_BTagJet_PHI",(&tCHighPur_BTagJet_PHI));
+    MakeBranch(Tree_,"cSV_BTagJet_PHI",(&cSV_BTagJet_PHI));
+    MakeBranch(Tree_,"cSV_BTagJet_ET",(&cSV_BTagJet_ET));
+    MakeBranch(Tree_,"tCHighEff_BTagJet_DISCR",(&tCHighEff_BTagJet_DISCR));
+    MakeBranch(Tree_,"tCHighPur_BTagJet_DISCR",(&tCHighPur_BTagJet_DISCR));
+    MakeBranch(Tree_,"cSV_BTagJet_DISCR",(&cSV_BTagJet_DISCR));     
   }
   
   
   void Initialize() {
+    //Clear all the vectors that were registered with MakeBranch
+    clear_vectors();
     //Initialize non-vectors for agreement with old ntuples
     irun=-999,ievt=-999,ils=-999;
     Avginstlumi=-999.;
@@ -1365,630 +1384,630 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     BeamSpot_Y=-999.;
     BeamSpot_Z=-999.;
 
-    RECOMU_PT_MuHLTMatch.clear();
-    RECOMU_ETA_MuHLTMatch.clear();
-    RECOMU_PHI_MuHLTMatch.clear();
-    RECOMU_BDT_Id.clear();
-    RECOELE_PT_EleHLTMatch.clear();
-    RECOELE_ETA_EleHLTMatch.clear();
-    RECOELE_PHI_EleHLTMatch.clear();
-    MC_E.clear();
-    MC_PT.clear();
-    MC_ETA.clear();
-    MC_THETA.clear();
-    MC_PHI.clear();
-    MC_MASS.clear();
-    MC_PDGID.clear();
-    MC_LEPT_PT.clear();
-    MC_LEPT_ETA.clear();
-    MC_LEPT_PHI.clear();
-    MC_LEPT_THETA.clear();
-    MC_LEPT_PDGID.clear();
-    MC_Z_PT.clear();
-    MC_Z_ETA.clear();
-    MC_Z_PHI.clear();
-    MC_Z_THETA.clear();
-    MC_Z_MASS.clear();
-    MC_Z_PDGID.clear();
-    MC_fourl_MASS.clear();
-    MC_fourl_PT.clear();
-    MC_fourl_PDGID.clear();
-    MC_ZZ_MASS.clear();
-    MC_ZZ_PT.clear();
-    MC_ZZ_ETA.clear();
-    MC_ZZ_PHI.clear();
-    MC_ZZ_THETA.clear();
-    MC_ZZ_PDGID.clear();
-    MC_GENJET_PT.clear();
-    MC_GENJET_ETA.clear();
-    MC_GENJET_PHI.clear();
-    RECORF_2e2mu_cosTheta1_spin.clear();
-    RECORF_2e2mu_cosTheta2_spin.clear();
-    RECORF_2e2mu_cosThetaStar_spin.clear();
-    RECORF_2e2mu_Phi_spin.clear();
-    RECORF_2e2mu_Phi1_spin.clear();
-    RECORF_2e2mu_Phi2_spin.clear();
-    RECORF_2e2mu_phi1RF_spin.clear();
-    RECORF_2e2mu_phi2RF_spin.clear();
-    RECORF_2e2mu_MELA.clear();
-    RECORF_4e_cosTheta1_spin.clear();
-    RECORF_4e_cosTheta2_spin.clear();
-    RECORF_4e_cosThetaStar_spin.clear();
-    RECORF_4e_Phi_spin.clear();
-    RECORF_4e_Phi1_spin.clear();
-    RECORF_4e_Phi2_spin.clear();
-    RECORF_4e_phi1RF_spin.clear();
-    RECORF_4e_phi2RF_spin.clear();
-    RECORF_4e_MELA.clear();
-    RECORF_4mu_cosTheta1_spin.clear();
-    RECORF_4mu_cosTheta2_spin.clear();
-    RECORF_4mu_cosThetaStar_spin.clear();
-    RECORF_4mu_Phi_spin.clear();
-    RECORF_4mu_Phi1_spin.clear();
-    RECORF_4mu_Phi2_spin.clear();
-    RECORF_4mu_phi1RF_spin.clear();
-    RECORF_4mu_phi2RF_spin.clear();
-    RECORF_4mu_MELA.clear();
-    RECO_ZMM_MASS.clear();
-    RECO_ZEE_MASS.clear();
-    RECO_DiLep_MASS.clear();
-    RECO_ZMM_PT.clear();
-    RECO_ZEE_PT.clear();
-    RECO_DiLep_PT.clear();
-    RECO_ZMM_ETA.clear();
-    RECO_ZEE_ETA.clear();
-    RECO_DiLep_ETA.clear();
-    RECO_ZMM_PHI.clear();
-    RECO_ZEE_PHI.clear();
-    RECO_DiLep_PHI.clear();
-    RECO_ZMMss_MASS.clear();
-    RECO_ZEEss_MASS.clear();
-    RECO_ZEM_MASS.clear();
-    RECO_ZMMss_PT.clear();
-    RECO_ZEEss_PT.clear();
-    RECO_ZEM_PT.clear();
-    RECO_ZMMss_ETA.clear();
-    RECO_ZEEss_ETA.clear();
-    RECO_ZEM_ETA.clear();
-    RECO_ZMMss_PHI.clear();
-    RECO_ZEEss_PHI.clear();
-    RECO_ZEM_PHI.clear();
-    RECO_MMMM_MASS.clear();
-    RECO_MMMM_PT.clear();
-    RECO_MMMM_ETA.clear();
-    RECO_MMMM_PHI.clear();
-    RECO_MMMM_MASS_REFIT.clear();
-    RECO_EEEE_MASS.clear();
-    RECO_EEEE_PT.clear();
-    RECO_EEEE_ETA.clear();
-    RECO_EEEE_PHI.clear();
-    RECOELE_SCV_PT.clear();
-    RECOELE_SCV_ETA.clear();
-    RECOELE_SCV_PHI.clear();
-    RECO_EEEE_MASS_REFIT.clear();
-    RECO_EEMM_MASS.clear();
-    RECO_EEMM_PT.clear();
-    RECO_EEMM_ETA.clear();
-    RECO_EEMM_PHI.clear();
-    RECO_EEMM_MASS_REFIT.clear();
-    RECO_LLL0_MASS.clear();
-    RECO_LLL1_MASS.clear();
-    RECO_LLL2_MASS.clear();
-    RECO_LLL3_MASS.clear();
-    RECO_LLL0_PT.clear();
-    RECO_LLL1_PT.clear();
-    RECO_LLL2_PT.clear();
-    RECO_LLL3_PT.clear();
-    RECO_LLLl0_MASS.clear();
-    RECO_LLLl1_MASS.clear();
-    RECO_LLLl0_PT.clear();
-    RECO_LLLl1_PT.clear();
-    RECO_LLLL0ss_MASS.clear();
-    RECO_LLLL0ss_PT.clear();
-    RECO_LLLL1ss_MASS.clear();
-    RECO_LLLL1ss_PT.clear();
-    RECO_LLLL2ss_MASS.clear();
-    RECO_LLLL2ss_PT.clear();
-    RECO_LLLL_MASS.clear();
-    RECO_LLLL_PT.clear();
-    RECO_LLLL_ETA.clear();
-    RECO_LLLL_PHI.clear();
-    RECOELE_E.clear();
-    RECOELE_PT.clear();
-    RECOELE_PTError.clear();
-    RECOELE_P.clear();
-    RECOELE_ETA.clear();
-    RECOELE_THETA.clear();
-    RECOELE_PHI.clear();
-    RECOELE_MASS.clear();
-    RECOELE_CHARGE.clear();
-    RECOELE_ID.clear();
-    RECOELE_PT_uncorr.clear();
-    RECOELE_isEcalDriven.clear();
-    RECOELE_isTrackerDriven.clear();
-    RECOELE_gsftrack_NPixHits.clear();
-    RECOELE_gsftrack_NStripHits.clear();
-    RECOELE_gsftrack_chi2.clear();
-    RECOELE_gsftrack_dxyB.clear();
-    RECOELE_gsftrack_dxy.clear();
-    RECOELE_gsftrack_dxyError.clear();
-    RECOELE_gsftrack_dzB.clear();
-    RECOELE_gsftrack_dz.clear();
-    RECOELE_gsftrack_dzError.clear();
-    RECOELE_gsftrack_losthits.clear();
-    RECOELE_gsftrack_validhits.clear();
-    RECOELE_gsftrack_expected_inner_hits.clear();
-    RECOELE_scl_E.clear();
-    RECOELE_scl_Et.clear();
-    RECOELE_scl_Eta.clear();
-    RECOELE_scl_Phi.clear();
-    RECOELE_ecalEnergy.clear();
-    RECOELE_ep.clear();
-    RECOELE_eSeedp.clear();
-    RECOELE_eSeedpout.clear();
-    RECOELE_eElepout.clear();
-    RECOELE_deltaEtaIn.clear();
-    RECOELE_deltaEtaSeed.clear();
-    RECOELE_deltaEtaEle.clear();
-    RECOELE_deltaPhiIn.clear();
-    RECOELE_deltaPhiSeed.clear();
-    RECOELE_deltaPhiEle.clear();
-    RECOELE_isbarrel.clear();
-    RECOELE_isendcap.clear();
-    RECOELE_isGap.clear();
-    RECOELE_isEBetaGap.clear();
-    RECOELE_isEBphiGap.clear();
-    RECOELE_isEEdeeGap.clear();
-    RECOELE_isEEringGap.clear();
-    RECOELE_sigmaIetaIeta.clear();
-    RECOELE_sigmaEtaEta.clear();
-    RECOELE_e15.clear();
-    RECOELE_e25max.clear();
-    RECOELE_e55.clear();
-    RECOELE_he.clear();
-    RECOELE_r9.clear();
-    RECOELE_mva.clear();
-    RECOELE_fbrem.clear();
-    RECOELE_nbrems.clear();
-    RECOELE_Class.clear();
-    RECOELE_fbrem_mode.clear();
-    RECOELE_fbrem_mean.clear();
-    RECOELE_EGMTRACKISO.clear();
-    RECOELE_EGMHCALISO.clear();
-    RECOELE_EGMECALISO.clear();
-    RECOELE_EGMX.clear();
-    RECOELE_PFchAllPart.clear();
-    RECOELE_PFchHad.clear();
-    RECOELE_PFneuHad.clear();
-    RECOELE_PFphoton.clear();
-    RECOELE_PFPUchAllPart.clear();
-    RECOELE_PFX_dB.clear();
-    RECOELE_PFX_rho.clear();
-    RECOELE_regEnergy.clear();
-    RECOELE_regEnergyError.clear();
-    RECOELE_SIP.clear();
-    RECOELE_IP.clear();
-    RECOELE_IPERROR.clear();
-    RECOELE_SIP_KF.clear();
-    RECOELE_IP_KF.clear();
-    RECOELE_IPERROR_KF.clear();
-    RECOELE_SIP_GD.clear();
-    RECOELE_SIP_GDEEEE.clear();
-    RECOELE_SIP_Std.clear();
-    RECOELE_SIP_StdEEEE.clear();
-    RECOELE_SIP_Kin.clear();
-    RECOELE_SIP_KinEEEE.clear();
-    RECOELE_STIP.clear();
-    RECOELE_SLIP.clear();
-    RECOELE_TIP.clear();
-    RECOELE_LIP.clear();
-    RECOELE_TIPERROR.clear();
-    RECOELE_LIPERROR.clear();
-    ele_sclRawE.clear();
-    ele_sclX.clear();
-    ele_sclY.clear();
-    ele_sclZ.clear();
-    ele_seedSubdet1.clear();
-    ele_seedDphi1.clear();
-    ele_seedDrz1.clear();
-    ele_seedSubdet2.clear();
-    ele_seedDphi2.clear();
-    ele_seedDrz2.clear();
-    ele_eidVeryLoose.clear();
-    ele_eidLoose.clear();
-    ele_eidMedium.clear();
-    ele_eidTight.clear();
-    ele_eidHZZVeryLoose.clear();
-    ele_eidHZZLoose.clear();
-    ele_eidHZZMedium.clear();
-    ele_eidHZZTight.clear();
-    RECOELE_mvaTrigV0.clear();
-    RECOELE_mvaNonTrigV0.clear();
-    RECOELE_COV.clear();
-    RECOELE_TLE_ParentSC_X.clear();
-    RECOELE_TLE_ParentSC_Y.clear();
-    RECOELE_TLE_ParentSC_Z.clear();
-    RECOELE_ecalTrkEnergyPreCorr.clear();
-    RECOELE_ecalTrkEnergyErrPreCorr.clear();
-    RECOELE_ecalTrkEnergyErrPostCorr.clear();
-    RECOELE_energyScaleValue.clear();
-    RECOELE_energySigmaValue.clear();
-    RECOELE_energyScaleUp.clear();
-    RECOELE_energyScaleDown.clear();
-    RECOELE_energyScaleStatUp.clear();
-    RECOELE_energyScaleStatDown.clear();
-    RECOELE_energyScaleSystUp.clear();
-    RECOELE_energyScaleSystDown.clear();
-    RECOELE_energyScaleGainUp.clear();
-    RECOELE_energyScaleGainDown.clear();
-    RECOELE_energyScaleEtUp.clear();
-    RECOELE_energyScaleEtDown.clear();
-    RECOELE_energySigmaUp.clear();
-    RECOELE_energySigmaDown.clear();
-    RECOELE_energySigmaPhiUp.clear();
-    RECOELE_energySigmaPhiDown.clear();
-    RECOELE_energySigmaRhoUp.clear();
-    RECOELE_energySigmaRhoDown.clear();
-    RECOMU_isPFMu.clear();
-    RECOMU_isGlobalMu.clear();
-    RECOMU_isStandAloneMu.clear();
-    RECOMU_isTrackerMu.clear();
-    RECOMU_isCaloMu.clear();
-    RECOMU_isTrackerHighPtMu.clear();
-    RECOMU_isME0Muon.clear();
-    RECOMU_BDT_Id.clear();
-    RECOMU_E.clear();
-    RECOMU_PT.clear();
-    RECOMU_P.clear();
-    RECOMU_ETA.clear();
-    RECOMU_THETA.clear();
-    RECOMU_PHI.clear();
-    RECOMU_MASS.clear();
-    RECOMU_CHARGE.clear();
-    RECOMU_PT_uncorr.clear();
-    RECOMU_COV.clear();
-    RECOMU_TRACKISO.clear();
-    RECOMU_TRACKISO_SUMPT.clear();
-    RECOMU_HCALISO.clear();
-    RECOMU_ECALISO.clear();
-    RECOMU_X.clear();
-    RECOMU_PFchHad.clear();
-    RECOMU_PFneuHad.clear();
-    RECOMU_PFphoton.clear();
-    RECOMU_PFPUchAllPart.clear();
-    RECOMU_PFX_dB.clear();
-    RECOMU_PFX_rho.clear();
-    RECOPFPHOT_PFchHad.clear();
-    RECOPFPHOT_PFneuHad.clear();
-    RECOPFPHOT_PFphoton.clear();
-    RECOPFPHOT_PFPUchAllPart.clear();
-    RECOPFPHOT_PFX_rho.clear();
-    RECOMU_SIP.clear();
-    RECOMU_IP.clear();
-    RECOMU_IPERROR.clear();
-    RECOMU_SIP_KF.clear();
-    RECOMU_IP_KF.clear();
-    RECOMU_IPERROR_KF.clear();
-    RECOMU_SIP_GD.clear();
-    RECOMU_SIP_GDMMMM.clear();
-    RECOMU_SIP_Std.clear();
-    RECOMU_SIP_StdMMMM.clear();
-    RECOMU_SIP_Kin.clear();
-    RECOMU_SIP_KinMMMM.clear();
-    RECOMU_STIP.clear();
-    RECOMU_SLIP.clear();
-    RECOMU_TIP.clear();
-    RECOMU_LIP.clear();
-    RECOMU_TIPERROR.clear();
-    RECOMU_LIPERROR.clear();
-    RECOMU_caloCompatibility.clear();
-    RECOMU_segmentCompatibility.clear();
-    RECOMU_numberOfMatches.clear();
-    RECOMU_numberOfMatchedStations.clear();
-    RECOMU_glbmuPromptTight.clear();
-    RECOMU_trkmuArbitration.clear();
-    RECOMU_trkmu2DCompatibilityLoose.clear();
-    RECOMU_trkmu2DCompatibilityTight.clear();
-    RECOMU_trkmuOneStationLoose.clear();
-    RECOMU_trkmuOneStationTight.clear();
-    RECOMU_trkmuLastStationLoose.clear();
-    RECOMU_trkmuLastStationTight.clear();
-    RECOMU_trkmuOneStationAngLoose.clear();
-    RECOMU_trkmuOneStationAngTight.clear();
-    RECOMU_trkmuLastStationAngLoose.clear();
-    RECOMU_trkmuLastStationAngTight.clear();
-    RECOMU_trkmuLastStationOptimizedLowPtLoose.clear();
-    RECOMU_trkmuLastStationOptimizedLowPtTight.clear();
-    RECOMU_mutrkPT.clear();
-    RECOMU_mutrkPTError.clear();
-    RECOMU_mutrkDxy.clear();
-    RECOMU_mutrkDxyError.clear();
-    RECOMU_mutrkDxyB.clear();
-    RECOMU_mutrkDz.clear();
-    RECOMU_mutrkDzError.clear();
-    RECOMU_mutrkDzB.clear();
-    RECOMU_mutrkChi2PerNdof.clear();
-    RECOMU_mutrkCharge.clear();
-    RECOMU_mutrkNHits.clear();
-    RECOMU_mutrkNStripHits.clear();
-    RECOMU_mutrkNPixHits.clear();
-    RECOMU_mutrkNMuonHits.clear();
-    RECOMU_mutrktrackerLayersWithMeasurement.clear();
-    RECOMU_muInnertrkDxy.clear();
-    RECOMU_muInnertrkDxyError.clear();
-    RECOMU_muInnertrkDxyB.clear();
-    RECOMU_muInnertrkDz.clear();
-    RECOMU_muInnertrkDzError.clear();
-    RECOMU_muInnertrkDzB.clear();
-    RECOMU_muInnertrkChi2PerNdof.clear();
-    RECOMU_muInnertrktrackerLayersWithMeasurement.clear();
-    RECOMU_muInnertrkPT.clear();
-    RECOMU_muInnertrkPTError.clear();
-    RECOMU_muInnertrkCharge.clear();
-    RECOMU_muInnertrkNHits.clear();
-    RECOMU_muInnertrkNStripHits.clear();
-    RECOMU_muInnertrkNPixHits.clear();
-    RECOMU_mubesttrkType.clear();
-    RECOMU_mubesttrkDxy.clear();
-    RECOMU_mubesttrkDxyError.clear();
-    RECOMU_mubesttrkDz.clear();
-    RECOMU_mubesttrkDzError.clear();
-    RECOMU_mubesttrkPTError.clear();
-    RECOMU_Rochester_Error.clear();
-    ftsigma.clear();
-    gdX.clear();
-    gdY.clear();
-    gdZ.clear();
-    ftsigmalag.clear();
-    gdlagX.clear();
-    gdlagY.clear();
-    gdlagZ.clear();
-    gdlagProb.clear();
-    gdlagNdof.clear();
-    ftsigmaMMMM.clear();
-    gdXMMMM.clear();
-    gdYMMMM.clear();
-    gdZMMMM.clear();
-    ftsigmalagMMMM.clear();
-    gdlagXMMMM.clear();
-    gdlagYMMMM.clear();
-    gdlagZMMMM.clear();
-    gdlagProbMMMM.clear();
-    gdlagNdofMMMM.clear();
-    ftsigmaEEEE.clear();
-    gdXEEEE.clear();
-    gdYEEEE.clear();
-    gdZEEEE.clear();
-    ftsigmalagEEEE.clear();
-    gdlagXEEEE.clear();
-    gdlagYEEEE.clear();
-    gdlagZEEEE.clear();
-    gdlagProbEEEE.clear();
-    gdlagNdofEEEE.clear();
-    StdFitVertexX.clear();
-    StdFitVertexY.clear();
-    StdFitVertexZ.clear();
-    StdFitVertexChi2r.clear();
-    StdFitVertexProb.clear();
-    StdFitVertexTrack_PT.clear();
-    StdFitVertexTrack_ETA.clear();
-    StdFitVertexTrack_PHI.clear();
-    KinFitVertexX.clear();
-    KinFitVertexY.clear();
-    KinFitVertexZ.clear();
-    KinFitVertexChi2r.clear();
-    KinFitVertexProb.clear();
-    StdFitVertexXMMMM.clear();
-    StdFitVertexYMMMM.clear();
-    StdFitVertexZMMMM.clear();
-    StdFitVertexChi2rMMMM.clear();
-    StdFitVertexProbMMMM.clear();
-    StdFitVertexTrackMMMM_PT.clear();
-    StdFitVertexTrackMMMM_ETA.clear();
-    StdFitVertexTrackMMMM_PHI.clear();
-    KinFitVertexXMMMM.clear();
-    KinFitVertexYMMMM.clear();
-    KinFitVertexZMMMM.clear();
-    KinFitVertexChi2rMMMM.clear();
-    KinFitVertexProbMMMM.clear();
-    StdFitVertexXEEEE.clear();
-    StdFitVertexYEEEE.clear();
-    StdFitVertexZEEEE.clear();
-    StdFitVertexChi2rEEEE.clear();
-    StdFitVertexProbEEEE.clear();
-    StdFitVertexTrackEEEE_PT.clear();
-    StdFitVertexTrackEEEE_ETA.clear();
-    StdFitVertexTrackEEEE_PHI.clear();
-    KinFitVertexXEEEE.clear();
-    KinFitVertexYEEEE.clear();
-    KinFitVertexZEEEE.clear();
-    KinFitVertexChi2rEEEE.clear();
-    KinFitVertexProbEEEE.clear();
-    StdFitVertexChi2rMMM.clear();
-    StdFitVertexProbMMM.clear();
-    StdFitVertexChi2rMME.clear();
-    StdFitVertexProbMME.clear();
-    StdFitVertexChi2rEEE.clear();
-    StdFitVertexProbEEE.clear();
-    StdFitVertexChi2rMEE.clear();
-    StdFitVertexProbMEE.clear();
-    StdFitVertexChi2rDiLep.clear();
-    StdFitVertexProbDiLep.clear();
-    ConvMapDist.clear();
-    ConvMapDcot.clear();
-    RECOMU_MatchingMCTruth.clear();
-    RECOMU_MatchingMCpT.clear();
-    RECOMU_MatchingMCEta.clear();
-    RECOMU_MatchingMCPhi.clear();
-    RECOELE_MatchingMCTruth.clear();
-    RECOELE_MatchingMCpT.clear();
-    RECOELE_MatchingMCEta.clear();
-    RECOELE_MatchingMCPhi.clear();
-    RECOPHOT_MatchingMCTruth.clear();
-    RECOPHOT_MatchingMCpT.clear();
-    RECOPHOT_MatchingMCEta.clear();
-    RECOPHOT_MatchingMCPhi.clear();
-    RECOzMuMu_MatchingMCTruth.clear();
-    RECOzMuMu_MatchingMCpT.clear();
-    RECOzMuMu_MatchingMCmass.clear();
-    RECOzMuMu_MatchingMCEta.clear();
-    RECOzMuMu_MatchingMCPhi.clear();
-    RECOzEE_MatchingMCTruth.clear();
-    RECOzEE_MatchingMCpT.clear();
-    RECOzEE_MatchingMCmass.clear();
-    RECOzEE_MatchingMCEta.clear();
-    RECOzEE_MatchingMCPhi.clear();
-    RECOHzzEEEE_MatchingMCTruth.clear();
-    RECOHzzEEEE_MatchingMCpT.clear();
-    RECOHzzEEEE_MatchingMCmass.clear();
-    RECOHzzEEEE_MatchingMCEta.clear();
-    RECOHzzEEEE_MatchingMCPhi.clear();
-    RECOHzzEEMM_MatchingMCTruth.clear();
-    RECOHzzEEMM_MatchingMCpT.clear();
-    RECOHzzEEMM_MatchingMCmass.clear();
-    RECOHzzEEMM_MatchingMCEta.clear();
-    RECOHzzEEMM_MatchingMCPhi.clear();
-    RECOHzzMMMM_MatchingMCTruth.clear();
-    RECOHzzMMMM_MatchingMCpT.clear();
-    RECOHzzMMMM_MatchingMCmass.clear();
-    RECOHzzMMMM_MatchingMCEta.clear();
-    RECOHzzMMMM_MatchingMCPhi.clear();
-    RECO_TRACK_PT.clear();
-    RECO_TRACK_ETA.clear();
-    RECO_TRACK_PHI.clear();
-    RECO_TRACK_CHI2.clear();
-    RECO_TRACK_CHI2RED.clear();
-    RECO_TRACK_CHI2PROB.clear();
-    RECO_TRACK_NHITS.clear();
-    RECO_TRACK_DXY.clear();
-    RECO_TRACK_DXYERR.clear();
-    RECO_TRACK_DZ.clear();
-    RECO_TRACK_DZERR.clear();
-    RECOPHOT_PT.clear();
-    RECOPHOT_ETA.clear();
-    RECOPHOT_PHI.clear();
-    RECOPHOT_ID.clear();
-    RECOPHOT_THETA.clear();
-    RECOPHOT_TLE_ParentSC_X.clear();
-    RECOPHOT_TLE_ParentSC_Y.clear();
-    RECOPHOT_TLE_ParentSC_Z.clear();
-    RECOPFPHOT_PT.clear();
-    RECOPFPHOT_PTError.clear();
-    RECOPHOTCOR_PT.clear();
-    RECOPHOTCOR_PTError.clear();
-    RECOPFPHOT_ETA.clear();
-    RECOPFPHOT_PHI.clear();
-    RECOPFPHOT_THETA.clear();
-    RECOPFPHOT_PT_uncorr.clear();
-    RECOPFPHOT_ecalEnergyPreCorr.clear();
-    RECOPFPHOT_ecalEnergyErrPreCorr.clear();
-    RECOPFPHOT_ecalEnergyErrPostCorr.clear();
-    RECOPFPHOT_energyScaleValue.clear();
-    RECOPFPHOT_energySigmaValue.clear();
-    RECOPFPHOT_energyScaleUp.clear();
-    RECOPFPHOT_energyScaleDown.clear();
-    RECOPFPHOT_energyScaleStatUp.clear();
-    RECOPFPHOT_energyScaleStatDown.clear();
-    RECOPFPHOT_energyScaleSystUp.clear();
-    RECOPFPHOT_energyScaleSystDown.clear();
-    RECOPFPHOT_energyScaleGainUp.clear();
-    RECOPFPHOT_energyScaleGainDown.clear();
-    RECOPFPHOT_energyScaleEtUp.clear();
-    RECOPFPHOT_energyScaleEtDown.clear();
-    RECOPFPHOT_energySigmaUp.clear();
-    RECOPFPHOT_energySigmaDown.clear();
-    RECOPFPHOT_energySigmaPhiUp.clear();
-    RECOPFPHOT_energySigmaPhiDown.clear();
-    RECOPFPHOT_energySigmaRhoUp.clear();
-    RECOPFPHOT_energySigmaRhoDown.clear();
-    RECO_VERTEX_x.clear();
-    RECO_VERTEX_y.clear();
-    RECO_VERTEX_z.clear();
-    RECO_VERTEX_ndof.clear();
-    RECO_VERTEX_chi2.clear();
-    RECO_VERTEX_ntracks.clear();
-    RECO_VERTEXPROB.clear();
-    RECO_VERTEX_isValid.clear();
-    RECO_VERTEX_TRACK_PT.clear();
-    RECO_PFJET_CHARGE.clear();
-    RECO_PFJET_ET.clear();
-    RECO_PFJET_PT.clear();
-    RECO_PFJET_ETA.clear();
-    RECO_PFJET_MASS.clear();
-    RECO_PFJET_PT_UP.clear();
-    RECO_PFJET_MASS_UP.clear();
-    RECO_PFJET_ETA_UP.clear();
-    RECO_PFJET_PHI_UP.clear();
-    RECO_PFJET_PT_DN.clear();
-    RECO_PFJET_MASS_DN.clear();
-    RECO_PFJET_ETA_DN.clear();
-    RECO_PFJET_PHI_DN.clear();
-    RECO_PFJET_RAWPT.clear();
-    RECO_PFJET_PUID_loose.clear();
-    RECO_PFJET_PUID_medium.clear();
-    RECO_PFJET_PHI.clear();
-    RECO_PFJET_PUID_loose.clear();
-    RECO_PFJET_PUID_medium.clear();
-    RECO_PFJET_PUID.clear();
-    RECO_PFJET_PUID_MVA.clear();
-    RECO_PFJET_QG_Likelihood.clear();
-    RECO_PFJET_QG_axis2.clear();
-    RECO_PFJET_QG_ptd.clear();
-    RECO_PFJET_QG_mult.clear();
-    LHE_PARTON_CLEAR.clear();
-    LHE_PARTON_PDGID.clear();
-    LHE_PARTON_PT.clear();
-    LHE_PARTON_ETA.clear();
-    LHE_PARTON_PHI.clear();
-    LHE_PARTON_E.clear();
-    RECO_PFJET_PT_UncUp.clear();
-    RECO_PFJET_PT_UncDn.clear();
-    RECO_PFJET_AREA.clear();
-    RECO_PFJET_PTD.clear();
-    RECO_PFJET_CHARGED_HADRON_ENERGY.clear();
-    RECO_PFJET_NEUTRAL_HADRON_ENERGY.clear();
-    RECO_PFJET_PHOTON_ENERGY.clear();
-    RECO_PFJET_ELECTRON_ENERGY.clear();
-    RECO_PFJET_MUON_ENERGY.clear();
-    RECO_PFJET_HF_HADRON_ENERGY.clear();
-    RECO_PFJET_HF_EM_ENERGY.clear();
-    RECO_PFJET_CHARGED_EM_ENERGY.clear();
-    RECO_PFJET_CHARGED_MU_ENERGY.clear();
-    RECO_PFJET_NEUTRAL_EM_ENERGY.clear();
-    RECO_PFJET_CHARGED_HADRON_MULTIPLICITY.clear();
-    RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY.clear();
-    RECO_PFJET_PHOTON_MULTIPLICITY.clear();
-    RECO_PFJET_ELECTRON_MULTIPLICITY.clear();
-    RECO_PFJET_MUON_MULTIPLICITY.clear();
-    RECO_PFJET_HF_HADRON_MULTIPLICTY.clear();
-    RECO_PFJET_HF_EM_MULTIPLICITY.clear();
-    RECO_PFJET_CHARGED_MULTIPLICITY.clear();
-    RECO_PFJET_NEUTRAL_MULTIPLICITY.clear();
-    RECO_PFJET_NCOMPONENTS.clear();
-    RECO_PFJET_COMPONENT_PDGID.clear();
-    RECO_PFJET_COMPONENT_PT.clear();
-    RECO_PFJET_COMPONENT_ETA.clear();
-    RECO_PFJET_COMPONENT_PHI.clear();
-    RECO_PFJET_COMPONENT_E.clear();
-    RECO_PFJET_COMPONENT_CHARGE.clear();
-    RECO_PFJET_COMPONENT_TRANSVERSE_MASS.clear();
-    RECO_PFJET_COMPONENT_XVERTEX.clear();
-    RECO_PFJET_COMPONENT_YVERTEX.clear();
-    RECO_PFJET_COMPONENT_ZVERTEX.clear();
-    RECO_PFJET_COMPONENT_VERTEX_CHI2.clear();
-    tCHighEff_BTagJet_PT.clear();
-    tCHighPur_BTagJet_PT.clear();
-    cSV_BTagJet_PT.clear();
-    tCHighEff_BTagJet_ETA.clear();
-    tCHighPur_BTagJet_ETA.clear();
-    cSV_BTagJet_ETA.clear();
-    tCHighEff_BTagJet_PHI.clear();
-    tCHighPur_BTagJet_PHI.clear();
-    cSV_BTagJet_PHI.clear();
-    cSV_BTagJet_ET.clear();
-    tCHighEff_BTagJet_DISCR.clear();
-    tCHighPur_BTagJet_DISCR.clear();
-    cSV_BTagJet_DISCR.clear();
+    //RECOMU_PT_MuHLTMatch.clear();
+    //RECOMU_ETA_MuHLTMatch.clear();
+    //RECOMU_PHI_MuHLTMatch.clear();
+    //RECOMU_BDT_Id.clear();
+    //RECOELE_PT_EleHLTMatch.clear();
+    //RECOELE_ETA_EleHLTMatch.clear();
+    //RECOELE_PHI_EleHLTMatch.clear();
+    //MC_E.clear();
+    //MC_PT.clear();
+    //MC_ETA.clear();
+    //MC_THETA.clear();
+    //MC_PHI.clear();
+    //MC_MASS.clear();
+    //MC_PDGID.clear();
+    //MC_LEPT_PT.clear();
+    //MC_LEPT_ETA.clear();
+    //MC_LEPT_PHI.clear();
+    //MC_LEPT_THETA.clear();
+    //MC_LEPT_PDGID.clear();
+    //MC_Z_PT.clear();
+    //MC_Z_ETA.clear();
+    //MC_Z_PHI.clear();
+    //MC_Z_THETA.clear();
+    //MC_Z_MASS.clear();
+    //MC_Z_PDGID.clear();
+    //MC_fourl_MASS.clear();
+    //MC_fourl_PT.clear();
+    //MC_fourl_PDGID.clear();
+    //MC_ZZ_MASS.clear();
+    //MC_ZZ_PT.clear();
+    //MC_ZZ_ETA.clear();
+    //MC_ZZ_PHI.clear();
+    //MC_ZZ_THETA.clear();
+    //MC_ZZ_PDGID.clear();
+    //MC_GENJET_PT.clear();
+    //MC_GENJET_ETA.clear();
+    //MC_GENJET_PHI.clear();
+    //RECORF_2e2mu_cosTheta1_spin.clear();
+    //RECORF_2e2mu_cosTheta2_spin.clear();
+    //RECORF_2e2mu_cosThetaStar_spin.clear();
+    //RECORF_2e2mu_Phi_spin.clear();
+    //RECORF_2e2mu_Phi1_spin.clear();
+    //RECORF_2e2mu_Phi2_spin.clear();
+    //RECORF_2e2mu_phi1RF_spin.clear();
+    //RECORF_2e2mu_phi2RF_spin.clear();
+    //RECORF_2e2mu_MELA.clear();
+    //RECORF_4e_cosTheta1_spin.clear();
+    //RECORF_4e_cosTheta2_spin.clear();
+    //RECORF_4e_cosThetaStar_spin.clear();
+    //RECORF_4e_Phi_spin.clear();
+    //RECORF_4e_Phi1_spin.clear();
+    //RECORF_4e_Phi2_spin.clear();
+    //RECORF_4e_phi1RF_spin.clear();
+    //RECORF_4e_phi2RF_spin.clear();
+    //RECORF_4e_MELA.clear();
+    //RECORF_4mu_cosTheta1_spin.clear();
+    //RECORF_4mu_cosTheta2_spin.clear();
+    //RECORF_4mu_cosThetaStar_spin.clear();
+    //RECORF_4mu_Phi_spin.clear();
+    //RECORF_4mu_Phi1_spin.clear();
+    //RECORF_4mu_Phi2_spin.clear();
+    //RECORF_4mu_phi1RF_spin.clear();
+    //RECORF_4mu_phi2RF_spin.clear();
+    //RECORF_4mu_MELA.clear();
+    //RECO_ZMM_MASS.clear();
+    //RECO_ZEE_MASS.clear();
+    //RECO_DiLep_MASS.clear();
+    //RECO_ZMM_PT.clear();
+    //RECO_ZEE_PT.clear();
+    //RECO_DiLep_PT.clear();
+    //RECO_ZMM_ETA.clear();
+    //RECO_ZEE_ETA.clear();
+    //RECO_DiLep_ETA.clear();
+    //RECO_ZMM_PHI.clear();
+    //RECO_ZEE_PHI.clear();
+    //RECO_DiLep_PHI.clear();
+    //RECO_ZMMss_MASS.clear();
+    //RECO_ZEEss_MASS.clear();
+    //RECO_ZEM_MASS.clear();
+    //RECO_ZMMss_PT.clear();
+    //RECO_ZEEss_PT.clear();
+    //RECO_ZEM_PT.clear();
+    //RECO_ZMMss_ETA.clear();
+    //RECO_ZEEss_ETA.clear();
+    //RECO_ZEM_ETA.clear();
+    //RECO_ZMMss_PHI.clear();
+    //RECO_ZEEss_PHI.clear();
+    //RECO_ZEM_PHI.clear();
+    //RECO_MMMM_MASS.clear();
+    //RECO_MMMM_PT.clear();
+    //RECO_MMMM_ETA.clear();
+    //RECO_MMMM_PHI.clear();
+    //RECO_MMMM_MASS_REFIT.clear();
+    //RECO_EEEE_MASS.clear();
+    //RECO_EEEE_PT.clear();
+    //RECO_EEEE_ETA.clear();
+    //RECO_EEEE_PHI.clear();
+    //RECOELE_SCV_PT.clear();
+    //RECOELE_SCV_ETA.clear();
+    //RECOELE_SCV_PHI.clear();
+    //RECO_EEEE_MASS_REFIT.clear();
+    //RECO_EEMM_MASS.clear();
+    //RECO_EEMM_PT.clear();
+    //RECO_EEMM_ETA.clear();
+    //RECO_EEMM_PHI.clear();
+    //RECO_EEMM_MASS_REFIT.clear();
+    //RECO_LLL0_MASS.clear();
+    //RECO_LLL1_MASS.clear();
+    //RECO_LLL2_MASS.clear();
+    //RECO_LLL3_MASS.clear();
+    //RECO_LLL0_PT.clear();
+    //RECO_LLL1_PT.clear();
+    //RECO_LLL2_PT.clear();
+    //RECO_LLL3_PT.clear();
+    //RECO_LLLl0_MASS.clear();
+    //RECO_LLLl1_MASS.clear();
+    //RECO_LLLl0_PT.clear();
+    //RECO_LLLl1_PT.clear();
+    //RECO_LLLL0ss_MASS.clear();
+    //RECO_LLLL0ss_PT.clear();
+    //RECO_LLLL1ss_MASS.clear();
+    //RECO_LLLL1ss_PT.clear();
+    //RECO_LLLL2ss_MASS.clear();
+    //RECO_LLLL2ss_PT.clear();
+    //RECO_LLLL_MASS.clear();
+    //RECO_LLLL_PT.clear();
+    //RECO_LLLL_ETA.clear();
+    //RECO_LLLL_PHI.clear();
+    //RECOELE_E.clear();
+    //RECOELE_PT.clear();
+    //RECOELE_PTError.clear();
+    //RECOELE_P.clear();
+    //RECOELE_ETA.clear();
+    //RECOELE_THETA.clear();
+    //RECOELE_PHI.clear();
+    //RECOELE_MASS.clear();
+    //RECOELE_CHARGE.clear();
+    //RECOELE_ID.clear();
+    //RECOELE_PT_uncorr.clear();
+    //RECOELE_isEcalDriven.clear();
+    //RECOELE_isTrackerDriven.clear();
+    //RECOELE_gsftrack_NPixHits.clear();
+    //RECOELE_gsftrack_NStripHits.clear();
+    //RECOELE_gsftrack_chi2.clear();
+    //RECOELE_gsftrack_dxyB.clear();
+    //RECOELE_gsftrack_dxy.clear();
+    //RECOELE_gsftrack_dxyError.clear();
+    //RECOELE_gsftrack_dzB.clear();
+    //RECOELE_gsftrack_dz.clear();
+    //RECOELE_gsftrack_dzError.clear();
+    //RECOELE_gsftrack_losthits.clear();
+    //RECOELE_gsftrack_validhits.clear();
+    //RECOELE_gsftrack_expected_inner_hits.clear();
+    //RECOELE_scl_E.clear();
+    //RECOELE_scl_Et.clear();
+    //RECOELE_scl_Eta.clear();
+    //RECOELE_scl_Phi.clear();
+    //RECOELE_ecalEnergy.clear();
+    //RECOELE_ep.clear();
+    //RECOELE_eSeedp.clear();
+    //RECOELE_eSeedpout.clear();
+    //RECOELE_eElepout.clear();
+    //RECOELE_deltaEtaIn.clear();
+    //RECOELE_deltaEtaSeed.clear();
+    //RECOELE_deltaEtaEle.clear();
+    //RECOELE_deltaPhiIn.clear();
+    //RECOELE_deltaPhiSeed.clear();
+    //RECOELE_deltaPhiEle.clear();
+    //RECOELE_isbarrel.clear();
+    //RECOELE_isendcap.clear();
+    //RECOELE_isGap.clear();
+    //RECOELE_isEBetaGap.clear();
+    //RECOELE_isEBphiGap.clear();
+    //RECOELE_isEEdeeGap.clear();
+    //RECOELE_isEEringGap.clear();
+    //RECOELE_sigmaIetaIeta.clear();
+    //RECOELE_sigmaEtaEta.clear();
+    //RECOELE_e15.clear();
+    //RECOELE_e25max.clear();
+    //RECOELE_e55.clear();
+    //RECOELE_he.clear();
+    //RECOELE_r9.clear();
+    //RECOELE_mva.clear();
+    //RECOELE_fbrem.clear();
+    //RECOELE_nbrems.clear();
+    //RECOELE_Class.clear();
+    //RECOELE_fbrem_mode.clear();
+    //RECOELE_fbrem_mean.clear();
+    //RECOELE_EGMTRACKISO.clear();
+    //RECOELE_EGMHCALISO.clear();
+    //RECOELE_EGMECALISO.clear();
+    //RECOELE_EGMX.clear();
+    //RECOELE_PFchAllPart.clear();
+    //RECOELE_PFchHad.clear();
+    //RECOELE_PFneuHad.clear();
+    //RECOELE_PFphoton.clear();
+    //RECOELE_PFPUchAllPart.clear();
+    //RECOELE_PFX_dB.clear();
+    //RECOELE_PFX_rho.clear();
+    //RECOELE_regEnergy.clear();
+    //RECOELE_regEnergyError.clear();
+    //RECOELE_SIP.clear();
+    //RECOELE_IP.clear();
+    //RECOELE_IPERROR.clear();
+    //RECOELE_SIP_KF.clear();
+    //RECOELE_IP_KF.clear();
+    //RECOELE_IPERROR_KF.clear();
+    //RECOELE_SIP_GD.clear();
+    //RECOELE_SIP_GDEEEE.clear();
+    //RECOELE_SIP_Std.clear();
+    //RECOELE_SIP_StdEEEE.clear();
+    //RECOELE_SIP_Kin.clear();
+    //RECOELE_SIP_KinEEEE.clear();
+    //RECOELE_STIP.clear();
+    //RECOELE_SLIP.clear();
+    //RECOELE_TIP.clear();
+    //RECOELE_LIP.clear();
+    //RECOELE_TIPERROR.clear();
+    //RECOELE_LIPERROR.clear();
+    //ele_sclRawE.clear();
+    //ele_sclX.clear();
+    //ele_sclY.clear();
+    //ele_sclZ.clear();
+    //ele_seedSubdet1.clear();
+    //ele_seedDphi1.clear();
+    //ele_seedDrz1.clear();
+    //ele_seedSubdet2.clear();
+    //ele_seedDphi2.clear();
+    //ele_seedDrz2.clear();
+    //ele_eidVeryLoose.clear();
+    //ele_eidLoose.clear();
+    //ele_eidMedium.clear();
+    //ele_eidTight.clear();
+    //ele_eidHZZVeryLoose.clear();
+    //ele_eidHZZLoose.clear();
+    //ele_eidHZZMedium.clear();
+    //ele_eidHZZTight.clear();
+    //RECOELE_mvaTrigV0.clear();
+    //RECOELE_mvaNonTrigV0.clear();
+    //RECOELE_COV.clear();
+    //RECOELE_TLE_ParentSC_X.clear();
+    //RECOELE_TLE_ParentSC_Y.clear();
+    //RECOELE_TLE_ParentSC_Z.clear();
+    //RECOELE_ecalTrkEnergyPreCorr.clear();
+    //RECOELE_ecalTrkEnergyErrPreCorr.clear();
+    //RECOELE_ecalTrkEnergyErrPostCorr.clear();
+    //RECOELE_energyScaleValue.clear();
+    //RECOELE_energySigmaValue.clear();
+    //RECOELE_energyScaleUp.clear();
+    //RECOELE_energyScaleDown.clear();
+    //RECOELE_energyScaleStatUp.clear();
+    //RECOELE_energyScaleStatDown.clear();
+    //RECOELE_energyScaleSystUp.clear();
+    //RECOELE_energyScaleSystDown.clear();
+    //RECOELE_energyScaleGainUp.clear();
+    //RECOELE_energyScaleGainDown.clear();
+    //RECOELE_energyScaleEtUp.clear();
+    //RECOELE_energyScaleEtDown.clear();
+    //RECOELE_energySigmaUp.clear();
+    //RECOELE_energySigmaDown.clear();
+    //RECOELE_energySigmaPhiUp.clear();
+    //RECOELE_energySigmaPhiDown.clear();
+    //RECOELE_energySigmaRhoUp.clear();
+    //RECOELE_energySigmaRhoDown.clear();
+    //RECOMU_isPFMu.clear();
+    //RECOMU_isGlobalMu.clear();
+    //RECOMU_isStandAloneMu.clear();
+    //RECOMU_isTrackerMu.clear();
+    //RECOMU_isCaloMu.clear();
+    //RECOMU_isTrackerHighPtMu.clear();
+    //RECOMU_isME0Muon.clear();
+    //RECOMU_BDT_Id.clear();
+    //RECOMU_E.clear();
+    //RECOMU_PT.clear();
+    //RECOMU_P.clear();
+    //RECOMU_ETA.clear();
+    //RECOMU_THETA.clear();
+    //RECOMU_PHI.clear();
+    //RECOMU_MASS.clear();
+    //RECOMU_CHARGE.clear();
+    //RECOMU_PT_uncorr.clear();
+    //RECOMU_COV.clear();
+    //RECOMU_TRACKISO.clear();
+    //RECOMU_TRACKISO_SUMPT.clear();
+    //RECOMU_HCALISO.clear();
+    //RECOMU_ECALISO.clear();
+    //RECOMU_X.clear();
+    //RECOMU_PFchHad.clear();
+    //RECOMU_PFneuHad.clear();
+    //RECOMU_PFphoton.clear();
+    //RECOMU_PFPUchAllPart.clear();
+    //RECOMU_PFX_dB.clear();
+    //RECOMU_PFX_rho.clear();
+    //RECOPFPHOT_PFchHad.clear();
+    //RECOPFPHOT_PFneuHad.clear();
+    //RECOPFPHOT_PFphoton.clear();
+    //RECOPFPHOT_PFPUchAllPart.clear();
+    //RECOPFPHOT_PFX_rho.clear();
+    //RECOMU_SIP.clear();
+    //RECOMU_IP.clear();
+    //RECOMU_IPERROR.clear();
+    //RECOMU_SIP_KF.clear();
+    //RECOMU_IP_KF.clear();
+    //RECOMU_IPERROR_KF.clear();
+    //RECOMU_SIP_GD.clear();
+    //RECOMU_SIP_GDMMMM.clear();
+    //RECOMU_SIP_Std.clear();
+    //RECOMU_SIP_StdMMMM.clear();
+    //RECOMU_SIP_Kin.clear();
+    //RECOMU_SIP_KinMMMM.clear();
+    //RECOMU_STIP.clear();
+    //RECOMU_SLIP.clear();
+    //RECOMU_TIP.clear();
+    //RECOMU_LIP.clear();
+    //RECOMU_TIPERROR.clear();
+    //RECOMU_LIPERROR.clear();
+    //RECOMU_caloCompatibility.clear();
+    //RECOMU_segmentCompatibility.clear();
+    //RECOMU_numberOfMatches.clear();
+    //RECOMU_numberOfMatchedStations.clear();
+    //RECOMU_glbmuPromptTight.clear();
+    //RECOMU_trkmuArbitration.clear();
+    //RECOMU_trkmu2DCompatibilityLoose.clear();
+    //RECOMU_trkmu2DCompatibilityTight.clear();
+    //RECOMU_trkmuOneStationLoose.clear();
+    //RECOMU_trkmuOneStationTight.clear();
+    //RECOMU_trkmuLastStationLoose.clear();
+    //RECOMU_trkmuLastStationTight.clear();
+    //RECOMU_trkmuOneStationAngLoose.clear();
+    //RECOMU_trkmuOneStationAngTight.clear();
+    //RECOMU_trkmuLastStationAngLoose.clear();
+    //RECOMU_trkmuLastStationAngTight.clear();
+    //RECOMU_trkmuLastStationOptimizedLowPtLoose.clear();
+    //RECOMU_trkmuLastStationOptimizedLowPtTight.clear();
+    //RECOMU_mutrkPT.clear();
+    //RECOMU_mutrkPTError.clear();
+    //RECOMU_mutrkDxy.clear();
+    //RECOMU_mutrkDxyError.clear();
+    //RECOMU_mutrkDxyB.clear();
+    //RECOMU_mutrkDz.clear();
+    //RECOMU_mutrkDzError.clear();
+    //RECOMU_mutrkDzB.clear();
+    //RECOMU_mutrkChi2PerNdof.clear();
+    //RECOMU_mutrkCharge.clear();
+    //RECOMU_mutrkNHits.clear();
+    //RECOMU_mutrkNStripHits.clear();
+    //RECOMU_mutrkNPixHits.clear();
+    //RECOMU_mutrkNMuonHits.clear();
+    //RECOMU_mutrktrackerLayersWithMeasurement.clear();
+    //RECOMU_muInnertrkDxy.clear();
+    //RECOMU_muInnertrkDxyError.clear();
+    //RECOMU_muInnertrkDxyB.clear();
+    //RECOMU_muInnertrkDz.clear();
+    //RECOMU_muInnertrkDzError.clear();
+    //RECOMU_muInnertrkDzB.clear();
+    //RECOMU_muInnertrkChi2PerNdof.clear();
+    //RECOMU_muInnertrktrackerLayersWithMeasurement.clear();
+    //RECOMU_muInnertrkPT.clear();
+    //RECOMU_muInnertrkPTError.clear();
+    //RECOMU_muInnertrkCharge.clear();
+    //RECOMU_muInnertrkNHits.clear();
+    //RECOMU_muInnertrkNStripHits.clear();
+    //RECOMU_muInnertrkNPixHits.clear();
+    //RECOMU_mubesttrkType.clear();
+    //RECOMU_mubesttrkDxy.clear();
+    //RECOMU_mubesttrkDxyError.clear();
+    //RECOMU_mubesttrkDz.clear();
+    //RECOMU_mubesttrkDzError.clear();
+    //RECOMU_mubesttrkPTError.clear();
+    //RECOMU_Rochester_Error.clear();
+    //ftsigma.clear();
+    //gdX.clear();
+    //gdY.clear();
+    //gdZ.clear();
+    //ftsigmalag.clear();
+    //gdlagX.clear();
+    //gdlagY.clear();
+    //gdlagZ.clear();
+    //gdlagProb.clear();
+    //gdlagNdof.clear();
+    //ftsigmaMMMM.clear();
+    //gdXMMMM.clear();
+    //gdYMMMM.clear();
+    //gdZMMMM.clear();
+    //ftsigmalagMMMM.clear();
+    //gdlagXMMMM.clear();
+    //gdlagYMMMM.clear();
+    //gdlagZMMMM.clear();
+    //gdlagProbMMMM.clear();
+    //gdlagNdofMMMM.clear();
+    //ftsigmaEEEE.clear();
+    //gdXEEEE.clear();
+    //gdYEEEE.clear();
+    //gdZEEEE.clear();
+    //ftsigmalagEEEE.clear();
+    //gdlagXEEEE.clear();
+    //gdlagYEEEE.clear();
+    //gdlagZEEEE.clear();
+    //gdlagProbEEEE.clear();
+    //gdlagNdofEEEE.clear();
+    //StdFitVertexX.clear();
+    //StdFitVertexY.clear();
+    //StdFitVertexZ.clear();
+    //StdFitVertexChi2r.clear();
+    //StdFitVertexProb.clear();
+    //StdFitVertexTrack_PT.clear();
+    //StdFitVertexTrack_ETA.clear();
+    //StdFitVertexTrack_PHI.clear();
+    //KinFitVertexX.clear();
+    //KinFitVertexY.clear();
+    //KinFitVertexZ.clear();
+    //KinFitVertexChi2r.clear();
+    //KinFitVertexProb.clear();
+    //StdFitVertexXMMMM.clear();
+    //StdFitVertexYMMMM.clear();
+    //StdFitVertexZMMMM.clear();
+    //StdFitVertexChi2rMMMM.clear();
+    //StdFitVertexProbMMMM.clear();
+    //StdFitVertexTrackMMMM_PT.clear();
+    //StdFitVertexTrackMMMM_ETA.clear();
+    //StdFitVertexTrackMMMM_PHI.clear();
+    //KinFitVertexXMMMM.clear();
+    //KinFitVertexYMMMM.clear();
+    //KinFitVertexZMMMM.clear();
+    //KinFitVertexChi2rMMMM.clear();
+    //KinFitVertexProbMMMM.clear();
+    //StdFitVertexXEEEE.clear();
+    //StdFitVertexYEEEE.clear();
+    //StdFitVertexZEEEE.clear();
+    //StdFitVertexChi2rEEEE.clear();
+    //StdFitVertexProbEEEE.clear();
+    //StdFitVertexTrackEEEE_PT.clear();
+    //StdFitVertexTrackEEEE_ETA.clear();
+    //StdFitVertexTrackEEEE_PHI.clear();
+    //KinFitVertexXEEEE.clear();
+    //KinFitVertexYEEEE.clear();
+    //KinFitVertexZEEEE.clear();
+    //KinFitVertexChi2rEEEE.clear();
+    //KinFitVertexProbEEEE.clear();
+    //StdFitVertexChi2rMMM.clear();
+    //StdFitVertexProbMMM.clear();
+    //StdFitVertexChi2rMME.clear();
+    //StdFitVertexProbMME.clear();
+    //StdFitVertexChi2rEEE.clear();
+    //StdFitVertexProbEEE.clear();
+    //StdFitVertexChi2rMEE.clear();
+    //StdFitVertexProbMEE.clear();
+    //StdFitVertexChi2rDiLep.clear();
+    //StdFitVertexProbDiLep.clear();
+    //ConvMapDist.clear();
+    //ConvMapDcot.clear();
+    //RECOMU_MatchingMCTruth.clear();
+    //RECOMU_MatchingMCpT.clear();
+    //RECOMU_MatchingMCEta.clear();
+    //RECOMU_MatchingMCPhi.clear();
+    //RECOELE_MatchingMCTruth.clear();
+    //RECOELE_MatchingMCpT.clear();
+    //RECOELE_MatchingMCEta.clear();
+    //RECOELE_MatchingMCPhi.clear();
+    //RECOPHOT_MatchingMCTruth.clear();
+    //RECOPHOT_MatchingMCpT.clear();
+    //RECOPHOT_MatchingMCEta.clear();
+    //RECOPHOT_MatchingMCPhi.clear();
+    //RECOzMuMu_MatchingMCTruth.clear();
+    //RECOzMuMu_MatchingMCpT.clear();
+    //RECOzMuMu_MatchingMCmass.clear();
+    //RECOzMuMu_MatchingMCEta.clear();
+    //RECOzMuMu_MatchingMCPhi.clear();
+    //RECOzEE_MatchingMCTruth.clear();
+    //RECOzEE_MatchingMCpT.clear();
+    //RECOzEE_MatchingMCmass.clear();
+    //RECOzEE_MatchingMCEta.clear();
+    //RECOzEE_MatchingMCPhi.clear();
+    //RECOHzzEEEE_MatchingMCTruth.clear();
+    //RECOHzzEEEE_MatchingMCpT.clear();
+    //RECOHzzEEEE_MatchingMCmass.clear();
+    //RECOHzzEEEE_MatchingMCEta.clear();
+    //RECOHzzEEEE_MatchingMCPhi.clear();
+    //RECOHzzEEMM_MatchingMCTruth.clear();
+    //RECOHzzEEMM_MatchingMCpT.clear();
+    //RECOHzzEEMM_MatchingMCmass.clear();
+    //RECOHzzEEMM_MatchingMCEta.clear();
+    //RECOHzzEEMM_MatchingMCPhi.clear();
+    //RECOHzzMMMM_MatchingMCTruth.clear();
+    //RECOHzzMMMM_MatchingMCpT.clear();
+    //RECOHzzMMMM_MatchingMCmass.clear();
+    //RECOHzzMMMM_MatchingMCEta.clear();
+    //RECOHzzMMMM_MatchingMCPhi.clear();
+    //RECO_TRACK_PT.clear();
+    //RECO_TRACK_ETA.clear();
+    //RECO_TRACK_PHI.clear();
+    //RECO_TRACK_CHI2.clear();
+    //RECO_TRACK_CHI2RED.clear();
+    //RECO_TRACK_CHI2PROB.clear();
+    //RECO_TRACK_NHITS.clear();
+    //RECO_TRACK_DXY.clear();
+    //RECO_TRACK_DXYERR.clear();
+    //RECO_TRACK_DZ.clear();
+    //RECO_TRACK_DZERR.clear();
+    //RECOPHOT_PT.clear();
+    //RECOPHOT_ETA.clear();
+    //RECOPHOT_PHI.clear();
+    //RECOPHOT_ID.clear();
+    //RECOPHOT_THETA.clear();
+    //RECOPHOT_TLE_ParentSC_X.clear();
+    //RECOPHOT_TLE_ParentSC_Y.clear();
+    //RECOPHOT_TLE_ParentSC_Z.clear();
+    //RECOPFPHOT_PT.clear();
+    //RECOPFPHOT_PTError.clear();
+    //RECOPHOTCOR_PT.clear();
+    //RECOPHOTCOR_PTError.clear();
+    //RECOPFPHOT_ETA.clear();
+    //RECOPFPHOT_PHI.clear();
+    //RECOPFPHOT_THETA.clear();
+    //RECOPFPHOT_PT_uncorr.clear();
+    //RECOPFPHOT_ecalEnergyPreCorr.clear();
+    //RECOPFPHOT_ecalEnergyErrPreCorr.clear();
+    //RECOPFPHOT_ecalEnergyErrPostCorr.clear();
+    //RECOPFPHOT_energyScaleValue.clear();
+    //RECOPFPHOT_energySigmaValue.clear();
+    //RECOPFPHOT_energyScaleUp.clear();
+    //RECOPFPHOT_energyScaleDown.clear();
+    //RECOPFPHOT_energyScaleStatUp.clear();
+    //RECOPFPHOT_energyScaleStatDown.clear();
+    //RECOPFPHOT_energyScaleSystUp.clear();
+    //RECOPFPHOT_energyScaleSystDown.clear();
+    //RECOPFPHOT_energyScaleGainUp.clear();
+    //RECOPFPHOT_energyScaleGainDown.clear();
+    //RECOPFPHOT_energyScaleEtUp.clear();
+    //RECOPFPHOT_energyScaleEtDown.clear();
+    //RECOPFPHOT_energySigmaUp.clear();
+    //RECOPFPHOT_energySigmaDown.clear();
+    //RECOPFPHOT_energySigmaPhiUp.clear();
+    //RECOPFPHOT_energySigmaPhiDown.clear();
+    //RECOPFPHOT_energySigmaRhoUp.clear();
+    //RECOPFPHOT_energySigmaRhoDown.clear();
+    //RECO_VERTEX_x.clear();
+    //RECO_VERTEX_y.clear();
+    //RECO_VERTEX_z.clear();
+    //RECO_VERTEX_ndof.clear();
+    //RECO_VERTEX_chi2.clear();
+    //RECO_VERTEX_ntracks.clear();
+    //RECO_VERTEXPROB.clear();
+    //RECO_VERTEX_isValid.clear();
+    //RECO_VERTEX_TRACK_PT.clear();
+    //RECO_PFJET_CHARGE.clear();
+    //RECO_PFJET_ET.clear();
+    //RECO_PFJET_PT.clear();
+    //RECO_PFJET_ETA.clear();
+    //RECO_PFJET_MASS.clear();
+    //RECO_PFJET_PT_UP.clear();
+    //RECO_PFJET_MASS_UP.clear();
+    //RECO_PFJET_ETA_UP.clear();
+    //RECO_PFJET_PHI_UP.clear();
+    //RECO_PFJET_PT_DN.clear();
+    //RECO_PFJET_MASS_DN.clear();
+    //RECO_PFJET_ETA_DN.clear();
+    //RECO_PFJET_PHI_DN.clear();
+    //RECO_PFJET_RAWPT.clear();
+    //RECO_PFJET_PUID_loose.clear();
+    //RECO_PFJET_PUID_medium.clear();
+    //RECO_PFJET_PHI.clear();
+    //RECO_PFJET_PUID_loose.clear();
+    //RECO_PFJET_PUID_medium.clear();
+    //RECO_PFJET_PUID.clear();
+    //RECO_PFJET_PUID_MVA.clear();
+    //RECO_PFJET_QG_Likelihood.clear();
+    //RECO_PFJET_QG_axis2.clear();
+    //RECO_PFJET_QG_ptd.clear();
+    //RECO_PFJET_QG_mult.clear();
+    //LHE_PARTON_CLEAR.clear();
+    //LHE_PARTON_PDGID.clear();
+    //LHE_PARTON_PT.clear();
+    //LHE_PARTON_ETA.clear();
+    //LHE_PARTON_PHI.clear();
+    //LHE_PARTON_E.clear();
+    //RECO_PFJET_PT_UncUp.clear();
+    //RECO_PFJET_PT_UncDn.clear();
+    //RECO_PFJET_AREA.clear();
+    //RECO_PFJET_PTD.clear();
+    //RECO_PFJET_CHARGED_HADRON_ENERGY.clear();
+    //RECO_PFJET_NEUTRAL_HADRON_ENERGY.clear();
+    //RECO_PFJET_PHOTON_ENERGY.clear();
+    //RECO_PFJET_ELECTRON_ENERGY.clear();
+    //RECO_PFJET_MUON_ENERGY.clear();
+    //RECO_PFJET_HF_HADRON_ENERGY.clear();
+    //RECO_PFJET_HF_EM_ENERGY.clear();
+    //RECO_PFJET_CHARGED_EM_ENERGY.clear();
+    //RECO_PFJET_CHARGED_MU_ENERGY.clear();
+    //RECO_PFJET_NEUTRAL_EM_ENERGY.clear();
+    //RECO_PFJET_CHARGED_HADRON_MULTIPLICITY.clear();
+    //RECO_PFJET_NEUTRAL_HADRON_MULTIPLICITY.clear();
+    //RECO_PFJET_PHOTON_MULTIPLICITY.clear();
+    //RECO_PFJET_ELECTRON_MULTIPLICITY.clear();
+    //RECO_PFJET_MUON_MULTIPLICITY.clear();
+    //RECO_PFJET_HF_HADRON_MULTIPLICTY.clear();
+    //RECO_PFJET_HF_EM_MULTIPLICITY.clear();
+    //RECO_PFJET_CHARGED_MULTIPLICITY.clear();
+    //RECO_PFJET_NEUTRAL_MULTIPLICITY.clear();
+    //RECO_PFJET_NCOMPONENTS.clear();
+    //RECO_PFJET_COMPONENT_PDGID.clear();
+    //RECO_PFJET_COMPONENT_PT.clear();
+    //RECO_PFJET_COMPONENT_ETA.clear();
+    //RECO_PFJET_COMPONENT_PHI.clear();
+    //RECO_PFJET_COMPONENT_E.clear();
+    //RECO_PFJET_COMPONENT_CHARGE.clear();
+    //RECO_PFJET_COMPONENT_TRANSVERSE_MASS.clear();
+    //RECO_PFJET_COMPONENT_XVERTEX.clear();
+    //RECO_PFJET_COMPONENT_YVERTEX.clear();
+    //RECO_PFJET_COMPONENT_ZVERTEX.clear();
+    //RECO_PFJET_COMPONENT_VERTEX_CHI2.clear();
+    //tCHighEff_BTagJet_PT.clear();
+    //tCHighPur_BTagJet_PT.clear();
+    //cSV_BTagJet_PT.clear();
+    //tCHighEff_BTagJet_ETA.clear();
+    //tCHighPur_BTagJet_ETA.clear();
+    //cSV_BTagJet_ETA.clear();
+    //tCHighEff_BTagJet_PHI.clear();
+    //tCHighPur_BTagJet_PHI.clear();
+    //cSV_BTagJet_PHI.clear();
+    //cSV_BTagJet_ET.clear();
+    //tCHighEff_BTagJet_DISCR.clear();
+    //tCHighPur_BTagJet_DISCR.clear();
+    //cSV_BTagJet_DISCR.clear();
   }
   
   void fillPU(const edm::Event& iEvent){
@@ -4137,186 +4156,277 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
   }
   
-
-
-  void fillPhotons(const edm::Event& iEvent){
-    // Photons
-    //edm::Handle<edm::View<reco::Candidate> > photons;
+//////FSR photons Added by Walaa///////////////////////////////////////////////////
+    void fillPhotonsForFsr(const edm::Event& iEvent){
+    //    cout<<"Check photon "<< endl;
+        // Photons
     edm::Handle<edm::View<pat::Photon> > photons;
     iEvent.getByToken(photonsTag_, photons);
     RECO_NPHOT=photons->size();
-
-    edm::Handle<edm::Association<std::vector<reco::GenParticle> > > GenParticlesMatchPhot;
-    iEvent.getByToken(goodGammaMCMatch_, GenParticlesMatchPhot);
-    edm::Handle<reco::CandidateCollection > CollPhot;
-    iEvent.getByToken(myGammas_, CollPhot);
-    bool ismyGammas=false;
-    if (CollPhot.isValid()) ismyGammas=true;
-    
+   // cout<<"RECOPHOT_size=  "<< photons->size() <<endl;
+        
+    edm::Handle<pat::PackedCandidateCollection> pfCands;
+    iEvent.getByToken(pfTag_, pfCands);
+    edm::Handle<edm::View<pat::PFParticle> > photonsForFsr;
+    iEvent.getByToken(fsrPhotonsSrc_, photonsForFsr);
     int iphot=0;
-    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
-      //if (iphot>19) break;
-      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
+    RECO_NFSR=photonsForFsr->size();
+    //@// cout << "There are " << photons->size() << " photons" << endl;
+    for (edm::View<pat::PFParticle>::const_iterator cand = photonsForFsr->begin(); cand != photonsForFsr->end(); ++cand) {
+  //  cout << "isPhoton= " << cand->isPhoton() << " pdgid= " << cand->pdgId()<< endl;
+    if (cand->pdgId() != 22) continue;
+    if (iphot>19) break;
+    edm::Ref<edm::View<pat::PFParticle> > phtrackref(photonsForFsr,iphot);
 
-      
-      RECOPHOT_PT[iphot]=cand->pt();
-      RECOPHOT_ETA[iphot]=cand->eta();
-      RECOPHOT_PHI[iphot]=cand->phi();
-      RECOPHOT_THETA[iphot]=cand->theta();
-
-      /////
-
-      // Matching
-      int i=0;
-      if (ismyGammas){
-	for ( reco::CandidateCollection::const_iterator hIter=CollPhot->begin(); hIter!= CollPhot->end(); ++hIter ){
-	  //std::cout << "Reco Photon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< std::endl;
-	  if (fabs(hIter->pt()-RECOPHOT_PT[iphot])<0.01){
-	    i=hIter-(CollPhot->begin());
-	    CandidateRef Ref( CollPhot, i );
-	    edm::Ref<std::vector<reco::GenParticle> > genrefPhot = (*GenParticlesMatchPhot)[Ref];
-	    if (!genrefPhot.isNull()){
-	      std::cout << "GenPhot with pT= " << genrefPhot->p4().pt() << " and mass="<< genrefPhot->p4().mass()<< std::endl;
-	      RECOPHOT_MatchingMCTruth[i]= true;
-	      RECOPHOT_MatchingMCpT[i]= genrefPhot->p4().pt();
-	      RECOPHOT_MatchingMCEta[i]= genrefPhot->p4().eta();
-	      RECOPHOT_MatchingMCPhi[i]= genrefPhot->p4().phi();	    
-	    } 
-	  }   
-	}
-      }
-
-      //////
-
-      iphot++;
-
-       std::cout<<"photon pt = "<<RECOPHOT_PT[iphot]<<"eta= "<<RECOPHOT_ETA[iphot]<<std::endl;
-
-       std::cout<<" RECOPHOT_MatchingMCTruth[i] = "<< RECOPHOT_MatchingMCTruth[i]<<std::endl;
-       std::cout<<"RECOPHOT_MatchingMCpT[i] = "<<RECOPHOT_MatchingMCpT[i]<<std::endl;
-       std::cout<<"RECOPHOT_MatchingMCEta[i] = "<<RECOPHOT_MatchingMCEta[i]<<std::endl;
-       std::cout<<"RECOPHOT_MatchingMCPhi[i] = "<<RECOPHOT_MatchingMCPhi[i]<<std::endl;
-      }
-    // PF ISR photon
-
-    iphot=0;
-    RECO_NPFPHOT=photons->size();
-
-    //@// std::cout << "There are " << photons->size() << " photons" << std::endl;
-
-    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
-
-      //if (iphot>19) break;
-      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
-
-      edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot); 
-
-       RECOPFPHOT_PT_uncorr[iphot]=cand->pt();
-
-      std::cout<<"PF photon uncorr pt = "<< RECOPFPHOT_PT_uncorr[iphot]<<"eta= "<<cand->eta()<<std::endl;
-
-      //Reham correction of photon energy 
-
-      auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
-     
-      RECOPFPHOT_PT[iphot]= corrP4.pt();
-
-      // std::cout<<"corrP4"<<corrP4<<std::endl;
-      std::cout<<"Corrected PF photon pt = "<<corrP4.pt()<<" eta = "<<corrP4.eta()<<" phi = "<<corrP4.phi()<<" energy E = "<<corrP4.E()<<" energy Energy= "<<corrP4.energy()<<" energy Et= "<<corrP4.Et()<<std::endl;
-
-
-      // error on pt of photon taken from #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
-      double C;
-      double S;
-      double N;
-      if(TMath::Abs(cand->eta())<1.48){C=0.35/100; S=5.51/100; N=98./1000.;}
-      else{C=0; S=12.8/100; N=440./1000.;} 
-      double  perr = TMath::Sqrt(C*C*cand->p4().e()*cand->p4().e() + S*S*cand->p4().e() + N*N);
-      double pterr = perr*cand->pt()/cand->p(); 
-      RECOPFPHOT_PTError[iphot]=float(pterr);
-      
-        std::cout << "PF Photon : pT= " << RECOPFPHOT_PT[iphot] << " pTerr= " << RECOPFPHOT_PTError[iphot]<< std::endl;
-
-      RECOPFPHOT_ETA[iphot]=cand->eta();
-      RECOPFPHOT_PHI[iphot]=cand->phi();
-      RECOPFPHOT_THETA[iphot]=cand->theta();
-/*      
-      RECOPFPHOT_PFchAllPart[iphot]      =  (*isoPFChargedAllphmap)[phtrackref]; 
-      RECOPFPHOT_PFchHad[iphot]          =  (*isoPFChargedphmap)[phtrackref]; 
-      RECOPFPHOT_PFneuHad[iphot]         =  (*isoPFNeutralphmap)[phtrackref]; 
-      RECOPFPHOT_PFphoton[iphot]         =  (*isoPFGammaphmap)[phtrackref]; 
-      RECOPFPHOT_PFPUchAllPart[iphot]    =  (*isoPFPUphmap)[phtrackref]; 
-*/
-//TODO      RECOPFPHOT_PFchAllPart[iphot]      =  (cand->PflowIsolationVariables().sumChargedParticlePt); 
-      RECOPFPHOT_PFchHad[iphot]          =  (cand->chargedHadronIso());
-      RECOPFPHOT_PFneuHad[iphot]         =  (cand->neutralHadronIso()); 
-      RECOPFPHOT_PFphoton[iphot]         =  (cand->photonIso()); 
-      RECOPFPHOT_PFPUchAllPart[iphot]    =  (cand->puChargedHadronIso());
-    
-      RECOPFPHOT_PFX_rho[iphot]=( 
- 				 RECOPFPHOT_PFchHad[iphot]+ 
- 				 RECOPFPHOT_PFneuHad[iphot]+ 
- 				 RECOPFPHOT_PFphoton[iphot]+ 
- 				 RECOPFPHOT_PFPUchAllPart[iphot] 
-				  )/double(cand->p4().pt()); 
-
-     	//Reham error in PT and some systematic variables 
-      
-      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<std::endl;
-      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<std::endl;
-      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<std::endl;
-
-      RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
-      RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
-      RECOPFPHOT_ecalEnergyErrPostCorr[iphot]  = cand->userFloat("ecalEnergyErrPostCorr");
-      RECOPFPHOT_energyScaleValue[iphot]          = cand->userFloat("energyScaleValue");
-      RECOPFPHOT_energySigmaValue[iphot]          = cand->userFloat("energySigmaValue");
-      RECOPFPHOT_energyScaleUp[iphot]          = cand->userFloat("energyScaleUp");
-      RECOPFPHOT_energyScaleDown[iphot]          = cand->userFloat("energyScaleDown");
-      RECOPFPHOT_energyScaleStatUp[iphot]          = cand->userFloat("energyScaleStatUp");
-      RECOPFPHOT_energyScaleStatDown[iphot]          = cand->userFloat("energyScaleStatDown");
-      RECOPFPHOT_energyScaleSystUp[iphot]          = cand->userFloat("energyScaleSystUp");
-      RECOPFPHOT_energyScaleSystDown[iphot]          = cand->userFloat("energyScaleSystDown");
-      RECOPFPHOT_energyScaleGainUp[iphot]          = cand->userFloat("energyScaleGainUp");
-      RECOPFPHOT_energyScaleGainDown[iphot]          = cand->userFloat("energyScaleGainDown");
-      RECOPFPHOT_energyScaleEtUp[iphot]          = cand->userFloat("energyScaleEtUp");
-      RECOPFPHOT_energyScaleEtDown[iphot]          = cand->userFloat("energyScaleEtDown");
-      RECOPFPHOT_energySigmaUp[iphot]               = cand->userFloat("energySigmaUp");
-      RECOPFPHOT_energySigmaDown[iphot]          = cand->userFloat("energySigmaDown");
-      RECOPFPHOT_energySigmaPhiUp[iphot]          = cand->userFloat("energySigmaPhiUp");
-      RECOPFPHOT_energySigmaPhiDown[iphot]          = cand->userFloat("energySigmaPhiDown");
-      RECOPFPHOT_energySigmaRhoUp[iphot]          = cand->userFloat("energySigmaRhoUp");
-      RECOPFPHOT_energySigmaRhoDown[iphot]          = cand->userFloat("energySigmaRhoDown");
-
-	/* std::cout << "Photon syst ==" */
-	/* 	  <<"\n RECOPFPHOT_ecalEnergyPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyPreCorr[iphot] */
-	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPreCorr[iphot] */
-	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPostCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPostCorr[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energyScaleValue[iphot]= "<<RECOPFPHOT_energyScaleValue[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energySigmaValue[iphot]= "<<RECOPFPHOT_energySigmaValue[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energyScaleUp[iphot]= "<<RECOPFPHOT_energyScaleUp[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energyScaleDown[iphot]= "<<RECOPFPHOT_energyScaleDown[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energyScaleStatUp[iphot]= "<< RECOPFPHOT_energyScaleStatUp[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energyScaleStatDown[iphot]= "<< RECOPFPHOT_energyScaleStatDown[iphot]      */
-	/* 	  <<"\n RECOPFPHOT_energyScaleSystUp[iphot]= "<<RECOPFPHOT_energyScaleSystUp[iphot]         */
-	/* 	  <<"\n RECOPFPHOT_energyScaleSystDown[iphot]= "<<RECOPFPHOT_energyScaleSystDown[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energyScaleGainUp[iphot]= "<<RECOPFPHOT_energyScaleGainUp[iphot]          */
-	/* 	  <<"\n RECOPFPHOT_energyScaleGainDown[iphot]= "<<RECOPFPHOT_energyScaleGainDown[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energyScaleEtUp[iphot]= "<< RECOPFPHOT_energyScaleEtUp[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energyScaleEtDown[iphot]= "<< RECOPFPHOT_energyScaleDown[iphot] */
-	/* 	  <<"\n RECOPFPHOT_energySigmaUp[iphot]= "<< RECOPFPHOT_energySigmaUp[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energySigmaDown[iphot]= "<< RECOPFPHOT_energySigmaDown[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energySigmaPhiUp[iphot]= "<<RECOPFPHOT_energySigmaPhiUp[iphot]          */
-	/* 	  <<"\n RECOPFPHOT_energySigmaPhiDown[iphot]= "<<RECOPFPHOT_energySigmaPhiDown[iphot]         */
-	/* 	  <<"\n RECOPFPHOT_energySigmaRhoUp[iphot]= "<<RECOPFPHOT_energySigmaRhoUp[iphot]        */
-	/* 	  <<"\n RECOPFPHOT_energySigmaRhoDown[iphot]= "<<RECOPFPHOT_energySigmaRhoDown[iphot]        */
-	/* 	  <<std::endl;  */
-     
-      iphot++;
-      
+    RECOPFPHOT_PT[iphot]= cand->pt();
+    RECOPFPHOT_ETA[iphot]=cand->eta();
+    RECOPFPHOT_PHI[iphot]=cand->phi();
+    RECOPFPHOT_THETA[iphot]=cand->theta();
+   // cout<<"PF photon Phi = "<<cand->phi()<<endl;
+    RECOPFPHOT_PFX_rho [iphot]= photonPfIso03(*cand,pfCands)/cand->pt();
+ //   cout<<"PF photon pt = "<<cand->pt()<<endl;
+    iphot++;
+        
     }
+   ////////////////Photons Added for HCal prob of 2018////////////////
+    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
+        if (iphot>19) break;
+            
+            
+    RECOPHOT_PT[iphot]=cand->pt();
+    RECOPHOT_ETA[iphot]=cand->eta();
+    RECOPHOT_PHI[iphot]=cand->phi();
+    RECOPHOT_THETA[iphot]=cand->theta();
+    RECOPHOT_ID[iphot] =cand->photonID("cutBasedPhotonID-Fall17-94X-V2-loose");
+    iphot++;
+            
+   // cout<<"photon pt = "<<RECOPHOT_PT[iphot]<<"eta= "<<RECOPHOT_ETA[iphot]<<endl;
+        
+                /////////////////////
+    auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
+        
+    RECOPHOTCOR_PT[iphot]= corrP4.pt();
+            
+            // cout<<"corrP4"<<corrP4<<endl;
+            //   cout<<"Corrected PF photon pt = "<<corrP4.pt()<<" eta = "<<corrP4.eta()<<" phi = "<<corrP4.phi()<<" energy E = "<<corrP4.E()<<" energy Energy= "<<corrP4.energy()<<" energy Et= "<<corrP4.Et()<<endl;
+            
+            
+            // error on pt of photon taken from #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+    double C;
+    double S;
+    double N;
+    if(TMath::Abs(cand->eta())<1.48){C=0.35/100; S=5.51/100; N=98./1000.;}
+    else{C=0; S=12.8/100; N=440./1000.;}
+    double  perr = TMath::Sqrt(C*C*cand->p4().e()*cand->p4().e() + S*S*cand->p4().e() + N*N);
+    double pterr = perr*cand->pt()/cand->p();
+    RECOPHOTCOR_PTError[iphot]=float(pterr);
+            
+            
+  /*  cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<endl;
+    cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<endl;
+    cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<endl;*/
     
-  }
+    RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
+    RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
+    RECOPFPHOT_ecalEnergyErrPostCorr[iphot]  = cand->userFloat("ecalEnergyErrPostCorr");
+    RECOPFPHOT_energyScaleValue[iphot]          = cand->userFloat("energyScaleValue");
+    RECOPFPHOT_energySigmaValue[iphot]          = cand->userFloat("energySigmaValue");
+    RECOPFPHOT_energyScaleUp[iphot]          = cand->userFloat("energyScaleUp");
+    RECOPFPHOT_energyScaleDown[iphot]          = cand->userFloat("energyScaleDown");
+    RECOPFPHOT_energyScaleStatUp[iphot]          = cand->userFloat("energyScaleStatUp");
+    RECOPFPHOT_energyScaleStatDown[iphot]          = cand->userFloat("energyScaleStatDown");
+    RECOPFPHOT_energyScaleSystUp[iphot]          = cand->userFloat("energyScaleSystUp");
+    RECOPFPHOT_energyScaleSystDown[iphot]          = cand->userFloat("energyScaleSystDown");
+    RECOPFPHOT_energyScaleGainUp[iphot]          = cand->userFloat("energyScaleGainUp");
+    RECOPFPHOT_energyScaleGainDown[iphot]          = cand->userFloat("energyScaleGainDown");
+    RECOPFPHOT_energyScaleEtUp[iphot]          = cand->userFloat("energyScaleEtUp");
+    RECOPFPHOT_energyScaleEtDown[iphot]          = cand->userFloat("energyScaleEtDown");
+    RECOPFPHOT_energySigmaUp[iphot]               = cand->userFloat("energySigmaUp");
+    RECOPFPHOT_energySigmaDown[iphot]          = cand->userFloat("energySigmaDown");
+    RECOPFPHOT_energySigmaPhiUp[iphot]          = cand->userFloat("energySigmaPhiUp");
+    RECOPFPHOT_energySigmaPhiDown[iphot]          = cand->userFloat("energySigmaPhiDown");
+    RECOPFPHOT_energySigmaRhoUp[iphot]          = cand->userFloat("energySigmaRhoUp");
+    RECOPFPHOT_energySigmaRhoDown[iphot]          = cand->userFloat("energySigmaRhoDown");
+        }
+    }
+//  void fillPhotons(const edm::Event& iEvent){
+//    // Photons
+//    //edm::Handle<edm::View<reco::Candidate> > photons;
+//    edm::Handle<edm::View<pat::Photon> > photons;
+//    iEvent.getByToken(photonsTag_, photons);
+//    RECO_NPHOT=photons->size();
+//
+//    edm::Handle<edm::Association<std::vector<reco::GenParticle> > > GenParticlesMatchPhot;
+//    iEvent.getByToken(goodGammaMCMatch_, GenParticlesMatchPhot);
+//    edm::Handle<reco::CandidateCollection > CollPhot;
+//    iEvent.getByToken(myGammas_, CollPhot);
+//    bool ismyGammas=false;
+//    if (CollPhot.isValid()) ismyGammas=true;
+//    
+//    int iphot=0;
+//    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
+//      //if (iphot>19) break;
+//      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
+//
+//      
+//      RECOPHOT_PT[iphot]=cand->pt();
+//      RECOPHOT_ETA[iphot]=cand->eta();
+//      RECOPHOT_PHI[iphot]=cand->phi();
+//      RECOPHOT_THETA[iphot]=cand->theta();
+//
+//      /////
+//
+//      // Matching
+//      int i=0;
+//      if (ismyGammas){
+//	for ( reco::CandidateCollection::const_iterator hIter=CollPhot->begin(); hIter!= CollPhot->end(); ++hIter ){
+//	  //std::cout << "Reco Photon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< std::endl;
+//	  if (fabs(hIter->pt()-RECOPHOT_PT[iphot])<0.01){
+//	    i=hIter-(CollPhot->begin());
+//	    CandidateRef Ref( CollPhot, i );
+//	    edm::Ref<std::vector<reco::GenParticle> > genrefPhot = (*GenParticlesMatchPhot)[Ref];
+//	    if (!genrefPhot.isNull()){
+//	      std::cout << "GenPhot with pT= " << genrefPhot->p4().pt() << " and mass="<< genrefPhot->p4().mass()<< std::endl;
+//	      RECOPHOT_MatchingMCTruth[i]= true;
+//	      RECOPHOT_MatchingMCpT[i]= genrefPhot->p4().pt();
+//	      RECOPHOT_MatchingMCEta[i]= genrefPhot->p4().eta();
+//	      RECOPHOT_MatchingMCPhi[i]= genrefPhot->p4().phi();	    
+//	    } 
+//	  }   
+//	}
+//      }
+//
+//      //////
+//
+//      iphot++;
+//
+//       std::cout<<"photon pt = "<<RECOPHOT_PT[iphot]<<"eta= "<<RECOPHOT_ETA[iphot]<<std::endl;
+//
+//       std::cout<<" RECOPHOT_MatchingMCTruth[i] = "<< RECOPHOT_MatchingMCTruth[i]<<std::endl;
+//       std::cout<<"RECOPHOT_MatchingMCpT[i] = "<<RECOPHOT_MatchingMCpT[i]<<std::endl;
+//       std::cout<<"RECOPHOT_MatchingMCEta[i] = "<<RECOPHOT_MatchingMCEta[i]<<std::endl;
+//       std::cout<<"RECOPHOT_MatchingMCPhi[i] = "<<RECOPHOT_MatchingMCPhi[i]<<std::endl;
+//      }
+//    // PF ISR photon
+//
+//    iphot=0;
+//    RECO_NPFPHOT=photons->size();
+//
+//    //@// std::cout << "There are " << photons->size() << " photons" << std::endl;
+//
+//    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
+//
+//      //if (iphot>19) break;
+//      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
+//
+//      edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot); 
+//
+//       RECOPFPHOT_PT_uncorr[iphot]=cand->pt();
+//
+//      std::cout<<"PF photon uncorr pt = "<< RECOPFPHOT_PT_uncorr[iphot]<<"eta= "<<cand->eta()<<std::endl;
+//
+//      //Reham correction of photon energy 
+//
+//      auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
+//     
+//      RECOPFPHOT_PT[iphot]= corrP4.pt();
+//
+//      // std::cout<<"corrP4"<<corrP4<<std::endl;
+//      std::cout<<"Corrected PF photon pt = "<<corrP4.pt()<<" eta = "<<corrP4.eta()<<" phi = "<<corrP4.phi()<<" energy E = "<<corrP4.E()<<" energy Energy= "<<corrP4.energy()<<" energy Et= "<<corrP4.Et()<<std::endl;
+//
+//
+//      // error on pt of photon taken from #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
+//      double C;
+//      double S;
+//      double N;
+//      if(TMath::Abs(cand->eta())<1.48){C=0.35/100; S=5.51/100; N=98./1000.;}
+//      else{C=0; S=12.8/100; N=440./1000.;} 
+//      double  perr = TMath::Sqrt(C*C*cand->p4().e()*cand->p4().e() + S*S*cand->p4().e() + N*N);
+//      double pterr = perr*cand->pt()/cand->p(); 
+//      RECOPFPHOT_PTError[iphot]=float(pterr);
+//      
+//        std::cout << "PF Photon : pT= " << RECOPFPHOT_PT[iphot] << " pTerr= " << RECOPFPHOT_PTError[iphot]<< std::endl;
+//
+//      RECOPFPHOT_ETA[iphot]=cand->eta();
+//      RECOPFPHOT_PHI[iphot]=cand->phi();
+//      RECOPFPHOT_THETA[iphot]=cand->theta();
+///*      
+//      RECOPFPHOT_PFchAllPart[iphot]      =  (*isoPFChargedAllphmap)[phtrackref]; 
+//      RECOPFPHOT_PFchHad[iphot]          =  (*isoPFChargedphmap)[phtrackref]; 
+//      RECOPFPHOT_PFneuHad[iphot]         =  (*isoPFNeutralphmap)[phtrackref]; 
+//      RECOPFPHOT_PFphoton[iphot]         =  (*isoPFGammaphmap)[phtrackref]; 
+//      RECOPFPHOT_PFPUchAllPart[iphot]    =  (*isoPFPUphmap)[phtrackref]; 
+//*/
+////TODO      RECOPFPHOT_PFchAllPart[iphot]      =  (cand->PflowIsolationVariables().sumChargedParticlePt); 
+//      RECOPFPHOT_PFchHad[iphot]          =  (cand->chargedHadronIso());
+//      RECOPFPHOT_PFneuHad[iphot]         =  (cand->neutralHadronIso()); 
+//      RECOPFPHOT_PFphoton[iphot]         =  (cand->photonIso()); 
+//      RECOPFPHOT_PFPUchAllPart[iphot]    =  (cand->puChargedHadronIso());
+//    
+//      RECOPFPHOT_PFX_rho[iphot]=( 
+// 				 RECOPFPHOT_PFchHad[iphot]+ 
+// 				 RECOPFPHOT_PFneuHad[iphot]+ 
+// 				 RECOPFPHOT_PFphoton[iphot]+ 
+// 				 RECOPFPHOT_PFPUchAllPart[iphot] 
+//				  )/double(cand->p4().pt()); 
+//
+//     	//Reham error in PT and some systematic variables 
+//      
+//      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<std::endl;
+//      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<std::endl;
+//      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<std::endl;
+//
+//      RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
+//      RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
+//      RECOPFPHOT_ecalEnergyErrPostCorr[iphot]  = cand->userFloat("ecalEnergyErrPostCorr");
+//      RECOPFPHOT_energyScaleValue[iphot]          = cand->userFloat("energyScaleValue");
+//      RECOPFPHOT_energySigmaValue[iphot]          = cand->userFloat("energySigmaValue");
+//      RECOPFPHOT_energyScaleUp[iphot]          = cand->userFloat("energyScaleUp");
+//      RECOPFPHOT_energyScaleDown[iphot]          = cand->userFloat("energyScaleDown");
+//      RECOPFPHOT_energyScaleStatUp[iphot]          = cand->userFloat("energyScaleStatUp");
+//      RECOPFPHOT_energyScaleStatDown[iphot]          = cand->userFloat("energyScaleStatDown");
+//      RECOPFPHOT_energyScaleSystUp[iphot]          = cand->userFloat("energyScaleSystUp");
+//      RECOPFPHOT_energyScaleSystDown[iphot]          = cand->userFloat("energyScaleSystDown");
+//      RECOPFPHOT_energyScaleGainUp[iphot]          = cand->userFloat("energyScaleGainUp");
+//      RECOPFPHOT_energyScaleGainDown[iphot]          = cand->userFloat("energyScaleGainDown");
+//      RECOPFPHOT_energyScaleEtUp[iphot]          = cand->userFloat("energyScaleEtUp");
+//      RECOPFPHOT_energyScaleEtDown[iphot]          = cand->userFloat("energyScaleEtDown");
+//      RECOPFPHOT_energySigmaUp[iphot]               = cand->userFloat("energySigmaUp");
+//      RECOPFPHOT_energySigmaDown[iphot]          = cand->userFloat("energySigmaDown");
+//      RECOPFPHOT_energySigmaPhiUp[iphot]          = cand->userFloat("energySigmaPhiUp");
+//      RECOPFPHOT_energySigmaPhiDown[iphot]          = cand->userFloat("energySigmaPhiDown");
+//      RECOPFPHOT_energySigmaRhoUp[iphot]          = cand->userFloat("energySigmaRhoUp");
+//      RECOPFPHOT_energySigmaRhoDown[iphot]          = cand->userFloat("energySigmaRhoDown");
+//
+//	/* std::cout << "Photon syst ==" */
+//	/* 	  <<"\n RECOPFPHOT_ecalEnergyPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyPreCorr[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPreCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPreCorr[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_ecalEnergyErrPostCorr[iphot]= "<< RECOPFPHOT_ecalEnergyErrPostCorr[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleValue[iphot]= "<<RECOPFPHOT_energyScaleValue[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaValue[iphot]= "<<RECOPFPHOT_energySigmaValue[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleUp[iphot]= "<<RECOPFPHOT_energyScaleUp[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleDown[iphot]= "<<RECOPFPHOT_energyScaleDown[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleStatUp[iphot]= "<< RECOPFPHOT_energyScaleStatUp[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleStatDown[iphot]= "<< RECOPFPHOT_energyScaleStatDown[iphot]      */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleSystUp[iphot]= "<<RECOPFPHOT_energyScaleSystUp[iphot]         */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleSystDown[iphot]= "<<RECOPFPHOT_energyScaleSystDown[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleGainUp[iphot]= "<<RECOPFPHOT_energyScaleGainUp[iphot]          */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleGainDown[iphot]= "<<RECOPFPHOT_energyScaleGainDown[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleEtUp[iphot]= "<< RECOPFPHOT_energyScaleEtUp[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energyScaleEtDown[iphot]= "<< RECOPFPHOT_energyScaleDown[iphot] */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaUp[iphot]= "<< RECOPFPHOT_energySigmaUp[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaDown[iphot]= "<< RECOPFPHOT_energySigmaDown[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaPhiUp[iphot]= "<<RECOPFPHOT_energySigmaPhiUp[iphot]          */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaPhiDown[iphot]= "<<RECOPFPHOT_energySigmaPhiDown[iphot]         */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaRhoUp[iphot]= "<<RECOPFPHOT_energySigmaRhoUp[iphot]        */
+//	/* 	  <<"\n RECOPFPHOT_energySigmaRhoDown[iphot]= "<<RECOPFPHOT_energySigmaRhoDown[iphot]        */
+//	/* 	  <<std::endl;  */
+//     
+//      iphot++;
+//      
+//    }
+//    
+//  }
 
 void fillTracks(const edm::Event& iEvent){
     // Tracks
@@ -5058,6 +5168,9 @@ void fillTracks(const edm::Event& iEvent){
 
    iEvent.getByToken(jetsTag_, pfjets);
    iEvent.getByToken(jetsMVATag_, pfjetsmva);
+    
+    edm::Handle<double> rhoHandle;
+    iEvent.getByToken(rhojetsTag_,rhoHandle); 
 
     //@ To retrieve JEC Uncertainty
      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
@@ -5516,8 +5629,8 @@ void fillTracks(const edm::Event& iEvent){
   //edm::EDGetToken eleIDToken_; 
   edm::EDGetToken electronsMiniAODToken_;
    edm::EDGetTokenT<edm::ValueMap<bool> > eleIDToken_;
-  // edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
-  // edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;
+   edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
+   edm::EDGetTokenT<edm::ValueMap<int> > mvaCategoriesMapToken_;
 /*
   edm::EDGetTokenT<edm::ValueMap<double> >
     electronPFIsoValueChargedAllTag_,
@@ -5617,6 +5730,7 @@ void fillTracks(const edm::Event& iEvent){
 //  edm::EDGetTokenT<std::vector<reco::Track> > tracksTag_;
   edm::EDGetTokenT<edm::View<pat::PackedCandidate> > pfTag_;
   edm::EDGetTokenT<edm::View<pat::Photon> > photonsTag_;
+  edm::EDGetTokenT<edm::View<pat::PFParticle> > fsrPhotonsSrc_;
   std::vector<reco::Vertex> PV;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
   edm::EDGetTokenT<double> rhojetsTag_;
@@ -5642,6 +5756,7 @@ void fillTracks(const edm::Event& iEvent){
   edm::InputTag htmetic5Tag_,htmetkt4Tag_,htmetkt6Tag_,htmetsc5Tag_,htmetsc7Tag_;
   edm::InputTag jescormetic5Tag_,jescormetkt4Tag_,jescormetkt6Tag_,jescormetsc5Tag_,jescormetsc7Tag_;
   edm::InputTag cormetMuTag_;
+  edm::EDGetTokenT<bool> ecalBadCalibFilterUpdate_token;
   //edm::EDGetTokenT<bool>ecalBadCalibFilterUpdate_token ;// new met filter to be used (unser test)
   // edm::EDGetTokenT<bool> BadChCandFilterToken_;
   // edm::EDGetTokenT<bool> BadPFMuonFilterToken_;
@@ -5676,7 +5791,7 @@ void fillTracks(const edm::Event& iEvent){
   float Avginstlumi;
   std::unique_ptr<MuonGBRForestReader> MuonMVAReader;
   // HLT
-  int RECO_nMuHLTMatch,RECO_nEleHLTMatch;
+  int RECO_nMuHLTMatch,RECO_nEleHLTMatch,PFCand;
   ArrayMDVector<float,1,-999>RECOMU_PT_MuHLTMatch,RECOMU_ETA_MuHLTMatch,RECOMU_PHI_MuHLTMatch,RECOMU_BDT_Id;
   ArrayMDVector<float,1,-999>RECOELE_PT_EleHLTMatch,RECOELE_ETA_EleHLTMatch,RECOELE_PHI_EleHLTMatch;
   
@@ -5892,8 +6007,8 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<int,1,0>RECOMU_trkmuLastStationOptimizedLowPtLoose,RECOMU_trkmuLastStationOptimizedLowPtTight;
   
    // Photons
-  ArrayMDVector<float,1,-999>RECOPHOT_PT,RECOPHOT_ETA,RECOPHOT_PHI,RECOPHOT_THETA,RECOPHOT_TLE_ParentSC_X,RECOPHOT_TLE_ParentSC_Y,RECOPHOT_TLE_ParentSC_Z;
-  ArrayMDVector<float,1,-999>RECOPFPHOT_PT,RECOPFPHOT_PTError,RECOPFPHOT_ETA,RECOPFPHOT_PHI,RECOPFPHOT_THETA;
+  ArrayMDVector<float,1,-999>RECOPHOT_PT,RECOPHOT_ETA,RECOPHOT_PHI,RECOPHOT_ID,RECOPHOT_THETA,RECOPHOT_TLE_ParentSC_X,RECOPHOT_TLE_ParentSC_Y,RECOPHOT_TLE_ParentSC_Z;
+  ArrayMDVector<float,1,-999>RECOPFPHOT_PT,RECOPFPHOT_PTError,RECOPFPHOT_ETA,RECOPFPHOT_PHI,RECOPFPHOT_THETA,RECOPHOTCOR_PT,RECOPHOTCOR_PTError;
   ArrayMDVector<double,1,-999>RECOPFPHOT_PFchAllPart,RECOPFPHOT_PFchHad,RECOPFPHOT_PFneuHad,RECOPFPHOT_PFphoton,
     RECOPFPHOT_PFPUchAllPart,RECOPFPHOT_PFX_rho, RECOPFPHOT_PT_uncorr;
 
@@ -5986,7 +6101,7 @@ void fillTracks(const edm::Event& iEvent){
  
 
   // RECO counters
-  int RECO_NMU, RECO_NELE, RECO_NTRACK, RECO_NPHOT, RECO_NPFPHOT,RECO_NJET, RECO_NVTX;
+  int RECO_NMU, RECO_NELE, RECO_NTRACK, RECO_NPHOT, RECO_NPFPHOT,RECO_NJET, RECO_NVTX,RECO_NAssocPFcands,RECO_NFSR;
 
 ArrayMDVector<float,1,-999>RECO_TRACK_PT, RECO_TRACK_ETA, RECO_TRACK_PHI,
    RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB, 
@@ -6005,6 +6120,7 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
   
   // RECO JETS
   int RECO_PFJET_N;
+  ArrayMDVector<float,1,-999> RECO_PFJET_ETA_DN,RECO_PFJET_ETA_UP,RECO_PFJET_MASS,RECO_PFJET_MASS_DN,RECO_PFJET_MASS_UP,RECO_PFJET_PHI_DN,RECO_PFJET_PHI_UP,RECO_PFJET_PT_DN,RECO_PFJET_PT_UP,RECO_PFJET_RAWPT;
   ArrayMDVector<int,1,-999>RECO_PFJET_CHARGE,RECO_PFJET_PUID, RECO_PFJET_PUID_loose, RECO_PFJET_PUID_medium;
   ArrayMDVector<float,1,-999>RECO_PFJET_ET, RECO_PFJET_PT, RECO_PFJET_ETA, RECO_PFJET_PHI,RECO_PFJET_PUID_MVA,RECO_PFJET_QG_Likelihood,RECO_PFJET_QG_axis2,RECO_PFJET_QG_ptd,RECO_PFJET_QG_mult;
   double RHO,RHO_ele,RHO_mu;
