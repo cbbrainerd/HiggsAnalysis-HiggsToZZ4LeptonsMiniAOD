@@ -3,9 +3,10 @@ Package for  H->ZZ->4l anaysis for Run2 miniAOD
 
 ```
 #!/bin/bash
-CMSSW_VERSION="CMSSW_10_2_15"
-cmsrel "$CMSSW_VERSION"
-cd "$CMSSW_VERSION"/src
+CMSSW_VERSION="10_2_15"
+PREFIX="HZZ"
+scram p -n "${PREFIX}_${CMSSW_VERSION}" CMSSW "CMSSW_${CMSSW_VERSION}"
+cd "${PREFIX}_${CMSSW_VERSION}"/src
 eval `scramv1 runtime -sh`
 git cms-init
 git clone https://github.com/cbbrainerd/HiggsAnalysis-HiggsToZZ4LeptonsMiniAOD HiggsAnalysis/HiggsToZZ4Leptons -b 2018
