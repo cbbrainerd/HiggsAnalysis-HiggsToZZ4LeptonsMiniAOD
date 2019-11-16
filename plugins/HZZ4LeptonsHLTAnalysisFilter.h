@@ -20,6 +20,8 @@
 
 // User include files
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <vector>
+#include <set>
 
 // Class declaration
 class HZZ4LeptonsHLTAnalysisFilter : public edm::EDFilter {
@@ -39,7 +41,8 @@ class HZZ4LeptonsHLTAnalysisFilter : public edm::EDFilter {
  private:
   std::string inputfileName;
   edm::EDGetTokenT<std::vector<std::string> > HLTInfoFired;
-
+  std::set<std::string> pass_triggers;
+  std::set<std::string> veto_triggers;
 
 };
 

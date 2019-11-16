@@ -17,8 +17,29 @@ using namespace std;
 HZZ4LeptonsHLTAnalysisFilter::HZZ4LeptonsHLTAnalysisFilter(const edm::ParameterSet& pset) {
 
   HLTInfoFired = consumes<std::vector<std::string> >(pset.getParameter<edm::InputTag>("HLTInfoFired"));
+  for(auto &x : pset.getParameter<std::vector<std::string> >("pass_triggers")) {
+    pass_triggers.insert(x);       
+  }
+  for(auto &x : pset.getParameter<std::vector<std::string> >("veto_triggers")) {
+    veto_triggers.insert(x);
+  }
 }
 
+#include <algorithm>
+//Algorithm that searches two sorted containers for elements such that element1 is a prefix of element2 (i.e. HLT_Ele35_v in the first container matches HLT_Ele35_v1)
+template <class ForwardIt>
+std::pair<ForwardIt,ForwardIt> search_for_prefix(ForwardIt first_prefix,ForwardIt last_prefix,ForwardIt first_search,ForwardIt last_search) {
+    for(;first_prefix!=last_prefix;++first_prefix) {
+        first_search=std::lower_bound(first_search,last_search,*first_prefix);
+        if(first_search==last_search) break;
+        if((first_prefix->size() <= first_search->size()) && std::mismatch(first_prefix->begin(),first_prefix->end(),first_search->begin()).first==first_prefix->end()) return std::make_pair(first_prefix,first_search);
+    }
+    return std::make_pair(last_prefix,last_search);
+}
+
+bool check_trigger(const std::set<std::string>& to_check,const std::set<std::string>& fired) {
+    return search_for_prefix(to_check.begin(),to_check.end(),fired.begin(),fired.end()).first!=to_check.end();
+}
 
 // Destructor
 HZZ4LeptonsHLTAnalysisFilter::~HZZ4LeptonsHLTAnalysisFilter() {
@@ -30,7 +51,12 @@ HZZ4LeptonsHLTAnalysisFilter::~HZZ4LeptonsHLTAnalysisFilter() {
 bool HZZ4LeptonsHLTAnalysisFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup ) {
   edm::Handle<vector<std::string> > HLTfired_;
   iEvent.getByToken(HLTInfoFired,HLTfired_);
-  
+  std::set<std::string> HLTFired;
+  for(auto const cand : *HLTfired_) {
+    HLTFired.insert(cand);
+  }
+  return check_trigger(pass_triggers,HLTFired) && !check_trigger(veto_triggers,HLTFired);
+/*  
   vector<string> HLTimported;
   string tmpstring="";
   
@@ -54,7 +80,8 @@ bool HZZ4LeptonsHLTAnalysisFilter::filter(edm::Event& iEvent, const edm::EventSe
 
   bool debug=true;
   cout << "Filename is= " << out.Data() << endl;
-
+*/
+/*
   if(
      (out.Contains("2017") && out.Contains("data") && !out.Contains("Moriond17")) && 
      (out.Contains("2017") && out.Contains("data") && !out.Contains("Spring16")) && 
@@ -462,7 +489,7 @@ bool HZZ4LeptonsHLTAnalysisFilter::filter(edm::Event& iEvent, const edm::EventSe
   
   cout << " Event not recognized"<< endl;
   return false;
-
+*/
 }
 
 void HZZ4LeptonsHLTAnalysisFilter::respondToOpenInputFile(edm::FileBlock const& fb) {

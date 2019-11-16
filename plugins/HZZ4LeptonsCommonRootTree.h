@@ -210,7 +210,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     typedef std::vector<edm::InputTag> vtag;
     // Get the various input parameters
     
-    year                      = pset.getParameter<int>("year"); //Which year of data/MC we are running over, for switching various settings
+    year                      = pset.getUntrackedParameter<int>("year"); //Which year of data/MC we are running over, for switching various settings
     MuonMVAReader.reset(new MuonGBRForestReader(year));
     decaychannel              = pset.getParameter<std::string>("decaychannel");
     rootFileName              = pset.getUntrackedParameter<std::string>("rootFileName");
