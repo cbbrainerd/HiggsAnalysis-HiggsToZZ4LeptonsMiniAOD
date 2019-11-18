@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
+#include "HLTrigger/HLTfilters/plugins/HLTHighLevel.h"
 
 // Muons:
 #include <DataFormats/MuonReco/interface/Muon.h>
