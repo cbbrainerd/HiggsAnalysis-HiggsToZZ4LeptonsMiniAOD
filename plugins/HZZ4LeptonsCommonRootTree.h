@@ -3609,7 +3609,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
    
     //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
 
-    edm::FileInPath corrPath("roccor_Run2_v2/data/RoccoR2017.txt");
+    edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2017.txt");
     calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
 
     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE open the txt file for muon corrections"<<std::endl;
