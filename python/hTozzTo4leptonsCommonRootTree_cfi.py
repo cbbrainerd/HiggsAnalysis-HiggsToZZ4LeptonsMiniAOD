@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from year_cff import year
-
 hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     decaychannel = cms.string('2e2mu'),
     rootFileName = cms.untracked.string('roottree_2e2mu.root'),
@@ -229,13 +227,12 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
        elecID = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpHZZ"),#2017 TRY
 
   #     mvaValuesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),#2017 TRY
-       mvaValuesMap = cms.InputTag({
-        2017 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
-        2018 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Autumn18IdIsoValues",
-        }[year])
-),
+       mvaValuesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Autumn18IdIsoValues"),
+#Fixme: make this select the right one at runtime based on the year
+#        2017 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
+#        2018 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Autumn18IdIsoValues",
+#        }[get_year()]),
   #     mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Categories"),#2017 TRY
-
     jetQGMapTag        = cms.InputTag("QGTaggerDATA:qgLikelihood"), #REHAM
     jetQGMapTag_axis2        = cms.InputTag("QGTaggerDATA:axis2"), #REHAM
     jetQGMapTag_ptd        = cms.InputTag("QGTaggerDATA:ptD"), #REHAM
@@ -331,7 +328,7 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
  
     # PF MET
   # PfMETLabel             = cms.InputTag("slimmedMETs::MonoHiggs"), #reham comment to check "to use the updated MET"
-   PfMETLabel             = cms.InputTag("slimmedMETsTEST"), #Reham after update MET
+    PfMETLabel             = cms.InputTag("slimmedMETsTEST"), #Reham after update MET
     # HT MET                                          
 #    HtMET_IC5Label         = cms.InputTag("htMetIC5"), 
 #    HtMET_KT4Label         = cms.InputTag("htMetKT4"),
