@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from year_cff import year
+
 hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     decaychannel = cms.string('2e2mu'),
     rootFileName = cms.untracked.string('roottree_2e2mu.root'),
@@ -227,6 +229,11 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
        elecID = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpHZZ"),#2017 TRY
 
   #     mvaValuesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),#2017 TRY
+       mvaValuesMap = cms.InputTag({
+        2017 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
+        2018 : "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Autumn18IdIsoValues",
+        }[year])
+),
   #     mvaCategoriesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Categories"),#2017 TRY
 
     jetQGMapTag        = cms.InputTag("QGTaggerDATA:qgLikelihood"), #REHAM
