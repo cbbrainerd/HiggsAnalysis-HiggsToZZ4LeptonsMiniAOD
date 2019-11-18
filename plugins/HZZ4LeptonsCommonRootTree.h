@@ -3139,11 +3139,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       ///@@@/// Electron ID  REHAM
       
 
-     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << std::endl;
-     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values")<<std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << cand->electronID("mvaEleID-Autumn18-ID-ISO-HZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << std::endl;
+     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Autumn18IdIsoValues")<<std::endl;
 
-     RECOELE_ID[index] = cand->electronID("mvaEleID-Fall17-iso-V2-wpHZZ");
-     RECOELE_mvaNonTrigV0[index] =  cand->userFloat("ElectronMVAEstimatorRun2Fall17IsoV2Values");
+     RECOELE_ID[index] = cand->electronID("mvaEleID-Autumn18-ID-ISO-HZZ");
+     RECOELE_mvaNonTrigV0[index] =  cand->userFloat("ElectronMVAEstimatorRun2Autumn18IdIsoValues");
 
      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_ID[index] = "<<RECOELE_ID[index]<<" RECOELE_mvaNonTrigV0[index] = "<< RECOELE_mvaNonTrigV0[index]<<std::endl;
 
@@ -3609,7 +3609,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
    
     //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
 
-    edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2017.txt");
+    edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2018.txt");
     calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
 
     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE open the txt file for muon corrections"<<std::endl;
@@ -4431,7 +4431,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 void fillTracks(const edm::Event& iEvent){
     // Tracks
   using namespace edm; using namespace std; using namespace reco;
-  edm::Handle<edm::View<pat::PackedCandidate>> cands;
+  edm::Handle<pat::PackedCandidateCollection> cands;
   iEvent.getByToken(pfTag_,cands);
  
   int countk=0;

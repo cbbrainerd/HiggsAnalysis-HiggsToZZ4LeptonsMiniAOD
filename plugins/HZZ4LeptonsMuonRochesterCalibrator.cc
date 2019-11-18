@@ -52,7 +52,7 @@ HZZ4LeptonsMuonRochesterCalibrator::HZZ4LeptonsMuonRochesterCalibrator(const edm
   string alias;
   produces<pat::MuonCollection>(); 
   produces<edm::ValueMap<float> >("CorrPtError");
-  edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2017.txt");
+  edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2018.txt");
   calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
   rgen_ = std::unique_ptr<TRandom3>(new TRandom3(0));
 

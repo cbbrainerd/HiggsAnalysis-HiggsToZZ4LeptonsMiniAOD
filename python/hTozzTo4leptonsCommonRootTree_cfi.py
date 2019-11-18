@@ -224,7 +224,7 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
 #@#    mvaNonTrigV0MapTag        = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),#2017 HZZ4l
 #@#    mvaNonTrigV0MapTag        = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpHZZ"),#2017 TRY
        electronsMiniAOD    = cms.InputTag("slimmedElectrons"),
-       elecID = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpHZZ"),#2017 TRY
+       elecID = cms.InputTag("mvaEleID-Autumn18-ID-ISO-HZZ"),#2017 TRY
 
   #     mvaValuesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),#2017 TRY
        mvaValuesMap = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Autumn18IdIsoValues"),
