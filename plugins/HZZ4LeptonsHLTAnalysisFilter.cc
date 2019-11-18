@@ -23,6 +23,11 @@ HZZ4LeptonsHLTAnalysisFilter::HZZ4LeptonsHLTAnalysisFilter(const edm::ParameterS
   for(auto &x : pset.getParameter<std::vector<std::string> >("veto_triggers")) {
     veto_triggers.insert(x);
   }
+  std::cout << "Trigger setup finished. Passing triggers:";
+  for(auto &x : pass_triggers) std::cout << x << ",";
+  std::cout << "\nVeto triggers:";
+  for(auto &x : veto_triggers) std::cout << x << ",";
+  std::cout << "\n";
 }
 
 #include <algorithm>
