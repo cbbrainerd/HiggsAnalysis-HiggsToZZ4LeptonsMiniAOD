@@ -1,4 +1,18 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
+options=VarParsing('analysis')
+options.register('dataset','',VarParsing.multiplicity.singleton,VarParsing.varType.string,'Dataset to process (e.g. DoubleMuon)')
+options.register('year',-1,VarParsing.multiplicity.singleton,VarParsing.varType.int,'Year to run over (e.g. 2017)')
+options.parseArguments()
+dataset=options.dataset
+year=options.year
+
+if dataset=='':
+    print 'Must specify dataset to run over, e.g. cmsRun config.py dataset=DoubleMuon'
+    raise SystemExit
+else:
+    print 'Running over dataset %s' % dataset
 
 process = cms.Process('MonoHiggs')
 
@@ -19,7 +33,8 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '94X_dataRun2_v11', '') # Reham Tag recommended for JEC 2017
+GlobalTagByYear= { 2017 : '94X_dataRun2_v11' , 2018 : '102X_dataRun2_v4' }
+process.GlobalTag = GlobalTag(process.GlobalTag, GlobalTagByYear[year], '') # Reham Tag recommended for JEC 2017
 
 # Random generator 
 #process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
@@ -35,6 +50,21 @@ process.load('HiggsAnalysis.HiggsToZZ4Leptons.bunchSpacingProducer_cfi')
 process.load('RecoMET.METFilters.metFilters_cff')
 process.load('RecoMET.METFilters.BadPFMuonFilter_cfi')
 process.load('RecoMET.METFilters.BadChargedCandidateFilter_cfi')
+
+
+###ADDEDfor MET Walaa##
+process.load('RecoMET.METFilters.ecalBadCalibFilter_cfi')
+baddetEcallist = cms.vuint32(
+                             [872439604,872422825,872420274,872423218,872423215,872416066,872435036,872439336, 872420273,872436907,872420147,872439731,872436657,872420397,872439732,872439339, 872439603,87242243
+
+process.ecalBadCalibReducedMINIAODFilter = cms.EDFilter(
+                                                        "EcalBadCalibFilter",
+                                                        EcalRecHitSource = cms.InputTag("reducedEgamma:reducedEERecHits"),
+                                                        ecalMinEt        = cms.double(50.),
+                                                        baddetEcal    = baddetEcallist,
+                                                        taggingMode = cms.bool(True),
+                                                        debug = cms.bool(False)
+                                                        )
 
 process.Path_BunchSpacingproducer=cms.Path(process.bunchSpacingProducer)
 
@@ -100,22 +130,66 @@ process.hTozzTo4leptonsMuonRochesterCalibrator.MCTruth = cms.bool(False)
 #/////////////////////////////////////////////////////////////
 #Reham test JEC
 
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+#from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+#
+#updateJetCollection(
+#
+#process,
+#jetSource = cms.InputTag('slimmedJets'),
+#labelName = 'UpdatedJEC',
+#jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
+#
+#)
+#
+#process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+#
+##///////////////////////////////////////////////////////////
 
-updateJetCollection(
+#///////////////////////////////////////////
+###############include Jet Walaa
+import os
+# Jet Energy Corrections
+from CondCore.DBCommon.CondDBSetup_cfi import *
+era = "Autumn18_RunABCD_V8_DATA"
+#dBFile = os.environ.get('CMSSW_BASE')+"/src/HiggsAnalysis/HiggsToZZ4Leptons/test/"+era+".db"
+dBFile = "Autumn18_RunABCD_V8_DATA.db"
+process.jec = cms.ESSource("PoolDBESSource",
+                           CondDBSetup,
+                           connect = cms.string("sqlite_file:"+dBFile),
+                           toGet =  cms.VPSet(
+                                              
+                                              cms.PSet(
+                                                       record = cms.string("JetCorrectionsRecord"),
+                                                       tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
+                                                       label= cms.untracked.string("AK4PFchs")
+                                                       ),
+                                              )
+                           )
+process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
+process.load("PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff")
 
-process,
-jetSource = cms.InputTag('slimmedJets'),
-labelName = 'UpdatedJEC',
-jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
+process.jetCorrFactors = process.updatedPatJetCorrFactors.clone(
+                                                                src = cms.InputTag("slimmedJets"),
+                                                                levels = ['L1FastJet',
+                                                                          'L2Relative',
+                                                                          'L3Absolute'],
+                                                                payload = 'AK4PFchs' )
+process.slimmedJetsJEC = process.updatedPatJets.clone(
+                                                      jetSource = cms.InputTag("slimmedJets"),
+                                                      jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors"))
+                                                      )
+### add pileup id and discriminant to patJetsReapplyJEC
+process.load("RecoJets.JetProducers.PileupJetID_cfi")
+process.pileupJetIdUpdated = process.pileupJetId.clone(
+                                                       jets=cms.InputTag("slimmedJets"),
+                                                       inputIsCorrected=False,
+                                                       applyJec=True,
+                                                       vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
+                                                       )
+process.slimmedJetsJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+process.slimmedJetsJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
+#######################################
 
-)
-
-process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
-
-#///////////////////////////////////////////////////////////
-
-#Reham to update the MET after updating the JEC 
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
@@ -128,20 +202,29 @@ runMetCorAndUncFromMiniAOD(process,
 
 #Reham to add new instructiond for electron energy correction and smearing PLUS electron ID 
 
+postRecoSeqEras= { 2017 : '2017-Nov17ReReco' , 2018 : '2018-Prompt' }
+postRecoSeqEleIDModules = { 
+    2017 : [ 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff', 'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff' ],
+    2018 : [ 'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Autumn18_ID_ISO_cff', 'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff' ]
+}
+
 from RecoEgamma.EgammaTools.EgammaPostRecoTools import setupEgammaPostRecoSeq
 setupEgammaPostRecoSeq(process,
-                       eleIDModules = ['RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
-                                       'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff'],
+                       eleIDModules = postRecoSeqEleIDModules[year],
                        runVID=True, #saves CPU time by not needlessly re-running VID
-                      era='2017-Nov17ReReco')  
+                       runEnergyCorrections=True,
+                      era=postRecoSeqEras[year])  
 
 
 #/////////////////////////////////////////////////////
 
 
-process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsPreselection_data_noskim_cff') 
-#@#process.calibratedPatElectrons.isMC = cms.bool(False) #reham run2 2017
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsPreselection_data_noskim_cff')
+from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsHLTAnalysisFilter_cfi import set_triggers
+set_triggers(year=year,dataset=dataset)
 
+#@#process.calibratedPatElectrons.isMC = cms.bool(False) #reham run2 2017
+process.load('HiggsAnalysis.HiggsToZZ4Leptons.fsrPhotons_cff') #FSR Walaa
 
 process.hTozzTo4leptonsPFfsrPhoton.src = cms.InputTag("packedPFCandidates")
 process.hTozzTo4leptonsHLTInfo.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
@@ -153,7 +236,7 @@ process.hTozzTo4leptonsCommonRootTreePresel.triggerFilter = cms.string('hltL3fL1
 process.hTozzTo4leptonsCommonRootTreePresel.triggerEleFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
   #process.hTozzTo4leptonsCommonRootTreePresel.triggerFilterAsym = cms.vstring('hltDiMuonL3PreFiltered8','hltDiMuonL3p5PreFiltered8')
 process.hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(False)    
-process.hTozzTo4leptonsCommonRootTreePresel.year = cms.untracked.int32(2017)
+process.hTozzTo4leptonsCommonRootTreePresel.year = cms.untracked.int32(year)
 process.hTozzTo4leptonsCommonRootTreePresel.isVBF  = cms.bool(False)
 #//@
 #This variable isData to apply muon calibrator inside commonRooTree.h and get the error on muon pT
@@ -174,13 +257,23 @@ process.genanalysis= cms.Sequence(
 
 process.hTozzTo4leptonsSelectionPath = cms.Path(
    # process.ecalBadCalibReducedMINIAODFilter  * New met filter to be used (under test)
-    process.goodOfflinePrimaryVerticestwo     *
-    #  process.genanalysis * 
-    process.jecSequence *#Reham to add JEC
-    process.fullPatMetSequenceTEST * #Reham To update MET after update JEC
-    process.egammaPostRecoSeq * #Reham to include electron smearing due to kink at 50 Gev in electron pt spectrum from old electron scale and smearing
-    process.hTozzTo4leptonsSelectionSequenceData *# Reham to add again
-    process.hTozzTo4leptonsCommonRootTreePresel 
+    process.goodOfflinePrimaryVerticestwo *
+    process.fsrPhotonSequence *
+    process.jetCorrFactors*
+    process.pileupJetIdUpdated*
+    process.ecalBadCalibReducedMINIAODFilter*
+    process.slimmedJetsJEC*
+    process.fullPatMetSequenceTEST *
+    process.egmGsfElectronIDSequence *
+    process.egammaPostRecoSeq *
+    process.hTozzTo4leptonsSelectionSequenceData *
+    process.hTozzTo4leptonsCommonRootTreePresel
+    #process.genanalysis * 
+    #process.jecSequence *#Reham to add JEC
+    #process.fullPatMetSequenceTEST * #Reham To update MET after update JEC
+    #process.egammaPostRecoSeq * #Reham to include electron smearing due to kink at 50 Gev in electron pt spectrum from old electron scale and smearing
+    #process.hTozzTo4leptonsSelectionSequenceData *# Reham to add again
+    #process.hTozzTo4leptonsCommonRootTreePresel 
     )
 
 #///////////////////////////////////////////
@@ -202,7 +295,7 @@ process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,
                                  #@#process.Flag_BadChargedCandidateFilter,###
                                  #process.Flag_ecalBadCalibFilter,  #new 2017 changed with reduced
                                  process.hTozzTo4leptonsSelectionPath,
-#                                 process.o
+                                 process.o
 )
 
 
