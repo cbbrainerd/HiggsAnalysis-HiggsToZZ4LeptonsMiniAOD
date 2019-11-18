@@ -313,7 +313,8 @@ process.source = cms.Source ("PoolSource",
   fileNames = cms.untracked.vstring(
 #'file:data_DoubleMuon_2017_RunB_0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root' 
 #'root://cmsxrootd.fnal.gov//store/data/Run2017B/DoubleMuon/MINIAOD/17Nov2017-v1/30000/0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root'
-'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
+#'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
+'file:DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root',
 #'/store/data/Run2017C/DoubleMuon/MINIAOD/31Mar2018-v1/90000/047E2618-7738-E811-B77A-38EAA78D8AF4.root' #2017 data (for sync)
 #'file:Data_2017_DoubleMuon_RunB_hTozzToLeptons.root'
   )
