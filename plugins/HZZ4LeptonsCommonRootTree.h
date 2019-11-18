@@ -329,7 +329,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     
     // PF photons
 //    pfphotonsTag_                 = consumes<edm::View<reco::PFCandidate>>(pset.getParameter<edm::InputTag>("PFPhotonsLabel"));
-    pfTag_                 = consumes<edm::View<pat::PackedCandidate>>(pset.getParameter<edm::InputTag>("pfCands"));
+    pfTag_                 = consumes<pat::PackedCandidateCollection>(pset.getParameter<edm::InputTag>("pfCands"));
 
     // vertexing 
     // 3D w.r.t primary vertex DA
@@ -5728,7 +5728,7 @@ void fillTracks(const edm::Event& iEvent){
   
   // Photon, Tracks, Jets, Vertices
 //  edm::EDGetTokenT<std::vector<reco::Track> > tracksTag_;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate> > pfTag_;
+  edm::EDGetTokenT<pat::PackedCandidateCollection> pfTag_;
   edm::EDGetTokenT<edm::View<pat::Photon> > photonsTag_;
   edm::EDGetTokenT<edm::View<pat::PFParticle> > fsrPhotonsSrc_;
   std::vector<reco::Vertex> PV;
