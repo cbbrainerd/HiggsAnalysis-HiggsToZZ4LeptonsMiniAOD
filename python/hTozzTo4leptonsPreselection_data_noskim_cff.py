@@ -17,7 +17,7 @@ hTozzTo4leptonsMCGenParticleListDrawer2e2mu = HiggsAnalysis.HiggsToZZ4Leptons.hT
 # Save MC truth: 
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMCDumper_cfi import *
 import HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMCDumper_cfi
-#hTozzTo4leptonsMCDumper.status=cms.vint32(62)
+hTozzTo4leptonsMCDumper.status=cms.vint32(62)
 
 # CP producer: 
 from HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsCP_cfi import *

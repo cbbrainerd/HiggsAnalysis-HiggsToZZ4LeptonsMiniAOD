@@ -7,7 +7,8 @@ genZ = cms.EDFilter("PdgIdAndStatusCandViewSelector",
                            pdgId = cms.vint32( 23 ),
 #                           status = cms.vint32(3)  
 #                           status = cms.vint32(62)                                         
-                          status = cms.vint32(22)                    
+                          status = cms.vint32(22,62)                    
+#                          status = cms.vint32(22)                    
                            )
 
 # select Gamma, and save clones
