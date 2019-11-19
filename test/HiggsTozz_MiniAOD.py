@@ -6,10 +6,17 @@ options.register('dataset','',VarParsing.multiplicity.singleton,VarParsing.varTy
 options.register('year',-1,VarParsing.multiplicity.singleton,VarParsing.varType.int,'Year to run over (e.g. 2017)')
 options.parseArguments()
 dataset=options.dataset
+isMC=(dataset=="MC")
+AllowedDatasets=['DoubleMuon','SingleElectron','DoubleEG','MuonEG','SingleMuon','MC']
 year=options.year
 
 if dataset=='' or year==-1:
     print 'Must specify dataset and year to run over, e.g. cmsRun config.py dataset=DoubleMuon year=2018'
+    raise SystemExit
+elif dataset not in AllowedDatasets:
+    print 'Unrecognized dataset "%s". Implemented datasets are:' % dataset
+    for dataset in AllowedDatasets:
+        print dataset
     raise SystemExit
 else:
     print 'Running over dataset %s' % dataset
@@ -33,17 +40,19 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-GlobalTagByYear= { 2017 : '94X_dataRun2_v11' , 2018 : '102X_dataRun2_v4' }
+GlobalTagByYearData={ 2017 : '94X_dataRun2_v11' , 2018 : '102X_dataRun2_v4' }
+GlobalTagByYearMC={ 2017 : '94X_mc2017_realistic_v13' , 2018 : '102X_upgrade2018_realistic_v18' }
+GlobalTagByYear=GlobalTagByYearMC if isMC else GlobalTagByYearData
 process.GlobalTag = GlobalTag(process.GlobalTag, GlobalTagByYear[year], '') # Reham Tag recommended for JEC 2017
 
-# Random generator 
-#process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-#    calibratedPatElectrons = cms.PSet(
-#        initialSeed = cms.untracked.uint32(1),
-#        engineName = cms.untracked.string('TRandom3')
-#    )
-#)
-
+if isMC:
+    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+        calibratedPatElectrons = cms.PSet(
+            initialSeed = cms.untracked.uint32(1),
+            engineName = cms.untracked.string('TRandom3')
+        )
+    )
+    
 process.load('HiggsAnalysis.HiggsToZZ4Leptons.bunchSpacingProducer_cfi')
 #process.load('HiggsAnalysis.HiggsToZZ4Leptons.metFiltersMiniAOD_cff')
 
@@ -114,44 +123,16 @@ process.goodOfflinePrimaryVerticestwo = cms.EDFilter("VertexSelector",
 #@#Rochester correction
 
 process.load('HiggsAnalysis.HiggsToZZ4Leptons.hTozzTo4leptonsMuonRochesterCalibrator_cfi')
-process.hTozzTo4leptonsMuonRochesterCalibrator.isData = cms.bool(True)
-process.hTozzTo4leptonsMuonRochesterCalibrator.MCTruth = cms.bool(False)
+process.hTozzTo4leptonsMuonRochesterCalibrator.isData = cms.bool(not isMC)
+process.hTozzTo4leptonsMuonRochesterCalibrator.MCTruth = cms.bool(isMC)
 
-#Kalman
-#@#process.load('HiggsAnalysis/HiggsToZZ4Leptons/hTozzTo4leptonsMuonCalibrator_cfi')
-#@#process.hTozzTo4leptonsMuonCalibrator.isData = cms.bool(True) 
-# process.hTozzTo4leptonsMuonCalibrator.isMC = cms.bool(False)
-
-
-#process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
-#process.calibratedElectrons.isMC = cms.bool(False)
-
-#/////////////////////////////////////////////////////////////
-#Reham test JEC
-
-#from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-#
-#updateJetCollection(
-#
-#process,
-#jetSource = cms.InputTag('slimmedJets'),
-#labelName = 'UpdatedJEC',
-#jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')
-#
-#)
-#
-#process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
-#
-##///////////////////////////////////////////////////////////
-
-#///////////////////////////////////////////
 ###############include Jet Walaa
 import os
 # Jet Energy Corrections
 from CondCore.DBCommon.CondDBSetup_cfi import *
-era = "Autumn18_RunABCD_V8_DATA"
+era = "Autumn18_V8_MC" if isMC else "Autumn18_RunABCD_V8_DATA"
 #dBFile = os.environ.get('CMSSW_BASE')+"/src/HiggsAnalysis/HiggsToZZ4Leptons/test/"+era+".db"
-dBFile = "Autumn18_RunABCD_V8_DATA.db"
+dBFile = "Autumn18_V8_MC.db" if isMC else "Autumn18_RunABCD_V8_DATA.db"
 process.jec = cms.ESSource("PoolDBESSource",
                            CondDBSetup,
                            connect = cms.string("sqlite_file:"+dBFile),
@@ -189,6 +170,33 @@ process.slimmedJetsJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscr
 process.slimmedJetsJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
 #######################################
 
+#JER
+if isMC:
+    process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
+    #dBJERFile = os.environ.get('CMSSW_BASE')+"/src/HiggsAnalysis/HiggsToZZ4Leptons/test/Autumn18_V1_MC.db"
+    dBJERFile = "Autumn18_V1_MC.db"
+    process.jer = cms.ESSource("PoolDBESSource",
+                               CondDBSetup,
+                               connect = cms.string("sqlite_file:"+dBJERFile),
+                               toGet = cms.VPSet(
+                                                 cms.PSet(
+                                                          record = cms.string('JetResolutionRcd'),
+                                                          tag    = cms.string('JR_Autumn18_V1_MC_PtResolution_AK4PFchs'),
+                                                          label  = cms.untracked.string('AK4PFchs_pt')
+                                                          ),
+                                                 cms.PSet(
+                                                          record = cms.string('JetResolutionRcd'),
+                                                          tag    = cms.string('JR_Autumn18_V1_MC_PhiResolution_AK4PFchs'),
+                                                          label  = cms.untracked.string('AK4PFchs_phi')
+                                                          ),
+                                                 cms.PSet(
+                                                          record = cms.string('JetResolutionScaleFactorRcd'),
+                                                          tag    = cms.string('JR_Autumn18_V1_MC_SF_AK4PFchs'),
+                                                          label  = cms.untracked.string('AK4PFchs')
+                                                          )
+                                                 )
+                               )
+    process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
@@ -229,8 +237,8 @@ process.hTozzTo4leptonsPFfsrPhoton.src = cms.InputTag("packedPFCandidates")
 process.hTozzTo4leptonsHLTInfo.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 process.hTozzTo4leptonsCommonRootTreePresel.use2011EA = cms.untracked.bool(False)
 process.hTozzTo4leptonsCommonRootTreePresel.triggerEvent  = cms.InputTag("hltTriggerSummaryAOD","","HLT")
-process.hTozzTo4leptonsCommonRootTreePresel.fillPUinfo = False
-process.hTozzTo4leptonsCommonRootTreePresel.fillHLTinfo = cms.untracked.bool(False)                                           
+process.hTozzTo4leptonsCommonRootTreePresel.fillPUinfo = isMC
+process.hTozzTo4leptonsCommonRootTreePresel.fillHLTinfo = cms.untracked.bool(isMC)                                           
 process.hTozzTo4leptonsCommonRootTreePresel.triggerFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
 process.hTozzTo4leptonsCommonRootTreePresel.triggerEleFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
   #process.hTozzTo4leptonsCommonRootTreePresel.triggerFilterAsym = cms.vstring('hltDiMuonL3PreFiltered8','hltDiMuonL3p5PreFiltered8')
@@ -241,33 +249,38 @@ process.hTozzTo4leptonsCommonRootTreePresel.isVBF  = cms.bool(False)
 #This variable isData to apply muon calibrator inside commonRooTree.h and get the error on muon pT
 process.hTozzTo4leptonsCommonRootTreePresel.isData = cms.bool(True)
 
-process.hTozzTo4leptonsCommonRootTreePresel.noiseFilterTag = cms.InputTag("TriggerResults","","RECO")
+process.hTozzTo4leptonsCommonRootTreePresel.noiseFilterTag = cms.InputTag("TriggerResults","","PAT" if isMC else "RECO")
 
 #for MC only but put need to run and not crash
 process.hTozzTo4leptonsCommonRootTreePresel.LHEProduct = cms.InputTag("externalLHEProducer")# this inputTag depend on input mc sample 
 
-process.genanalysis= cms.Sequence(
-  # process.hTozzTo4leptonsGenSequence                  *
-  #       process.hTozzTo4leptonsMCGenFilter2e2mu             *
-  #       process.hTozzTo4leptonsMCGenParticleListDrawer2e2mu *
-  process.hTozzTo4leptonsMCDumper                     
- # process.hTozzTo4leptonsMCCP                         
-  )
+if isMC:
+    process.genanalysis= cms.Sequence(
+      process.hTozzTo4leptonsGenSequence                  *
+      #       process.hTozzTo4leptonsMCGenFilter2e2mu             *
+      #       process.hTozzTo4leptonsMCGenParticleListDrawer2e2mu *
+      process.hTozzTo4leptonsMCDumper
+     # process.hTozzTo4leptonsMCCP                         
+      )
+else:
+    process.genanalysis= cms.Sequence(
+      process.hTozzTo4leptonsMCDumper
+    )
 
 process.hTozzTo4leptonsSelectionPath = cms.Path(
    # process.ecalBadCalibReducedMINIAODFilter  * New met filter to be used (under test)
     process.goodOfflinePrimaryVerticestwo *
+    process.genanalysis *
     process.fsrPhotonSequence *
-    process.jetCorrFactors*
-    process.pileupJetIdUpdated*
-    process.ecalBadCalibReducedMINIAODFilter*
-    process.slimmedJetsJEC*
+    process.jetCorrFactors *
+    process.pileupJetIdUpdated *
+    process.ecalBadCalibReducedMINIAODFilter *
+    process.slimmedJetsJEC *
     process.fullPatMetSequenceTEST *
     process.egmGsfElectronIDSequence *
     process.egammaPostRecoSeq *
-    process.hTozzTo4leptonsSelectionSequenceData *
+    (process.hTozzTo4leptonsSelectionSequenceMC*process.hTozzTo4leptonsMatchingSequence if isMC else process.hTozzTo4leptonsSelectionSequenceData)*
     process.hTozzTo4leptonsCommonRootTreePresel
-    #process.genanalysis * 
     #process.jecSequence *#Reham to add JEC
     #process.fullPatMetSequenceTEST * #Reham To update MET after update JEC
     #process.egammaPostRecoSeq * #Reham to include electron smearing due to kink at 50 Gev in electron pt spectrum from old electron scale and smearing
@@ -314,7 +327,8 @@ process.source = cms.Source ("PoolSource",
 #'file:data_DoubleMuon_2017_RunB_0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root' 
 #'root://cmsxrootd.fnal.gov//store/data/Run2017B/DoubleMuon/MINIAOD/17Nov2017-v1/30000/0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root'
 #'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
-'file:DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root',
+#'file:DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root',
+'file:E8250D82-7AEE-A245-8BA2-DAC402BFF393.root', #2018MC
 #'/store/data/Run2017C/DoubleMuon/MINIAOD/31Mar2018-v1/90000/047E2618-7738-E811-B77A-38EAA78D8AF4.root' #2017 data (for sync)
 #'file:Data_2017_DoubleMuon_RunB_hTozzToLeptons.root'
   )
