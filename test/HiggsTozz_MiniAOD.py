@@ -201,7 +201,7 @@ if isMC:
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
 runMetCorAndUncFromMiniAOD(process,
-                           isData=True, #(or False),
+                           isData=(not isMC), #(or False),
                            postfix = "TEST"
                            )
 
@@ -242,12 +242,12 @@ process.hTozzTo4leptonsCommonRootTreePresel.fillHLTinfo = cms.untracked.bool(isM
 process.hTozzTo4leptonsCommonRootTreePresel.triggerFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
 process.hTozzTo4leptonsCommonRootTreePresel.triggerEleFilter = cms.string('hltL3fL1sMu16Eta2p1L1f0L2f10QL3Filtered20Q')
   #process.hTozzTo4leptonsCommonRootTreePresel.triggerFilterAsym = cms.vstring('hltDiMuonL3PreFiltered8','hltDiMuonL3p5PreFiltered8')
-process.hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(False)    
+process.hTozzTo4leptonsCommonRootTreePresel.fillMCTruth  = cms.untracked.bool(isMC)    
 process.hTozzTo4leptonsCommonRootTreePresel.year = cms.untracked.int32(year)
 process.hTozzTo4leptonsCommonRootTreePresel.isVBF  = cms.bool(False)
 #//@
 #This variable isData to apply muon calibrator inside commonRooTree.h and get the error on muon pT
-process.hTozzTo4leptonsCommonRootTreePresel.isData = cms.bool(True)
+process.hTozzTo4leptonsCommonRootTreePresel.isData = cms.bool(not isMC)
 
 process.hTozzTo4leptonsCommonRootTreePresel.noiseFilterTag = cms.InputTag("TriggerResults","","PAT" if isMC else "RECO")
 
@@ -328,7 +328,8 @@ process.source = cms.Source ("PoolSource",
 #'root://cmsxrootd.fnal.gov//store/data/Run2017B/DoubleMuon/MINIAOD/17Nov2017-v1/30000/0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root'
 #'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
 #'file:DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root',
-'file:E8250D82-7AEE-A245-8BA2-DAC402BFF393.root', #2018MC
+#'file:E8250D82-7AEE-A245-8BA2-DAC402BFF393.root', #2018MC
+'/store/mc/RunIIAutumn18MiniAOD/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/E5E2F122-AA57-5248-8177-594EC87DD494.root' #2018 MC
 #'/store/data/Run2017C/DoubleMuon/MINIAOD/31Mar2018-v1/90000/047E2618-7738-E811-B77A-38EAA78D8AF4.root' #2017 data (for sync)
 #'file:Data_2017_DoubleMuon_RunB_hTozzToLeptons.root'
   )
