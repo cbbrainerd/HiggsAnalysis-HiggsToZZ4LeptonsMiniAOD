@@ -137,8 +137,11 @@ Triggers[2017].add_dataset('SingleMuon',
 )
 
 Triggers[2018]=TriggersByDataset()
-Triggers[2018].add_dataset('DoubleEG',
+#SingleElectron and DoubleEG replaced by EGamma in 2018
+Triggers[2018].add_dataset('EGamma',
     [
+    #single electron
+    "HLT_Ele32_WPTight_Gsf_v",
     #dielectron
     "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
     "HLT_DoubleEle25_CaloIdL_MW_v",
@@ -168,12 +171,6 @@ Triggers[2018].add_dataset('MuonEG',
     ]
 )
 
-Triggers[2018].add_dataset('SingleElectron',
-    [
-    #single electron
-    "HLT_Ele32_WPTight_Gsf_v",
-    ]
-)
 Triggers[2018].add_dataset('SingleMuon',
     [
     #single muon
