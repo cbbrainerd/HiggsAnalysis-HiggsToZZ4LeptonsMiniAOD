@@ -1179,8 +1179,6 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_, "RECO_PFJET_RAWPT", (& RECO_PFJET_RAWPT));
     MakeBranch(Tree_, "RECO_PFJET_PUID_loose", (&RECO_PFJET_PUID_loose));
     MakeBranch(Tree_, "RECO_PFJET_PUID_medium", (&RECO_PFJET_PUID_medium));
-    MakeBranch(Tree_, "RECO_PFJET_PUID_loose",(&RECO_PFJET_PUID_loose));
-    MakeBranch(Tree_, "RECO_PFJET_PUID_medium",(&RECO_PFJET_PUID_medium));
     MakeBranch(Tree_, "RECO_PFJET_PUID",(&RECO_PFJET_PUID));
     MakeBranch(Tree_, "RECO_PFJET_PUID_MVA",(&RECO_PFJET_PUID_MVA));
     MakeBranch(Tree_, "RECO_PFJET_QG_Likelihood",(&RECO_PFJET_QG_Likelihood));//REHAM QG tagger
