@@ -11,6 +11,8 @@ git clone https://github.com/cbbrainerd/HiggsAnalysis-HiggsToZZ4LeptonsMiniAOD H
 git clone https://github.com/cms-analysis/HiggsAnalysis-ZZMatrixElement.git ZZMatrixElement
 git cms-merge-topic cms-egamma:EgammaPostRecoTools
 git cms-merge-topic mkovac:Electron_XGBoost_MVA_2016_and_2018_CMSSW_10_2_15
+#Add support for multiple runs of runMETCorrectionsAndUncertainties
+git cms-merge-topic cbbrainerd:10215_runMETCorrectionsAndUncertainties_fix
 #git cms-merge-topic cms-egamma:EgammaID_949
 pushd ZZMatrixElement
 bash setup.sh
