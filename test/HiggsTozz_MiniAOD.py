@@ -41,7 +41,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 GlobalTagByYearData={ 2017 : '94X_dataRun2_v11' , 2018 : '102X_dataRun2_v4' }
-GlobalTagByYearMC={ 2017 : '94X_mc2017_realistic_v13' , 2018 : '102X_upgrade2018_realistic_v18' }
+GlobalTagByYearMC={ 2017 : '94X_mc2017_realistic_v17' , 2018 : '102X_upgrade2018_realistic_v18' }
 GlobalTagByYear=GlobalTagByYearMC if isMC else GlobalTagByYearData
 process.GlobalTag = GlobalTag(process.GlobalTag, GlobalTagByYear[year], '') # Reham Tag recommended for JEC 2017
 
@@ -205,6 +205,18 @@ runMetCorAndUncFromMiniAOD(process,
                            postfix = "TEST"
                            )
 
+from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+makePuppiesFromMiniAOD( process, True );
+
+runMetCorAndUncFromMiniAOD(process,
+                           isData=(not isMC),
+                           pfCandColl=cms.InputTag("puppiForMET"),
+                           recoMetFromPFCs=True,
+                           metType="Puppi",
+                           postfix="Puppi",
+                           jetFlavor="AK4PFPuppi",
+                           )
+
 #/////////////////////////////////////////////////////
 
 #Reham to add new instructiond for electron energy correction and smearing PLUS electron ID 
@@ -275,6 +287,11 @@ process.hTozzTo4leptonsSelectionPath = cms.Path(
     process.ecalBadCalibReducedMINIAODFilter *
     process.slimmedJetsJEC *
     process.fullPatMetSequenceTEST *
+#puppi met
+    process.egmPhotonIDSequence *
+    process.puppiMETSequence *
+    process.fullPatMetSequencePuppi *
+#end puppi met
     process.egmGsfElectronIDSequence *
     process.egammaPostRecoSeq *
     (process.hTozzTo4leptonsSelectionSequenceMC*process.hTozzTo4leptonsMatchingSequence if isMC else process.hTozzTo4leptonsSelectionSequenceData)*
@@ -285,6 +302,7 @@ process.hTozzTo4leptonsSelectionPath = cms.Path(
     #process.hTozzTo4leptonsSelectionSequenceData *# Reham to add again
     #process.hTozzTo4leptonsCommonRootTreePresel 
     )
+
 
 #///////////////////////////////////////////
 
@@ -310,7 +328,7 @@ process.schedule = cms.Schedule( process.Path_BunchSpacingproducer,
 
 
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 #process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck', #DEBUG
@@ -324,10 +342,10 @@ process.source = cms.Source ("PoolSource",
   fileNames = cms.untracked.vstring(
 #'file:data_DoubleMuon_2017_RunB_0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root' 
 #'root://cmsxrootd.fnal.gov//store/data/Run2017B/DoubleMuon/MINIAOD/17Nov2017-v1/30000/0852E0CB-E7D7-E711-B2DA-0025905C3DCE.root'
-'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
+#'/store/data/Run2018C/DoubleMuon/MINIAOD/PromptReco-v3/000/320/065/00000/DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root' #2018 data
 #'file:DC1C9ACB-2B90-E811-BD7F-FA163E635E53.root',
 #'file:E8250D82-7AEE-A245-8BA2-DAC402BFF393.root', #2018MC
-#'/store/mc/RunIIAutumn18MiniAOD/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/E5E2F122-AA57-5248-8177-594EC87DD494.root' #2018 MC
+'/store/mc/RunIIAutumn18MiniAOD/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v2/270000/E5E2F122-AA57-5248-8177-594EC87DD494.root' #2018 MC
 #'/store/data/Run2017C/DoubleMuon/MINIAOD/31Mar2018-v1/90000/047E2618-7738-E811-B77A-38EAA78D8AF4.root' #2017 data (for sync)
 #'file:Data_2017_DoubleMuon_RunB_hTozzToLeptons.root'
   )

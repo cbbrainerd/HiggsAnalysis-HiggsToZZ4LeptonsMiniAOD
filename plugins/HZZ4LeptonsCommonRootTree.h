@@ -8,7 +8,7 @@
  *  Author: N. De Filippis - Politecnico and INFN Bari
  *  Contribution by:
  *      C. Brainerd - University of California, Davis
- *          
+ *
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -40,14 +40,14 @@
 //#include "KaMuCa/Calibration/interface/KalmanMuonCalibrator.h"
 
 // Data format
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"    
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 //#include "DataFormats/EgammaCandidates/interface/Photon.h"
 //#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
@@ -103,7 +103,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 // Pileup
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // user include files
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -161,8 +161,8 @@ class EgammaTowerIsolation ;
 
 
 // Class to create TTree variables
-#include <TFile.h> 
-#include <TTree.h> 
+#include <TFile.h>
+#include <TTree.h>
 
 // Namespaces
 using namespace reco;
@@ -176,40 +176,40 @@ template <class T>
 void clear_void(void* vp) { ((T*)vp)->clear(); }
 
 class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
-  
+
  public:
-  
+
   HZZ4LeptonsCommonRootTree(const edm::ParameterSet& pset);
-  
+
   ~HZZ4LeptonsCommonRootTree();
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginJob();
   void endJob();
 
-  
 
-  std::unique_ptr<RoccoR> calibrator; //muon calibrator 
- 
+
+  std::unique_ptr<RoccoR> calibrator; //muon calibrator
+
   void respondToOpenInputFile(edm::FileBlock const& fb) {
     inputfileName = fb.fileName();
     std::cout << "Input Filename is=" << inputfileName.c_str() << std::endl;
   }
-	
+
   std::map<void*,std::function<void(void*)> > clear_vectors_map;
-  
+
   void clear_vectors() {
     for(auto& it : clear_vectors_map) {
         (it.second)(it.first);
     }
   }
 
-  void ReadParameters(const edm::ParameterSet& pset){ 
+  void ReadParameters(const edm::ParameterSet& pset){
     std::cout << "Reading parameters from cfg" << std::endl;
-    
+
     typedef std::vector<edm::InputTag> vtag;
     // Get the various input parameters
-    
+
     year                      = pset.getUntrackedParameter<int>("year"); //Which year of data/MC we are running over, for switching various settings
     MuonMVAReader.reset(new MuonGBRForestReader(year));
     decaychannel              = pset.getParameter<std::string>("decaychannel");
@@ -219,7 +219,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     // search param in cfg
     module_to_search=pset.getUntrackedParameter<std::vector<std::string> >("module_to_search");
     par_to_search= pset.getUntrackedParameter<std::string>("par_to_search");
-    
+
 
     // Get PU simulation info
     fillPUinfo                = pset.getUntrackedParameter<bool>("fillPUinfo");
@@ -242,7 +242,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     triggerBits_              = consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("triggerbits"));
 
-    //Reham 
+    //Reham
     ecalBadCalibFilterUpdate_token= consumes< bool >(edm::InputTag("ecalBadCalibReducedMINIAODFilter")); //NEW MET filter 2018
     noiseFilterTag_          =consumes<edm::TriggerResults>(pset.getParameter<edm::InputTag>("noiseFilterTag"));
     HBHENoiseFilter_Selector_ = pset.getParameter<std::string>("HBHENoiseFilter_Selector_");
@@ -252,9 +252,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     HBHENoiseIsoFilter_Selector_ = pset.getParameter<std::string>("HBHENoiseIsoFilter_Selector_");
     EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_ = pset.getParameter<std::string>("EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_");
     BadPFMuonFilter_Selector_ = pset.getParameter<std::string>("BadPFMuonFilter_Selector_");
-    BadChargedCandidateFilter_Selector_ = pset.getParameter<std::string>("BadChargedCandidateFilter_Selector_");                          
+    BadChargedCandidateFilter_Selector_ = pset.getParameter<std::string>("BadChargedCandidateFilter_Selector_");
     EcalBadCalibFilter_Selector_ = pset.getParameter<std::string>("EcalBadCalibFilter_Selector_");
-   
+
     triggerFilter             = pset.getParameter<std::string>("triggerFilter");
     triggerMatchObject        = consumes<edm::Association<std::vector<pat::TriggerObjectStandAlone> > >(pset.getParameter<edm::InputTag>("triggerMatchObject"));
     triggerMatchObjectEle     = pset.getParameter<edm::InputTag>("triggerMatchObjectEle");
@@ -270,12 +270,12 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     fourgenleptons_           = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("fourgenleptons"));
     digenZ_                   = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("digenZ"));
 
-    
+
     // RECO tags
     RECOcollNameBest2e2mu     = pset.getParameter<vtag>("RECOcollNameBest2e2mu");
     RECOcollNameBest4mu       = pset.getParameter<vtag>("RECOcollNameBest4mu");
     RECOcollNameBest4e        = pset.getParameter<vtag>("RECOcollNameBest4e");
- 
+
     // RECO additional tags
     useAdditionalRECO         = pset.getUntrackedParameter<bool>("useAdditionalRECO");
     RECOcollNameZ             = pset.getParameter<vtag>("RECOcollNameZ");
@@ -284,13 +284,13 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     RECOcollNameDiLep         = pset.getParameter<edm::InputTag>("RECOcollNameDiLep");
     RECOcollNameMMMM_         = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameMMMM"));
-    RECOcollNameEEEE          = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameEEEE")); 
+    RECOcollNameEEEE          = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameEEEE"));
     RECOcollNameEEMM          = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameEEMM"));
     RECOcollNameLLLLss        = pset.getParameter<vtag>("RECOcollNameLLLLss");
     RECOcollNameLLLLssos      = pset.getParameter<vtag>("RECOcollNameLLLLssos");
     RECOcollNameLLL           = pset.getParameter<vtag>("RECOcollNameLLL");
     RECOcollNameLLLl          = pset.getParameter<vtag>("RECOcollNameLLLl");
-    RECOcollNameLLLL         = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameLLLL"));   
+    RECOcollNameLLLL         = consumes<edm::View<reco::Candidate> >(pset.getParameter<edm::InputTag>("RECOcollNameLLLL"));
 
 //    RECOcollNameMMMM          = pset.getParameter<vtag>("RECOcollNameMMMM");
 //    RECOcollNameEEEE          = pset.getParameter<vtag>("RECOcollNameEEEE");
@@ -305,33 +305,33 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     use2011EA                 = pset.getUntrackedParameter<bool>("use2011EA");
     muonTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("MuonsLabel"));
     muonCorrPtErrorMapTag_    = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsCorrPtErrorMapLabel"));
-    
+
     //@
     isData                    = pset.getParameter<bool>("isData");
      slimmedMuonsTag_          = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("SlimmedMuonsLabel"));
-     
+
      muonPFTag_                  = consumes<edm::View<pat::Muon> >(pset.getParameter<edm::InputTag>("PFMuonsLabel"));
-     
-     
+
+
      clusterCollectionTag_    = pset.getParameter<edm::InputTag>("SuperClustersLabel");
      gsftrackCollection_      = pset.getParameter<edm::InputTag>("GsfTracksElectronsLabel");
-     
-     
+
+
      electronEgmTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("ElectronsEgmLabel"));
      mvaElectronTag_          = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("mvaElectronTag"));
     ///@@@/// TEST Electron ID  REHAM
     //@//    mvaTrigV0MapTag_         = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaTrigV0MapTag"));
     //@// mvaNonTrigV0MapTag_      = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaNonTrigV0MapTag"));
     electronsMiniAODToken_    = consumes<edm::View<pat::Electron> >(pset.getParameter<edm::InputTag>("electronsMiniAOD")); //REHAM
-    eleIDToken_ = consumes<edm::ValueMap<bool>>(pset.getParameter<edm::InputTag>("elecID")); //REHAM 
+    eleIDToken_ = consumes<edm::ValueMap<bool>>(pset.getParameter<edm::InputTag>("elecID")); //REHAM
        mvaValuesMapToken_ = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("mvaValuesMap"));
-     // mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));   
-    
+     // mvaCategoriesMapToken_= consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("mvaCategoriesMap"));
+
     // PF photons
 //    pfphotonsTag_                 = consumes<edm::View<reco::PFCandidate>>(pset.getParameter<edm::InputTag>("PFPhotonsLabel"));
     pfTag_                 = consumes<pat::PackedCandidateCollection>(pset.getParameter<edm::InputTag>("pfCands"));
 
-    // vertexing 
+    // vertexing
     // 3D w.r.t primary vertex DA
     muonTag_Vert           = pset.getParameter<edm::InputTag>("MuonsLabelVert");
     muonMapTag_Vert        = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsMapLabelVert"));
@@ -341,8 +341,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     muonMapTag_VertKF        = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsMapLabelVertKF"));
     muonMapTag_VertValueKF   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsMapLabelVertValueKF"));
     muonMapTag_VertErrorKF   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsMapLabelVertErrorKF"));
-    
-    
+
+
     // GD, Std and Kin vertex
     muonMapTag_VertGD      = pset.getParameter<edm::InputTag>("MuonsMapLabelVertGD");
     muonMapTag_VertGDMMMM  = pset.getParameter<edm::InputTag>("MuonsMapLabelVertGDMMMM");
@@ -350,11 +350,11 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     muonMapTag_VertStdMMMM = pset.getParameter<edm::InputTag>("MuonsMapLabelVertStdMMMM");
     muonMapTag_VertKin     = pset.getParameter<edm::InputTag>("MuonsMapLabelVertKin");
     muonMapTag_VertKinMMMM = pset.getParameter<edm::InputTag>("MuonsMapLabelVertKinMMMM");
-    
+
     // STIP SLIP
     muonSTIPMapTag_Vert   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSTIPMapLabelVert"));
     muonSLIPMapTag_Vert   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSLIPMapLabelVert"));
-    
+
     muonSTIPMapTag_VertValue   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSTIPMapLabelVertValue"));
     muonSLIPMapTag_VertValue   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSLIPMapLabelVertValue"));
     muonSTIPMapTag_VertError   = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("MuonsSTIPMapLabelVertError"));
@@ -362,12 +362,12 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     //electronID
     eleIDTag_                 = pset.getParameter<vtag>("eleIDLabel");
-    
+
     // Other objets
     photonsTag_              = consumes<edm::View<pat::Photon> >(pset.getParameter<edm::InputTag>("PhotonsLabel"));
     fsrPhotonsSrc_           = consumes<edm::View<pat::PFParticle> >(pset.getParameter<edm::InputTag>("fsrPhotonsSrc"));   ///Added Walaa FSR
     //    tracksTag_               = consumes<std::vector<reco::Track> >(pset.getParameter<edm::InputTag>("TracksLabel"));
-    jetsTag_                 = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel")); 
+    jetsTag_                 = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel"));
     //   jetsDataTag_             = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsDataLabel"));
     jetsMVATag_              = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsMVALabel"));
     jetsQGTag_               = consumes<std::vector<pat::Jet> >(pset.getParameter<edm::InputTag>("JetsLabel"));//REHAM
@@ -375,36 +375,37 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     jetQGMapTag_axis2_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_axis2"));//REHAM
     jetQGMapTag_ptd_             = consumes<edm::ValueMap<float> >(pset.getParameter<edm::InputTag>("jetQGMapTag_ptd"));//REHAM
     jetQGMapTag_mult_             = consumes<edm::ValueMap<int> >(pset.getParameter<edm::InputTag>("jetQGMapTag_mult"));//REHAM
-    
-    
+
+
     rhojetsTag_              = consumes<double>(pset.getParameter<edm::InputTag>("RhoJetsLabel"));
     verticesTag_             = consumes<std::vector<reco::Vertex> >(pset.getParameter<edm::InputTag>("VerticesLabel"));
-    
-    // GenJet 
+
+    // GenJet
     genjetTag_              = consumes<std::vector<reco::GenJet> >(pset.getParameter<edm::InputTag>("GenJetLabel")); // GenJet
-    
+
     // PF MET
     pfmetTag_               = consumes<std::vector<pat::MET> >(pset.getParameter<edm::InputTag>("PfMETLabel"));
+    puppimetTag_            = consumes<std::vector<pat::MET> >(pset.getParameter<edm::InputTag>("PuppiMETLabel"));
     // ecalBadCalibFilterUpdate_token   = consumes<bool>(edm::InputTag("ecalBadCalibReducedMINIAODFilter")); new met filter to be used (under test)
     // BadChCandFilterToken_            = consumes<bool>(edm::InputTag("BadChargedCandidateFilter"));
     // BadPFMuonFilterToken_            = consumes<bool>(edm::InputTag("BadPFMuonFilter"));
-      
-    
+
+
     // btagging
     //   bDiscriminators_         =pset.getParameter<std::vector<std::string> >("bDiscriminators");
-    
+
     tCHighEff_bTag_         =pset.getParameter<std::string>("tCHighEff_bTagLabel");
     tCHighPur_bTag_         =pset.getParameter<std::string>("tCHighPur_bTagLabel");
     cSV_bTag1_         =pset.getParameter<std::string>("cSV_bTagLabel1");
     cSV_bTag2_         =pset.getParameter<std::string>("cSV_bTagLabel2");
 
-    
+
     // Matching
     // /* to add matching informations Reham
 
     goodElectronMCMatch_  = consumes<edm::Association<std::vector<reco::GenParticle> >>(pset.getParameter<edm::InputTag>("goodElectronMCMatch"));
     myElectrons_          = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myElectrons"));
-    goodMuonMCMatch_      = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodMuonMCMatch")); 
+    goodMuonMCMatch_      = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodMuonMCMatch"));
     myMuons_              = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myMuons"));
     goodGammaMCMatch_     = consumes<edm::Association<std::vector<reco::GenParticle> > >(pset.getParameter<edm::InputTag>("goodGammaMCMatch"));
     myGammas_             = consumes<reco::CandidateCollection>(pset.getParameter<edm::InputTag>("myGammas"));
@@ -413,7 +414,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     // Beam Spot
     offlineBeamSpot_      = consumes<reco::BeamSpot>(pset.getParameter<edm::InputTag>("offlineBeamSpot"));
   }
-  
+
   template <class T>
   void MakeBranch(TTree* tree,const char* branch_name,T* vec) {
     tree->Branch(branch_name,cast_to_vector(vec));
@@ -421,20 +422,20 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     //Prevents the mistake where one vector is mistakenly not cleared
     clear_vectors_map.insert(std::make_pair((void*)vec,clear_void<T>));
   }
-  
+
   void DefineBranches(TTree *Tree_){
     // Run event
     Tree_->Branch("Run",&irun,"irun/i");
     Tree_->Branch("Event",&ievt,"ievt/i");
     Tree_->Branch("LumiSection",&ils,"ils/i");
     Tree_->Branch("Avginstlumi",&Avginstlumi,"Avginstlumi/F");
-    
+
     // MC
     Tree_->Branch("num_PU_vertices",&num_PU_vertices,"num_PU_vertices/I");
     Tree_->Branch("PU_BunchCrossing",&PU_BunchCrossing,"PU_BunchCrossing/I");
     Tree_->Branch("MC_weighting",&MC_weighting,"MC_weighting/F");
 
-    // HLT 
+    // HLT
     Tree_->Branch("RECO_nMuHLTMatch",&RECO_nMuHLTMatch,"RECO_nMuHLTMatch/I");
     MakeBranch(Tree_,"RECOMU_PT_MuHLTMatch",(&RECOMU_PT_MuHLTMatch));//"std::vector<float>"); TEST
     MakeBranch(Tree_,"RECOMU_ETA_MuHLTMatch",(&RECOMU_ETA_MuHLTMatch));
@@ -447,22 +448,22 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     Tree_->Branch("HLTPathsFired",HLTPathsFired,"HLTPathsFired/C");
 
-   
-    // MC block 
-    MakeBranch(Tree_,"MC_E",(&MC_E)); 
-    MakeBranch(Tree_,"MC_PT",(&MC_PT)); 
-    MakeBranch(Tree_,"MC_ETA",(&MC_ETA)); 
+
+    // MC block
+    MakeBranch(Tree_,"MC_E",(&MC_E));
+    MakeBranch(Tree_,"MC_PT",(&MC_PT));
+    MakeBranch(Tree_,"MC_ETA",(&MC_ETA));
     MakeBranch(Tree_,"MC_THETA",(&MC_THETA));
     MakeBranch(Tree_,"MC_PHI",(&MC_PHI));
     MakeBranch(Tree_,"MC_MASS",(&MC_MASS));
     MakeBranch(Tree_,"MC_PDGID",(&MC_PDGID));
-   
+
 
     //  Leptons stable ordered in PT
-    MakeBranch(Tree_,"MC_LEPT_PT",(&MC_LEPT_PT)); 
-    MakeBranch(Tree_,"MC_LEPT_ETA",(&MC_LEPT_ETA)); 
-    MakeBranch(Tree_,"MC_LEPT_PHI",(&MC_LEPT_PHI)); 
-    MakeBranch(Tree_,"MC_LEPT_THETA",(&MC_LEPT_THETA)); 
+    MakeBranch(Tree_,"MC_LEPT_PT",(&MC_LEPT_PT));
+    MakeBranch(Tree_,"MC_LEPT_ETA",(&MC_LEPT_ETA));
+    MakeBranch(Tree_,"MC_LEPT_PHI",(&MC_LEPT_PHI));
+    MakeBranch(Tree_,"MC_LEPT_THETA",(&MC_LEPT_THETA));
     MakeBranch(Tree_,"MC_LEPT_PDGID",(&MC_LEPT_PDGID));
 
     // MC Z1, Z2 (first index) and daughter leptons and photon (second index, order: L1, L2, P1, P2 with PT ordering of the leptons and P1 associated to L1)
@@ -492,12 +493,12 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_, "MC_GENJET_ETA",(&MC_GENJET_ETA));
     MakeBranch(Tree_, "MC_GENJET_PHI",(&MC_GENJET_PHI));
 
-    // GenMET  
+    // GenMET
     Tree_->Branch("MC_GENMET", &genmet, "MC_GENMET/F");
-    
-  
+
+
      // RECORF block 2e2mu
-    
+
     MakeBranch(Tree_,"RECORF_2e2mu_cosTheta1_spin",(&RECORF_2e2mu_cosTheta1_spin));
     MakeBranch(Tree_,"RECORF_2e2mu_cosTheta2_spin",(&RECORF_2e2mu_cosTheta2_spin));
     MakeBranch(Tree_,"RECORF_2e2mu_cosThetaStar_spin",(&RECORF_2e2mu_cosThetaStar_spin));
@@ -508,7 +509,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECORF_2e2mu_phi2RF_spin",(&RECORF_2e2mu_phi2RF_spin));
     MakeBranch(Tree_,"RECORF_2e2mu_MELA",(&RECORF_2e2mu_MELA));
 
-   
+
     MakeBranch(Tree_,"RECORF_4e_cosTheta1_spin",(&RECORF_4e_cosTheta1_spin));
     MakeBranch(Tree_,"RECORF_4e_cosTheta2_spin",(&RECORF_4e_cosTheta2_spin));
     MakeBranch(Tree_,"RECORF_4e_cosThetaStar_spin",(&RECORF_4e_cosThetaStar_spin));
@@ -518,7 +519,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECORF_4e_phi1RF_spin",(&RECORF_4e_phi1RF_spin));
     MakeBranch(Tree_,"RECORF_4e_phi2RF_spin",(&RECORF_4e_phi2RF_spin));
     MakeBranch(Tree_,"RECORF_4e_MELA",(&RECORF_4e_MELA));
-     
+
     MakeBranch(Tree_,"RECORF_4mu_cosTheta1_spin",(&RECORF_4mu_cosTheta1_spin));
     MakeBranch(Tree_,"RECORF_4mu_cosTheta2_spin",(&RECORF_4mu_cosTheta2_spin));
     MakeBranch(Tree_,"RECORF_4mu_cosThetaStar_spin",(&RECORF_4mu_cosThetaStar_spin));
@@ -536,15 +537,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_ZEE_MASS",(&RECO_ZEE_MASS));
     MakeBranch(Tree_,"RECO_DiLep_MASS",(&RECO_DiLep_MASS));
     MakeBranch(Tree_,"RECO_ZMM_PT",(&RECO_ZMM_PT));
-    MakeBranch(Tree_,"RECO_ZEE_PT",(&RECO_ZEE_PT));  
-    MakeBranch(Tree_,"RECO_DiLep_PT",(&RECO_DiLep_PT));  
+    MakeBranch(Tree_,"RECO_ZEE_PT",(&RECO_ZEE_PT));
+    MakeBranch(Tree_,"RECO_DiLep_PT",(&RECO_DiLep_PT));
     MakeBranch(Tree_,"RECO_ZMM_ETA",(&RECO_ZMM_ETA));
     MakeBranch(Tree_,"RECO_ZEE_ETA",(&RECO_ZEE_ETA));
-    MakeBranch(Tree_,"RECO_DiLep_ETA",(&RECO_DiLep_ETA));  
+    MakeBranch(Tree_,"RECO_DiLep_ETA",(&RECO_DiLep_ETA));
     MakeBranch(Tree_,"RECO_ZMM_PHI",(&RECO_ZMM_PHI));
     MakeBranch(Tree_,"RECO_ZEE_PHI",(&RECO_ZEE_PHI));
-    MakeBranch(Tree_,"RECO_DiLep_PHI",(&RECO_DiLep_PHI));  
-                              
+    MakeBranch(Tree_,"RECO_DiLep_PHI",(&RECO_DiLep_PHI));
+
     MakeBranch(Tree_,"RECO_ZMMss_MASS",(&RECO_ZMMss_MASS));
     MakeBranch(Tree_,"RECO_ZEEss_MASS",(&RECO_ZEEss_MASS));
     MakeBranch(Tree_,"RECO_ZEM_MASS",(&RECO_ZEM_MASS));
@@ -558,7 +559,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_ZEEss_PHI",(&RECO_ZEEss_PHI));
     MakeBranch(Tree_,"RECO_ZEM_PHI",(&RECO_ZEM_PHI));
 
-    
+
     MakeBranch(Tree_,"RECO_MMMM_MASS",(&RECO_MMMM_MASS));
     MakeBranch(Tree_,"RECO_MMMM_PT",(&RECO_MMMM_PT));
     MakeBranch(Tree_,"RECO_MMMM_ETA",(&RECO_MMMM_ETA));
@@ -566,7 +567,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_MMMM_MASS_REFIT",(&RECO_MMMM_MASS_REFIT));
 
     MakeBranch(Tree_,"RECO_EEEE_MASS",(&RECO_EEEE_MASS));
-    MakeBranch(Tree_,"RECO_EEEE_PT",(&RECO_EEEE_PT)); 
+    MakeBranch(Tree_,"RECO_EEEE_PT",(&RECO_EEEE_PT));
     MakeBranch(Tree_,"RECO_EEEE_ETA",(&RECO_EEEE_ETA));
     MakeBranch(Tree_,"RECO_EEEE_PHI",(&RECO_EEEE_PHI));
     MakeBranch(Tree_,"RECO_EEEE_MASS_REFIT",(&RECO_EEEE_MASS_REFIT));
@@ -577,27 +578,27 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_EEMM_PHI",(&RECO_EEMM_PHI));
     MakeBranch(Tree_,"RECO_EEMM_MASS_REFIT",(&RECO_EEMM_MASS_REFIT));
 
-    MakeBranch(Tree_,"RECO_LLL0_MASS",(&RECO_LLL0_MASS)); 
-    MakeBranch(Tree_,"RECO_LLL1_MASS",(&RECO_LLL1_MASS)); 
-    MakeBranch(Tree_,"RECO_LLL2_MASS",(&RECO_LLL2_MASS)); 
-    MakeBranch(Tree_,"RECO_LLL3_MASS",(&RECO_LLL3_MASS)); 
-    MakeBranch(Tree_,"RECO_LLL0_PT",(&RECO_LLL0_PT)); 
-    MakeBranch(Tree_,"RECO_LLL1_PT",(&RECO_LLL1_PT)); 
-    MakeBranch(Tree_,"RECO_LLL2_PT",(&RECO_LLL2_PT)); 
-    MakeBranch(Tree_,"RECO_LLL3_PT",(&RECO_LLL3_PT)); 
+    MakeBranch(Tree_,"RECO_LLL0_MASS",(&RECO_LLL0_MASS));
+    MakeBranch(Tree_,"RECO_LLL1_MASS",(&RECO_LLL1_MASS));
+    MakeBranch(Tree_,"RECO_LLL2_MASS",(&RECO_LLL2_MASS));
+    MakeBranch(Tree_,"RECO_LLL3_MASS",(&RECO_LLL3_MASS));
+    MakeBranch(Tree_,"RECO_LLL0_PT",(&RECO_LLL0_PT));
+    MakeBranch(Tree_,"RECO_LLL1_PT",(&RECO_LLL1_PT));
+    MakeBranch(Tree_,"RECO_LLL2_PT",(&RECO_LLL2_PT));
+    MakeBranch(Tree_,"RECO_LLL3_PT",(&RECO_LLL3_PT));
 
-    MakeBranch(Tree_,"RECO_LLLl0_MASS",(&RECO_LLLl0_MASS)); 
-    MakeBranch(Tree_,"RECO_LLLl1_MASS",(&RECO_LLLl1_MASS)); 
-    MakeBranch(Tree_,"RECO_LLLl0_PT",(&RECO_LLLl0_PT)); 
-    MakeBranch(Tree_,"RECO_LLLl1_PT",(&RECO_LLLl1_PT)); 
+    MakeBranch(Tree_,"RECO_LLLl0_MASS",(&RECO_LLLl0_MASS));
+    MakeBranch(Tree_,"RECO_LLLl1_MASS",(&RECO_LLLl1_MASS));
+    MakeBranch(Tree_,"RECO_LLLl0_PT",(&RECO_LLLl0_PT));
+    MakeBranch(Tree_,"RECO_LLLl1_PT",(&RECO_LLLl1_PT));
 
-    MakeBranch(Tree_,"RECO_LLLL0ss_MASS",(&RECO_LLLL0ss_MASS)); 
-    MakeBranch(Tree_,"RECO_LLLL0ss_PT",(&RECO_LLLL0ss_PT)); 
-    MakeBranch(Tree_,"RECO_LLLL1ss_MASS",(&RECO_LLLL1ss_MASS)); 
-    MakeBranch(Tree_,"RECO_LLLL1ss_PT",(&RECO_LLLL1ss_PT)); 
-    MakeBranch(Tree_,"RECO_LLLL2ss_MASS",(&RECO_LLLL2ss_MASS)); 
-    MakeBranch(Tree_,"RECO_LLLL2ss_PT",(&RECO_LLLL2ss_PT)); 
-       
+    MakeBranch(Tree_,"RECO_LLLL0ss_MASS",(&RECO_LLLL0ss_MASS));
+    MakeBranch(Tree_,"RECO_LLLL0ss_PT",(&RECO_LLLL0ss_PT));
+    MakeBranch(Tree_,"RECO_LLLL1ss_MASS",(&RECO_LLLL1ss_MASS));
+    MakeBranch(Tree_,"RECO_LLLL1ss_PT",(&RECO_LLLL1ss_PT));
+    MakeBranch(Tree_,"RECO_LLLL2ss_MASS",(&RECO_LLLL2ss_MASS));
+    MakeBranch(Tree_,"RECO_LLLL2ss_PT",(&RECO_LLLL2ss_PT));
+
     //MakeBranch(Tree_,"RECOcollNameLLLLssos_MASS",(&RECOcollNameLLLLssos_MASS));
     //MakeBranch(Tree_,"RECOcollNameLLLLssos_PT",(&RECOcollNameLLLLssos_PT));
 
@@ -605,24 +606,24 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_LLLL_PT",(&RECO_LLLL_PT));
     MakeBranch(Tree_,"RECO_LLLL_ETA",(&RECO_LLLL_ETA));
     MakeBranch(Tree_,"RECO_LLLL_PHI",(&RECO_LLLL_PHI));
- 
-   
+
+
     // Electron block
-    MakeBranch(Tree_,"RECOELE_E",(&RECOELE_E)); 
+    MakeBranch(Tree_,"RECOELE_E",(&RECOELE_E));
     MakeBranch(Tree_,"RECOELE_PT",(&RECOELE_PT));
     MakeBranch(Tree_,"RECOELE_PTError",(&RECOELE_PTError));
     MakeBranch(Tree_,"RECOELE_P",(&RECOELE_P));
-    MakeBranch(Tree_,"RECOELE_ETA",(&RECOELE_ETA)); 
-    MakeBranch(Tree_,"RECOELE_THETA",(&RECOELE_THETA)); 
-    MakeBranch(Tree_,"RECOELE_PHI",(&RECOELE_PHI)); 
-    MakeBranch(Tree_,"RECOELE_MASS",(&RECOELE_MASS)); 
-    MakeBranch(Tree_,"RECOELE_CHARGE",(&RECOELE_CHARGE)); 
-  
+    MakeBranch(Tree_,"RECOELE_ETA",(&RECOELE_ETA));
+    MakeBranch(Tree_,"RECOELE_THETA",(&RECOELE_THETA));
+    MakeBranch(Tree_,"RECOELE_PHI",(&RECOELE_PHI));
+    MakeBranch(Tree_,"RECOELE_MASS",(&RECOELE_MASS));
+    MakeBranch(Tree_,"RECOELE_CHARGE",(&RECOELE_CHARGE));
+
       /////////////////Added Walaa///////////////////
     MakeBranch(Tree_,"RECOELE_SCV_PT",(&RECOELE_SCV_PT));
     MakeBranch(Tree_,"RECOELE_SCV_ETA",(&RECOELE_SCV_ETA));
     MakeBranch(Tree_,"RECOELE_SCV_PHI",(&RECOELE_SCV_PHI));
-    
+
 //    MakeBranch(Tree_,"RECOELE_scv_PT",(&RECOELE_scv_PT));
 //    MakeBranch(Tree_,"RECOELE_scv_ETA",(&RECOELE_scv_ETA));
 //    MakeBranch(Tree_,"RECOELE_scv_PHI",(&RECOELE_scv_PHI));
@@ -634,8 +635,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOELE_PT_uncorr",(&RECOELE_PT_uncorr));
 
     // Core attributes
-    MakeBranch(Tree_,"RECOELE_isEcalDriven",(&RECOELE_isEcalDriven));   
-    MakeBranch(Tree_,"RECOELE_isTrackerDriven",(&RECOELE_isTrackerDriven));  
+    MakeBranch(Tree_,"RECOELE_isEcalDriven",(&RECOELE_isEcalDriven));
+    MakeBranch(Tree_,"RECOELE_isTrackerDriven",(&RECOELE_isTrackerDriven));
     MakeBranch(Tree_,"RECOELE_gsftrack_NPixHits",(&RECOELE_gsftrack_NPixHits));
     MakeBranch(Tree_,"RECOELE_gsftrack_NStripHits",(&RECOELE_gsftrack_NStripHits));
     MakeBranch(Tree_,"RECOELE_gsftrack_chi2",(&RECOELE_gsftrack_chi2));
@@ -647,14 +648,14 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOELE_gsftrack_dzError",(&RECOELE_gsftrack_dzError));
     MakeBranch(Tree_,"RECOELE_gsftrack_losthits",(&RECOELE_gsftrack_losthits));
     MakeBranch(Tree_,"RECOELE_gsftrack_validhits",(&RECOELE_gsftrack_validhits));
-    MakeBranch(Tree_,"RECOELE_gsftrack_expected_inner_hits",(&RECOELE_gsftrack_expected_inner_hits)) ; 
+    MakeBranch(Tree_,"RECOELE_gsftrack_expected_inner_hits",(&RECOELE_gsftrack_expected_inner_hits)) ;
     MakeBranch(Tree_,"RECOELE_scl_E",(&RECOELE_scl_E));
     MakeBranch(Tree_,"RECOELE_scl_Et",(&RECOELE_scl_Et));
     MakeBranch(Tree_,"RECOELE_scl_Eta",(&RECOELE_scl_Eta));
-    MakeBranch(Tree_,"RECOELE_scl_Phi",(&RECOELE_scl_Phi));    
+    MakeBranch(Tree_,"RECOELE_scl_Phi",(&RECOELE_scl_Phi));
     MakeBranch(Tree_,"RECOELE_ecalEnergy",(&RECOELE_ecalEnergy));
 
-    // Track-Cluster Matching    
+    // Track-Cluster Matching
     MakeBranch(Tree_,"RECOELE_ep",(&RECOELE_ep));
     MakeBranch(Tree_,"RECOELE_eSeedp",(&RECOELE_eSeedp));
     MakeBranch(Tree_,"RECOELE_eSeedpout",(&RECOELE_eSeedpout));
@@ -666,37 +667,37 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOELE_deltaPhiSeed",(&RECOELE_deltaPhiSeed));
     MakeBranch(Tree_,"RECOELE_deltaPhiEle",(&RECOELE_deltaPhiEle));
     // Fiducial flags
-    MakeBranch(Tree_,"RECOELE_isbarrel",(&RECOELE_isbarrel));   
-    MakeBranch(Tree_,"RECOELE_isendcap",(&RECOELE_isendcap));   
+    MakeBranch(Tree_,"RECOELE_isbarrel",(&RECOELE_isbarrel));
+    MakeBranch(Tree_,"RECOELE_isendcap",(&RECOELE_isendcap));
     MakeBranch(Tree_,"RECOELE_isGap",(&RECOELE_isGap));
-    MakeBranch(Tree_,"RECOELE_isEBetaGap",(&RECOELE_isEBetaGap));   
-    MakeBranch(Tree_,"RECOELE_isEBphiGap",(&RECOELE_isEBphiGap));   
-    MakeBranch(Tree_,"RECOELE_isEEdeeGap",(&RECOELE_isEEdeeGap));   
-    MakeBranch(Tree_,"RECOELE_isEEringGap",(&RECOELE_isEEringGap));   
+    MakeBranch(Tree_,"RECOELE_isEBetaGap",(&RECOELE_isEBetaGap));
+    MakeBranch(Tree_,"RECOELE_isEBphiGap",(&RECOELE_isEBphiGap));
+    MakeBranch(Tree_,"RECOELE_isEEdeeGap",(&RECOELE_isEEdeeGap));
+    MakeBranch(Tree_,"RECOELE_isEEringGap",(&RECOELE_isEEringGap));
     // Shower shape
-    MakeBranch(Tree_,"RECOELE_sigmaIetaIeta",(&RECOELE_sigmaIetaIeta));   
-    MakeBranch(Tree_,"RECOELE_sigmaEtaEta",(&RECOELE_sigmaEtaEta));   
-    MakeBranch(Tree_,"RECOELE_e15",(&RECOELE_e15));   
-    MakeBranch(Tree_,"RECOELE_e25max",(&RECOELE_e25max));   
-    MakeBranch(Tree_,"RECOELE_e55",(&RECOELE_e55));   
-    MakeBranch(Tree_,"RECOELE_he",(&RECOELE_he));   
-    MakeBranch(Tree_,"RECOELE_r9",(&RECOELE_r9));   
+    MakeBranch(Tree_,"RECOELE_sigmaIetaIeta",(&RECOELE_sigmaIetaIeta));
+    MakeBranch(Tree_,"RECOELE_sigmaEtaEta",(&RECOELE_sigmaEtaEta));
+    MakeBranch(Tree_,"RECOELE_e15",(&RECOELE_e15));
+    MakeBranch(Tree_,"RECOELE_e25max",(&RECOELE_e25max));
+    MakeBranch(Tree_,"RECOELE_e55",(&RECOELE_e55));
+    MakeBranch(Tree_,"RECOELE_he",(&RECOELE_he));
+    MakeBranch(Tree_,"RECOELE_r9",(&RECOELE_r9));
     // Particle flow
-    MakeBranch(Tree_,"RECOELE_mva",(&RECOELE_mva));   
+    MakeBranch(Tree_,"RECOELE_mva",(&RECOELE_mva));
     // Brem & Classifaction
-    MakeBranch(Tree_,"RECOELE_fbrem",(&RECOELE_fbrem));   
-    MakeBranch(Tree_,"RECOELE_nbrems",(&RECOELE_nbrems));   
+    MakeBranch(Tree_,"RECOELE_fbrem",(&RECOELE_fbrem));
+    MakeBranch(Tree_,"RECOELE_nbrems",(&RECOELE_nbrems));
     //  golden/bigbrem/(narrow)/showering/crack
-    MakeBranch(Tree_,"RECOELE_Class",(&RECOELE_Class));  
+    MakeBranch(Tree_,"RECOELE_Class",(&RECOELE_Class));
     //fBrem addition
     MakeBranch(Tree_,"RECOELE_fbrem_mode",(&RECOELE_fbrem_mode));
     MakeBranch(Tree_,"RECOELE_fbrem_mean",(&RECOELE_fbrem_mean));
-    
+
     // Isolation
-    MakeBranch(Tree_,"RECOELE_EGMTRACKISO",(&RECOELE_EGMTRACKISO));  
-    MakeBranch(Tree_,"RECOELE_EGMHCALISO",(&RECOELE_EGMHCALISO));  
-    MakeBranch(Tree_,"RECOELE_EGMECALISO",(&RECOELE_EGMECALISO)); 
-    MakeBranch(Tree_,"RECOELE_EGMX",(&RECOELE_EGMX)); 
+    MakeBranch(Tree_,"RECOELE_EGMTRACKISO",(&RECOELE_EGMTRACKISO));
+    MakeBranch(Tree_,"RECOELE_EGMHCALISO",(&RECOELE_EGMHCALISO));
+    MakeBranch(Tree_,"RECOELE_EGMECALISO",(&RECOELE_EGMECALISO));
+    MakeBranch(Tree_,"RECOELE_EGMX",(&RECOELE_EGMX));
 
     // PF isolation
     MakeBranch(Tree_,"RECOELE_PFchAllPart",(&RECOELE_PFchAllPart));
@@ -710,14 +711,14 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     // Electron Regression
     MakeBranch(Tree_,"RECOELE_regEnergy",(&RECOELE_regEnergy));
     MakeBranch(Tree_,"RECOELE_regEnergyError",(&RECOELE_regEnergyError));
-    
+
     // Vertexing DA and KF
-    MakeBranch(Tree_,"RECOELE_SIP",(&RECOELE_SIP)); 
-    MakeBranch(Tree_,"RECOELE_IP",(&RECOELE_IP)); 
-    MakeBranch(Tree_,"RECOELE_IPERROR",(&RECOELE_IPERROR)); 
-    MakeBranch(Tree_,"RECOELE_SIP_KF",(&RECOELE_SIP_KF)); 
-    MakeBranch(Tree_,"RECOELE_IP_KF",(&RECOELE_IP_KF)); 
-    MakeBranch(Tree_,"RECOELE_IPERROR_KF",(&RECOELE_IPERROR_KF)); 
+    MakeBranch(Tree_,"RECOELE_SIP",(&RECOELE_SIP));
+    MakeBranch(Tree_,"RECOELE_IP",(&RECOELE_IP));
+    MakeBranch(Tree_,"RECOELE_IPERROR",(&RECOELE_IPERROR));
+    MakeBranch(Tree_,"RECOELE_SIP_KF",(&RECOELE_SIP_KF));
+    MakeBranch(Tree_,"RECOELE_IP_KF",(&RECOELE_IP_KF));
+    MakeBranch(Tree_,"RECOELE_IPERROR_KF",(&RECOELE_IPERROR_KF));
 
      // GD vertex
     MakeBranch(Tree_,"RECOELE_SIP_GD",(&RECOELE_SIP_GD)); //2e2mu
@@ -730,34 +731,34 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOELE_SIP_KinEEEE",(&RECOELE_SIP_KinEEEE));  //4e
 
 
-    MakeBranch(Tree_,"RECOELE_STIP",(&RECOELE_STIP)); 
-    MakeBranch(Tree_,"RECOELE_SLIP",(&RECOELE_SLIP)); 
-    MakeBranch(Tree_,"RECOELE_TIP",(&RECOELE_TIP)); 
-    MakeBranch(Tree_,"RECOELE_LIP",(&RECOELE_LIP)); 
-    MakeBranch(Tree_,"RECOELE_TIPERROR",(&RECOELE_TIPERROR)); 
-    MakeBranch(Tree_,"RECOELE_LIPERROR",(&RECOELE_LIPERROR)); 
+    MakeBranch(Tree_,"RECOELE_STIP",(&RECOELE_STIP));
+    MakeBranch(Tree_,"RECOELE_SLIP",(&RECOELE_SLIP));
+    MakeBranch(Tree_,"RECOELE_TIP",(&RECOELE_TIP));
+    MakeBranch(Tree_,"RECOELE_LIP",(&RECOELE_LIP));
+    MakeBranch(Tree_,"RECOELE_TIPERROR",(&RECOELE_TIPERROR));
+    MakeBranch(Tree_,"RECOELE_LIPERROR",(&RECOELE_LIPERROR));
 
     MakeBranch(Tree_,"RECOELE_sclRawE",(&ele_sclRawE));
-    MakeBranch(Tree_,"RECOELE_sclX",(&ele_sclX)); 
-    MakeBranch(Tree_,"RECOELE_sclY",(&ele_sclY)); 
+    MakeBranch(Tree_,"RECOELE_sclX",(&ele_sclX));
+    MakeBranch(Tree_,"RECOELE_sclY",(&ele_sclY));
     MakeBranch(Tree_,"RECOELE_sclZ",(&ele_sclZ));
     MakeBranch(Tree_,"RECOELE_seedSubdet1",(&ele_seedSubdet1));
-    MakeBranch(Tree_,"RECOELE_seedDphi1",(&ele_seedDphi1)); 
+    MakeBranch(Tree_,"RECOELE_seedDphi1",(&ele_seedDphi1));
     MakeBranch(Tree_,"RECOELE_seedDrz1",(&ele_seedDrz1));
     MakeBranch(Tree_,"RECOELE_seedSubdet2",(&ele_seedSubdet2));
-    MakeBranch(Tree_,"RECOELE_seedDphi2",(&ele_seedDphi2)); 
+    MakeBranch(Tree_,"RECOELE_seedDphi2",(&ele_seedDphi2));
     MakeBranch(Tree_,"RECOELE_seedDrz2",(&ele_seedDrz2));
-    MakeBranch(Tree_,"RECOELE_eidVeryLoose",(&ele_eidVeryLoose)); 
-    MakeBranch(Tree_,"RECOELE_eidLoose",(&ele_eidLoose)); 
-    MakeBranch(Tree_,"RECOELE_eidMedium",(&ele_eidMedium)); 
-    MakeBranch(Tree_,"RECOELE_eidTight",(&ele_eidTight)); 
-    MakeBranch(Tree_,"RECOELE_eidHZZVeryLoose",(&ele_eidHZZVeryLoose)); 
-    MakeBranch(Tree_,"RECOELE_eidHZZLoose",(&ele_eidHZZLoose)); 
-    MakeBranch(Tree_,"RECOELE_eidHZZMedium",(&ele_eidHZZMedium)); 
-    MakeBranch(Tree_,"RECOELE_eidHZZTight",(&ele_eidHZZTight)); 
-    MakeBranch(Tree_,"RECOELE_mvaTrigV0",(&RECOELE_mvaTrigV0));     
-    MakeBranch(Tree_,"RECOELE_mvaNonTrigV0",(&RECOELE_mvaNonTrigV0)); 
-    MakeBranch(Tree_,"RECOELE_COV",(&RECOELE_COV)); 
+    MakeBranch(Tree_,"RECOELE_eidVeryLoose",(&ele_eidVeryLoose));
+    MakeBranch(Tree_,"RECOELE_eidLoose",(&ele_eidLoose));
+    MakeBranch(Tree_,"RECOELE_eidMedium",(&ele_eidMedium));
+    MakeBranch(Tree_,"RECOELE_eidTight",(&ele_eidTight));
+    MakeBranch(Tree_,"RECOELE_eidHZZVeryLoose",(&ele_eidHZZVeryLoose));
+    MakeBranch(Tree_,"RECOELE_eidHZZLoose",(&ele_eidHZZLoose));
+    MakeBranch(Tree_,"RECOELE_eidHZZMedium",(&ele_eidHZZMedium));
+    MakeBranch(Tree_,"RECOELE_eidHZZTight",(&ele_eidHZZTight));
+    MakeBranch(Tree_,"RECOELE_mvaTrigV0",(&RECOELE_mvaTrigV0));
+    MakeBranch(Tree_,"RECOELE_mvaNonTrigV0",(&RECOELE_mvaNonTrigV0));
+    MakeBranch(Tree_,"RECOELE_COV",(&RECOELE_COV));
 
     MakeBranch(Tree_,"RECOELE_TLE_ParentSC_X",(&RECOELE_TLE_ParentSC_X));
     MakeBranch(Tree_,"RECOELE_TLE_ParentSC_Y",(&RECOELE_TLE_ParentSC_Y));
@@ -769,24 +770,24 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOELE_ecalTrkEnergyPreCorr",(&RECOELE_ecalTrkEnergyPreCorr));
     MakeBranch(Tree_,"RECOELE_ecalTrkEnergyErrPreCorr",(&RECOELE_ecalTrkEnergyErrPreCorr));
     MakeBranch(Tree_,"RECOELE_ecalTrkEnergyErrPostCorr",(&RECOELE_ecalTrkEnergyErrPostCorr));
-    MakeBranch(Tree_,"RECOELE_energyScaleValue",(&RECOELE_energyScaleValue));       
+    MakeBranch(Tree_,"RECOELE_energyScaleValue",(&RECOELE_energyScaleValue));
     MakeBranch(Tree_,"RECOELE_energySigmaValue",(&RECOELE_energySigmaValue));
-    MakeBranch(Tree_,"RECOELE_energyScaleUp",(&RECOELE_energyScaleUp));     
-    MakeBranch(Tree_,"RECOELE_energyScaleDown",(&RECOELE_energyScaleDown));       
-    MakeBranch(Tree_,"RECOELE_energyScaleStatUp",(&RECOELE_energyScaleStatUp));       
-    MakeBranch(Tree_,"RECOELE_energyScaleStatDown",(&RECOELE_energyScaleStatDown));        
-    MakeBranch(Tree_,"RECOELE_energyScaleSystUp",(&RECOELE_energyScaleSystUp));        
-    MakeBranch(Tree_,"RECOELE_energyScaleSystDown",(&RECOELE_energyScaleSystDown));        
-    MakeBranch(Tree_,"RECOELE_energyScaleGainUp",(&RECOELE_energyScaleGainUp));        
-    MakeBranch(Tree_,"RECOELE_energyScaleGainDown",(&RECOELE_energyScaleGainDown));      
-    MakeBranch(Tree_,"RECOELE_energyScaleEtUp",(&RECOELE_energyScaleEtUp));       
-    MakeBranch(Tree_,"RECOELE_energyScaleEtDown",(&RECOELE_energyScaleEtDown));       
-    MakeBranch(Tree_,"RECOELE_energySigmaUp",(&RECOELE_energySigmaUp));         
-    MakeBranch(Tree_,"RECOELE_energySigmaDown",(&RECOELE_energySigmaDown));       
-    MakeBranch(Tree_,"RECOELE_energySigmaPhiUp",(&RECOELE_energySigmaPhiUp));        
-    MakeBranch(Tree_,"RECOELE_energySigmaPhiDown",(&RECOELE_energySigmaPhiDown));     
-    MakeBranch(Tree_,"RECOELE_energySigmaRhoUp",(&RECOELE_energySigmaRhoUp));        
-    MakeBranch(Tree_,"RECOELE_energySigmaRhoDown",(&RECOELE_energySigmaRhoDown));      
+    MakeBranch(Tree_,"RECOELE_energyScaleUp",(&RECOELE_energyScaleUp));
+    MakeBranch(Tree_,"RECOELE_energyScaleDown",(&RECOELE_energyScaleDown));
+    MakeBranch(Tree_,"RECOELE_energyScaleStatUp",(&RECOELE_energyScaleStatUp));
+    MakeBranch(Tree_,"RECOELE_energyScaleStatDown",(&RECOELE_energyScaleStatDown));
+    MakeBranch(Tree_,"RECOELE_energyScaleSystUp",(&RECOELE_energyScaleSystUp));
+    MakeBranch(Tree_,"RECOELE_energyScaleSystDown",(&RECOELE_energyScaleSystDown));
+    MakeBranch(Tree_,"RECOELE_energyScaleGainUp",(&RECOELE_energyScaleGainUp));
+    MakeBranch(Tree_,"RECOELE_energyScaleGainDown",(&RECOELE_energyScaleGainDown));
+    MakeBranch(Tree_,"RECOELE_energyScaleEtUp",(&RECOELE_energyScaleEtUp));
+    MakeBranch(Tree_,"RECOELE_energyScaleEtDown",(&RECOELE_energyScaleEtDown));
+    MakeBranch(Tree_,"RECOELE_energySigmaUp",(&RECOELE_energySigmaUp));
+    MakeBranch(Tree_,"RECOELE_energySigmaDown",(&RECOELE_energySigmaDown));
+    MakeBranch(Tree_,"RECOELE_energySigmaPhiUp",(&RECOELE_energySigmaPhiUp));
+    MakeBranch(Tree_,"RECOELE_energySigmaPhiDown",(&RECOELE_energySigmaPhiDown));
+    MakeBranch(Tree_,"RECOELE_energySigmaRhoUp",(&RECOELE_energySigmaRhoUp));
+    MakeBranch(Tree_,"RECOELE_energySigmaRhoDown",(&RECOELE_energySigmaRhoDown));
 
     // Muon block
     MakeBranch(Tree_,"RECOMU_isPFMu",(&RECOMU_isPFMu));
@@ -797,23 +798,23 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOMU_isTrackerHighPtMu",(&RECOMU_isTrackerHighPtMu));
     MakeBranch(Tree_,"RECOMU_BDT_Id",(&RECOMU_BDT_Id));
     MakeBranch(Tree_,"RECOMU_isME0Muon",(&RECOMU_isME0Muon));
-    MakeBranch(Tree_,"RECOMU_E",(&RECOMU_E)); 
+    MakeBranch(Tree_,"RECOMU_E",(&RECOMU_E));
     MakeBranch(Tree_,"RECOMU_PT",(&RECOMU_PT));
-    MakeBranch(Tree_,"RECOMU_P",(&RECOMU_P)); 
-    MakeBranch(Tree_,"RECOMU_ETA",(&RECOMU_ETA)); 
-    MakeBranch(Tree_,"RECOMU_THETA",(&RECOMU_THETA)); 
-    MakeBranch(Tree_,"RECOMU_PHI",(&RECOMU_PHI)); 
-    MakeBranch(Tree_,"RECOMU_MASS",(&RECOMU_MASS)); 
+    MakeBranch(Tree_,"RECOMU_P",(&RECOMU_P));
+    MakeBranch(Tree_,"RECOMU_ETA",(&RECOMU_ETA));
+    MakeBranch(Tree_,"RECOMU_THETA",(&RECOMU_THETA));
+    MakeBranch(Tree_,"RECOMU_PHI",(&RECOMU_PHI));
+    MakeBranch(Tree_,"RECOMU_MASS",(&RECOMU_MASS));
     MakeBranch(Tree_,"RECOMU_CHARGE",(&RECOMU_CHARGE));
     // MakeBranch(Tree_,"RECOMU_Roch_calib_error",(&RECOMU_Roch_calib_error));
     MakeBranch(Tree_,"RECOMU_PT_uncorr",(&RECOMU_PT_uncorr));
 
-    MakeBranch(Tree_,"RECOMU_COV",(&RECOMU_COV)); 
+    MakeBranch(Tree_,"RECOMU_COV",(&RECOMU_COV));
 
-    MakeBranch(Tree_,"RECOMU_TRACKISO",(&RECOMU_TRACKISO));  
-    MakeBranch(Tree_,"RECOMU_TRACKISO_SUMPT",(&RECOMU_TRACKISO_SUMPT));  
-    MakeBranch(Tree_,"RECOMU_HCALISO",(&RECOMU_HCALISO));  
-    MakeBranch(Tree_,"RECOMU_ECALISO",(&RECOMU_ECALISO)); 
+    MakeBranch(Tree_,"RECOMU_TRACKISO",(&RECOMU_TRACKISO));
+    MakeBranch(Tree_,"RECOMU_TRACKISO_SUMPT",(&RECOMU_TRACKISO_SUMPT));
+    MakeBranch(Tree_,"RECOMU_HCALISO",(&RECOMU_HCALISO));
+    MakeBranch(Tree_,"RECOMU_ECALISO",(&RECOMU_ECALISO));
     MakeBranch(Tree_,"RECOMU_X",(&RECOMU_X));
 
     MakeBranch(Tree_,"RECOMU_PFchHad",(&RECOMU_PFchHad));
@@ -832,12 +833,12 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECOPFPHOT_PFX_rho",(&RECOPFPHOT_PFX_rho));
 
     // vertexing DA and KF
-    MakeBranch(Tree_,"RECOMU_SIP",(&RECOMU_SIP)); 
-    MakeBranch(Tree_,"RECOMU_IP",(&RECOMU_IP)); 
-    MakeBranch(Tree_,"RECOMU_IPERROR",(&RECOMU_IPERROR)); 
-    MakeBranch(Tree_,"RECOMU_SIP_KF",(&RECOMU_SIP_KF)); 
-    MakeBranch(Tree_,"RECOMU_IP_KF",(&RECOMU_IP_KF)); 
-    MakeBranch(Tree_,"RECOMU_IPERROR_KF",(&RECOMU_IPERROR_KF)); 
+    MakeBranch(Tree_,"RECOMU_SIP",(&RECOMU_SIP));
+    MakeBranch(Tree_,"RECOMU_IP",(&RECOMU_IP));
+    MakeBranch(Tree_,"RECOMU_IPERROR",(&RECOMU_IPERROR));
+    MakeBranch(Tree_,"RECOMU_SIP_KF",(&RECOMU_SIP_KF));
+    MakeBranch(Tree_,"RECOMU_IP_KF",(&RECOMU_IP_KF));
+    MakeBranch(Tree_,"RECOMU_IPERROR_KF",(&RECOMU_IPERROR_KF));
 
     // GD vertex
     MakeBranch(Tree_,"RECOMU_SIP_GD",(&RECOMU_SIP_GD)); //2e2mu
@@ -851,21 +852,21 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
 
 
-    MakeBranch(Tree_,"RECOMU_STIP",(&RECOMU_STIP)); 
-    MakeBranch(Tree_,"RECOMU_SLIP",(&RECOMU_SLIP)); 
-    MakeBranch(Tree_,"RECOMU_TIP",(&RECOMU_TIP)); 
-    MakeBranch(Tree_,"RECOMU_LIP",(&RECOMU_LIP)); 
-    MakeBranch(Tree_,"RECOMU_TIPERROR",(&RECOMU_TIPERROR)); 
-    MakeBranch(Tree_,"RECOMU_LIPERROR",(&RECOMU_LIPERROR)); 
-    
- 
+    MakeBranch(Tree_,"RECOMU_STIP",(&RECOMU_STIP));
+    MakeBranch(Tree_,"RECOMU_SLIP",(&RECOMU_SLIP));
+    MakeBranch(Tree_,"RECOMU_TIP",(&RECOMU_TIP));
+    MakeBranch(Tree_,"RECOMU_LIP",(&RECOMU_LIP));
+    MakeBranch(Tree_,"RECOMU_TIPERROR",(&RECOMU_TIPERROR));
+    MakeBranch(Tree_,"RECOMU_LIPERROR",(&RECOMU_LIPERROR));
+
+
 
     MakeBranch(Tree_,"RECOMU_caloCompatibility",(&RECOMU_caloCompatibility));
-    MakeBranch(Tree_,"RECOMU_segmentCompatibility",(&RECOMU_segmentCompatibility)); 
+    MakeBranch(Tree_,"RECOMU_segmentCompatibility",(&RECOMU_segmentCompatibility));
     MakeBranch(Tree_,"RECOMU_numberOfMatches",(&RECOMU_numberOfMatches));
     MakeBranch(Tree_,"RECOMU_numberOfMatchedStations",(&RECOMU_numberOfMatchedStations));
     MakeBranch(Tree_,"RECOMU_glbmuPromptTight",(&RECOMU_glbmuPromptTight));
- 
+
     // track variables from muons:
     MakeBranch(Tree_, "RECOMU_trkmuArbitration",(&RECOMU_trkmuArbitration));
     MakeBranch(Tree_, "RECOMU_trkmu2DCompatibilityLoose",(&RECOMU_trkmu2DCompatibilityLoose));
@@ -896,7 +897,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_, "RECOMU_mutrkNPixHits",(&RECOMU_mutrkNPixHits));
     MakeBranch(Tree_, "RECOMU_mutrkNMuonHits",(&RECOMU_mutrkNMuonHits));
     MakeBranch(Tree_, "RECOMU_mutrktrackerLayersWithMeasurement",(&RECOMU_mutrktrackerLayersWithMeasurement));
-    
+
     MakeBranch(Tree_, "RECOMU_muInnertrkDxy",(&RECOMU_muInnertrkDxy));
     MakeBranch(Tree_, "RECOMU_muInnertrkDxyError",(&RECOMU_muInnertrkDxyError));
     MakeBranch(Tree_, "RECOMU_muInnertrkDxyB",(&RECOMU_muInnertrkDxyB));
@@ -953,7 +954,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"gdlagZEEEE",(&gdlagZEEEE));
     MakeBranch(Tree_,"gdlagProbEEEE",(&gdlagProbEEEE));
     MakeBranch(Tree_,"gdlagNdofEEEE",(&gdlagNdofEEEE));
-    
+
     // ConstraintFit 4l
     MakeBranch(Tree_,"StdFitVertexX",(&StdFitVertexX));
     MakeBranch(Tree_,"StdFitVertexY",(&StdFitVertexY));
@@ -982,7 +983,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"KinFitVertexZMMMM",(&KinFitVertexZMMMM));
     MakeBranch(Tree_,"KinFitVertexChi2rMMMM",(&KinFitVertexChi2rMMMM));
     MakeBranch(Tree_,"KinFitVertexProbMMMM",(&KinFitVertexProbMMMM));
-    
+
 
     MakeBranch(Tree_,"StdFitVertexXEEEE",(&StdFitVertexXEEEE));
     MakeBranch(Tree_,"StdFitVertexYEEEE",(&StdFitVertexYEEEE));
@@ -1076,10 +1077,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
 
 
-    //Global Event 
-    Tree_->Branch( "RECO_NMU", &RECO_NMU, "RECO_NMU/I"); 
-    Tree_->Branch( "RECO_NELE", &RECO_NELE, "RECO_NELE/I"); 
-    
+    //Global Event
+    Tree_->Branch( "RECO_NMU", &RECO_NMU, "RECO_NMU/I");
+    Tree_->Branch( "RECO_NELE", &RECO_NELE, "RECO_NELE/I");
+
     // Tracks
     Tree_->Branch( "RECO_NTRACK", &RECO_NTRACK, "RECO_NTRACK/I");
     MakeBranch(Tree_, "RECO_TRACK_PT",(&RECO_TRACK_PT));
@@ -1093,28 +1094,28 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_, "RECO_TRACK_DXYERR",(&RECO_TRACK_DXYERR));
     MakeBranch(Tree_, "RECO_TRACK_DZ",(&RECO_TRACK_DZ));
     MakeBranch(Tree_, "RECO_TRACK_DZERR",(&RECO_TRACK_DZERR));
-    
+
     // Photons
     Tree_->Branch("RECO_NPHOT", &RECO_NPHOT, "RECO_NPHOT/I");
     Tree_->Branch("RECO_NFSR", &RECO_NFSR, "RECO_NFSR/I");
-    MakeBranch(Tree_,"RECOPHOT_PT",(&RECOPHOT_PT)); 
-    MakeBranch(Tree_,"RECOPHOT_ETA",(&RECOPHOT_ETA)); 
-    MakeBranch(Tree_,"RECOPHOT_PHI",(&RECOPHOT_PHI)); 
+    MakeBranch(Tree_,"RECOPHOT_PT",(&RECOPHOT_PT));
+    MakeBranch(Tree_,"RECOPHOT_ETA",(&RECOPHOT_ETA));
+    MakeBranch(Tree_,"RECOPHOT_PHI",(&RECOPHOT_PHI));
     MakeBranch(Tree_,"RECOPHOT_ID",(&RECOPHOT_ID));
-    MakeBranch(Tree_,"RECOPHOT_THETA",(&RECOPHOT_THETA)); 
+    MakeBranch(Tree_,"RECOPHOT_THETA",(&RECOPHOT_THETA));
     MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_X",(&RECOPHOT_TLE_ParentSC_X));
     MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_Y",(&RECOPHOT_TLE_ParentSC_Y));
     MakeBranch(Tree_,"RECOPHOT_TLE_ParentSC_Z",(&RECOPHOT_TLE_ParentSC_Z));
 
     Tree_->Branch("RECO_NPFPHOT", &RECO_NPFPHOT, "RECO_NPFPHOT/I");
-    MakeBranch(Tree_,"RECOPFPHOT_PT",(&RECOPFPHOT_PT)); 
-    MakeBranch(Tree_,"RECOPFPHOT_PTError",(&RECOPFPHOT_PTError));  
-    MakeBranch(Tree_,"RECOPHOTCOR_PT",(&RECOPHOTCOR_PT)); 
-    MakeBranch(Tree_,"RECOPHOTCOR_PTError",(&RECOPHOTCOR_PTError));  
-    MakeBranch(Tree_,"RECOPFPHOT_ETA",(&RECOPFPHOT_ETA)); 
-    MakeBranch(Tree_,"RECOPFPHOT_PHI",(&RECOPFPHOT_PHI)); 
-    MakeBranch(Tree_,"RECOPFPHOT_THETA",(&RECOPFPHOT_THETA)); 
-    
+    MakeBranch(Tree_,"RECOPFPHOT_PT",(&RECOPFPHOT_PT));
+    MakeBranch(Tree_,"RECOPFPHOT_PTError",(&RECOPFPHOT_PTError));
+    MakeBranch(Tree_,"RECOPHOTCOR_PT",(&RECOPHOTCOR_PT));
+    MakeBranch(Tree_,"RECOPHOTCOR_PTError",(&RECOPHOTCOR_PTError));
+    MakeBranch(Tree_,"RECOPFPHOT_ETA",(&RECOPFPHOT_ETA));
+    MakeBranch(Tree_,"RECOPFPHOT_PHI",(&RECOPFPHOT_PHI));
+    MakeBranch(Tree_,"RECOPFPHOT_THETA",(&RECOPFPHOT_THETA));
+
     //Reham
 
      MakeBranch(Tree_,"RECOPFPHOT_PT_uncorr",(&RECOPFPHOT_PT_uncorr));
@@ -1122,27 +1123,27 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     //Reham photn systematic variables
 
     MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyPreCorr",(&RECOPFPHOT_ecalEnergyPreCorr));
-    MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyErrPreCorr",(&RECOPFPHOT_ecalEnergyErrPreCorr));   
+    MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyErrPreCorr",(&RECOPFPHOT_ecalEnergyErrPreCorr));
     MakeBranch(Tree_,"RECOPFPHOT_ecalEnergyErrPostCorr",(&RECOPFPHOT_ecalEnergyErrPostCorr));
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleValue",(&RECOPFPHOT_energyScaleValue));       
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleValue",(&RECOPFPHOT_energyScaleValue));
     MakeBranch(Tree_,"RECOPFPHOT_energySigmaValue",(&RECOPFPHOT_energySigmaValue));
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleUp",(&RECOPFPHOT_energyScaleUp));     
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleDown",(&RECOPFPHOT_energyScaleDown));       
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatUp",(&RECOPFPHOT_energyScaleStatUp));       
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatDown",(&RECOPFPHOT_energyScaleStatDown));        
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystUp",(&RECOPFPHOT_energyScaleSystUp));        
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystDown",(&RECOPFPHOT_energyScaleSystDown));        
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainUp",(&RECOPFPHOT_energyScaleGainUp));        
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainDown",(&RECOPFPHOT_energyScaleGainDown));      
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtUp",(&RECOPFPHOT_energyScaleEtUp));       
-    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtDown",(&RECOPFPHOT_energyScaleEtDown));       
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaUp",(&RECOPFPHOT_energySigmaUp));         
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaDown",(&RECOPFPHOT_energySigmaDown));       
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiUp",(&RECOPFPHOT_energySigmaPhiUp));        
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiDown",(&RECOPFPHOT_energySigmaPhiDown));     
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoUp",(&RECOPFPHOT_energySigmaRhoUp));        
-    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoDown",(&RECOPFPHOT_energySigmaRhoDown)); 
-    
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleUp",(&RECOPFPHOT_energyScaleUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleDown",(&RECOPFPHOT_energyScaleDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatUp",(&RECOPFPHOT_energyScaleStatUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleStatDown",(&RECOPFPHOT_energyScaleStatDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystUp",(&RECOPFPHOT_energyScaleSystUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleSystDown",(&RECOPFPHOT_energyScaleSystDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainUp",(&RECOPFPHOT_energyScaleGainUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleGainDown",(&RECOPFPHOT_energyScaleGainDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtUp",(&RECOPFPHOT_energyScaleEtUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energyScaleEtDown",(&RECOPFPHOT_energyScaleEtDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaUp",(&RECOPFPHOT_energySigmaUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaDown",(&RECOPFPHOT_energySigmaDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiUp",(&RECOPFPHOT_energySigmaPhiUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaPhiDown",(&RECOPFPHOT_energySigmaPhiDown));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoUp",(&RECOPFPHOT_energySigmaRhoUp));
+    MakeBranch(Tree_,"RECOPFPHOT_energySigmaRhoDown",(&RECOPFPHOT_energySigmaRhoDown));
+
     //Beam Spot position
     Tree_->Branch("BeamSpot_X",&BeamSpot_X,"BeamSpot_X/D");
     Tree_->Branch("BeamSpot_Y",&BeamSpot_Y,"BeamSpot_Y/D");
@@ -1158,7 +1159,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_, "RECO_VERTEXPROB",(&RECO_VERTEXPROB));
     MakeBranch(Tree_, "RECO_VERTEX_isValid",(&RECO_VERTEX_isValid));
     MakeBranch(Tree_, "RECO_VERTEX_TRACK_PT",(&RECO_VERTEX_TRACK_PT));
-    
+
     // PFJets
     Tree_->Branch( "RECO_PFJET_N",   &RECO_PFJET_N,   "RECO_PFJET_N/I");
     MakeBranch(Tree_, "RECO_PFJET_CHARGE",(&RECO_PFJET_CHARGE));
@@ -1232,8 +1233,8 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"RECO_PFJET_COMPONENT_YVERTEX",(&RECO_PFJET_COMPONENT_YVERTEX));
     MakeBranch(Tree_,"RECO_PFJET_COMPONENT_ZVERTEX",(&RECO_PFJET_COMPONENT_ZVERTEX));
     MakeBranch(Tree_,"RECO_PFJET_COMPONENT_VERTEX_CHI2",(&RECO_PFJET_COMPONENT_VERTEX_CHI2));
-    
-    
+
+
     //CaloMET
     Tree_->Branch( "RECO_CALOMET",          &calomet,          "RECO_CALOMET/F");
  /*    Tree_->Branch( "RECO_CALOMETHO",        &calometho,        "RECO_CALOMETHO/F"); */
@@ -1243,7 +1244,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 /*     Tree_->Branch( "RECO_CALOMETOPTNOHFHO", &calometoptnohfho, "RECO_CALOMETOPTNOHFHO/F"); */
 /*     Tree_->Branch( "RECO_CALOMETOPTNOHF",   &calometoptnohf,   "RECO_CALOMETOPTNOHF/F"); */
 /*     Tree_->Branch( "RECO_CALOMETOPT",       &calometopt,       "RECO_CALOMETOPT/F"); */
- 
+
    //Particle Flow MET
     //Type1 correction //Reham
 
@@ -1253,6 +1254,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFMET_PHI", &pfmet_phi, "RECO_PFMET_PHI/F");
     Tree_->Branch( "RECO_PFMET_THETA", &pfmet_theta, "RECO_PFMET_THETA/F");
 
+    Tree_->Branch( "RECO_PUPPIMET", &puppimet, "RECO_PUPPIMET/F");
+    Tree_->Branch( "RECO_PUPPIMET_X", &puppimet_x, "RECO_PUPPIMET_X/F");
+    Tree_->Branch( "RECO_PUPPIMET_Y", &puppimet_y, "RECO_PUPPIMET_Y/F");
+    Tree_->Branch( "RECO_PUPPIMET_PHI", &puppimet_phi, "RECO_PUPPIMET_PHI/F");
     Tree_->Branch( "RECO_PFMET_xycorr", &pfmet_xycorr, "RECO_PFMET_xycorr/F");
     Tree_->Branch( "RECO_PFMET_PHI_xycorr", &pfmet_phi_xycorr, "RECO_PFMET_PHI_xycorr/F");
     //Uncorrected //Reham
@@ -1284,7 +1289,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new filter 2018
     // Tree_->Branch( "RECO_PFMET_filterbadChCandidate", &filterbadChCandidate, "RECO_PFMET_filterbadChCandidate/I");
     // Tree_->Branch( "RECO_PFMET_filterbadPFMuon", &filterbadPFMuon, "RECO_PFMET_filterbadPFMuon/I");
-   
+
     Tree_->Branch( "RECO_PFMET_GoodVtxNoiseFilter",&passFilterGoodVtxNoise, "RECO_PFMET_GoodVtxNoiseFilter/I");
     Tree_->Branch( "RECO_PFMET_GlobalSuperTightHalo2016NoiseFilter",&passFilterGlobalSuperTightHalo2016NoiseFilter, "RECO_PFMET_GlobalSuperTightHalo2016NoiseFilter/I");
     Tree_->Branch( "RECO_PFMET_HBHENoiseFilter",&passFilterHBHENoise, "RECO_PFMET_HBHENoiseFilter/I");
@@ -1294,13 +1299,13 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     Tree_->Branch( "RECO_PFMET_BadChargedCandidateFilter",&passFilterBadChargedCandidate, "RECO_PFMET_BadChargedCandidateFilter/I");
     Tree_->Branch( "RECO_PFMET_EEBadScNoiseFilter",&passFilterEEBadScNoise, "RECO_PFMET_EEBadScNoiseFilter/I");
     Tree_->Branch( "RECO_PFMET_EcalBadCalibFilter",&passFilterEcalBadCalib, "RECO_PFMET_EcalBadCalibFilter/I");
-    
- 
+
+
     //Track Corrected MET
     Tree_->Branch( "RECO_TCMET", &tcmet, "RECO_TCMET/F");
     //Type I correction MET
     Tree_->Branch( "RECO_CORMETMUONS",  &cormetmuons,  "RECO_CORMETMUONS/F");
-   
+
 
     // Btagging jets and discriminators
     MakeBranch(Tree_,"tCHighEff_BTagJet_PT",(&tCHighEff_BTagJet_PT));
@@ -1315,10 +1320,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     MakeBranch(Tree_,"cSV_BTagJet_ET",(&cSV_BTagJet_ET));
     MakeBranch(Tree_,"tCHighEff_BTagJet_DISCR",(&tCHighEff_BTagJet_DISCR));
     MakeBranch(Tree_,"tCHighPur_BTagJet_DISCR",(&tCHighPur_BTagJet_DISCR));
-    MakeBranch(Tree_,"cSV_BTagJet_DISCR",(&cSV_BTagJet_DISCR));     
+    MakeBranch(Tree_,"cSV_BTagJet_DISCR",(&cSV_BTagJet_DISCR));
   }
-  
-  
+
+
   void Initialize() {
     //Clear all the vectors that were registered with MakeBranch
     clear_vectors();
@@ -1331,15 +1336,15 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     num_PU_vertices=-999;
     PU_BunchCrossing=-999;
 
-    genmet=-999.,calomet=-999.;  
+    genmet=-999.,calomet=-999.;
     RECO_NMU=0,RECO_NELE=0,RECO_NAssocPFcands=0;
     RECO_NTRACK=0;
     PFCand=0;
-    
+
     RECO_NPHOT=0,RECO_NJET=0,RECO_NVTX=0,RECO_NFSR=0;
     RECO_NPFPHOT=0;
-    
-    // HLT flags   
+
+    // HLT flags
 
     RECO_nMuHLTMatch=0;
     RECO_nEleHLTMatch=0;
@@ -1351,6 +1356,11 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     pfmet_y=-999.;
     pfmet_phi=-999.;
     pfmet_theta=-999.;
+
+    puppimet=-999.;
+    puppimet_x=-999.;
+    puppimet_y=-999.;
+    puppimet_phi=-999.;
 
     pfmet_xycorr=-999.;
     pfmet_phi_xycorr=-999.;
@@ -1370,16 +1380,16 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     passFilterGoodVtxNoise = -999;
     passFilterGlobalSuperTightHalo2016NoiseFilter = -999;
     passFilterHBHENoise = -999;
-      passFilterHBHENoiseIso = -999; 
+      passFilterHBHENoiseIso = -999;
     passFilterEcalDeadCellTriggerPrimitiveNoise = -999;
     passFilterBadPFMuon = -999;
     passFilterBadChargedCandidate = -999;
     passFilterEEBadScNoise = -999;
     passFilterEcalBadCalib = -999;
-    
+
     tcmet=-999.;
     cormetmuons=-999.;
-    
+
     BeamSpot_X=-999.;
     BeamSpot_Y=-999.;
     BeamSpot_Z=-999.;
@@ -2009,23 +2019,23 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     //tCHighPur_BTagJet_DISCR.clear();
     //cSV_BTagJet_DISCR.clear();
   }
-  
+
   void fillPU(const edm::Event& iEvent){
       edm::Handle<std::vector<PileupSummaryInfo> > PupInfo;
       iEvent.getByToken(PileupSrc_, PupInfo);
 
       if(!PupInfo.isValid()) return;
-      for( std::vector<PileupSummaryInfo>::const_iterator cand = PupInfo->begin();cand != PupInfo->end(); ++ cand ) { 
+      for( std::vector<PileupSummaryInfo>::const_iterator cand = PupInfo->begin();cand != PupInfo->end(); ++ cand ) {
 	//@//	std::cout << " Pileup Information: bunchXing, nvtx: " << cand->getBunchCrossing() << " " << cand->getPU_NumInteractions() << std::endl;
 	if (cand->getBunchCrossing() == 0) num_PU_vertices=cand->getTrueNumInteractions();;
 	// num_PU_vertices=cand->getPU_NumInteractions(); in-time,out-of-time pileup
 	PU_BunchCrossing=cand->getBunchCrossing();
-      }	
+      }
   }
 
   void EventsMCReWeighting(const edm::Event& iEvent){
 
-    // get the weight                                                                                                                                                     
+    // get the weight
     MC_weighting=0.;
     float EventWeight = 1.0;
     edm::Handle<GenEventInfoProduct> gen_ev_info;
@@ -2033,9 +2043,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     if(!gen_ev_info.isValid()) return;
     EventWeight = gen_ev_info->weight();
     //std::cout<<"mc_weight = "<< gen_ev_info->weight() <<std::endl;
-                                                                                                                                                                        
+
     float mc_weight = ( EventWeight > 0 ) ? 1 : -1;
-    //std::cout<<"mc_weight = "<< mc_weight <<std::endl;                                                                                                                  
+    //std::cout<<"mc_weight = "<< mc_weight <<std::endl;
     MC_weighting=mc_weight;
 
   }
@@ -2057,7 +2067,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 
     //@//  std::cout << "HLTFiredString= " << tmpstring.c_str() << std::endl;
     if (!tmpstring.empty()) sprintf(HLTPathsFired,tmpstring.c_str());
-        
+
 
   }
 
@@ -2073,21 +2083,21 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     iEvent.getByToken(triggerObjects_, triggerObjects );
     //    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());
     size_t nMuHLT =0, nEleHLT=0;
-    
-    
+
+
     //Reham
     ////
      iEvent.getByToken(triggerBits_, triggerBits);//Reham
      iEvent.getByToken(triggerObjects_, triggerObjects);//Reham
-    
-     const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits); //Reham   
-    
-    
+
+     const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits); //Reham
+
+
     // std::cout<<"number 1"<<std::endl;
-    
+
     std::vector<pat::TriggerObjectStandAlone>  HLTMuMatched,HLTEleMatched;
     std::vector<std::string> HLTMuMatchedNames,HLTEleMatchedNames;
-    
+
     //MiniAOD
     for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
 
@@ -2103,10 +2113,10 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 	}
 	else {
 	  name = fullname;
-	} 
-	
+	}
+
 	//std::cout<<"number 2"<<std::endl;
-	
+
 	if (name == triggerFilter.c_str()) {
 	  HLTMuMatched.push_back(obj);
 	  HLTMuMatchedNames.push_back(name);
@@ -2121,9 +2131,9 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 	}
       }
     }
-    
-    
-    
+
+
+
     edm::Handle<edm::View<pat::Muon> > MuCandidates;
     iEvent.getByToken(muonTag_, MuCandidates);
     float maxDeltaR_=0.2;
@@ -2177,7 +2187,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     if (dim==0) return false;
     for (size_t k =0; k< dim; k++ ) {
       //std::cout << "HLT mu filter is= " << HLTMuNames[k].c_str() << " Delta R= " << deltaR(HLTMu[k], mu) << " Delta pT= " << fabs(HLTMu[k].pt() - mu.pt())/ HLTMu[k].pt() << std::endl;
-      if (  (deltaR(HLTMu[k], mu) < DR)   && (fabs(HLTMu[k].pt() - mu.pt())/ HLTMu[k].pt()<DPtRel)){ 
+      if (  (deltaR(HLTMu[k], mu) < DR)   && (fabs(HLTMu[k].pt() - mu.pt())/ HLTMu[k].pt()<DPtRel)){
 	//@//	std::cout << "HLT mu filter is= " << HLTMuNames[k].c_str() << " Delta R= " << deltaR(HLTMu[k], mu) << " Delta pT= " << fabs(HLTMu[k].pt() - mu.pt())/ HLTMu[k].pt() << std::endl;
 	nPass++ ;
       }
@@ -2191,7 +2201,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     if (dim==0) return false;
     for (size_t k =0; k< dim; k++ ) {
       //std::cout << "HLT ele filter is= " << HLTEleNames[k].c_str() << " Delta R= " << deltaR(HLTEle[k], ele) << " Delta pT= " << fabs(HLTEle[k].pt() - ele.pt())/ HLTEle[k].pt() << std::endl;
-      if (  (deltaR(HLTEle[k], ele) < DR)   && (fabs(HLTEle[k].pt() - ele.pt())/ HLTEle[k].pt()<DPtRel)){ 
+      if (  (deltaR(HLTEle[k], ele) < DR)   && (fabs(HLTEle[k].pt() - ele.pt())/ HLTEle[k].pt()<DPtRel)){
 	//@//	std::cout << "HLT ele filter is= " << HLTEleNames[k].c_str() << " Delta R= " << deltaR(HLTEle[k], ele) << " Delta pT= " << fabs(HLTEle[k].pt() - ele.pt())/ HLTEle[k].pt() << std::endl;
 	nPass++ ;
       }
@@ -2209,7 +2219,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
             );
   }
 
-    
+
 
      double photonPfIso03 (pat::PFParticle pho, edm::Handle<pat::PackedCandidateCollection> pfcands) {
      double ptsum=0.0;
@@ -2242,7 +2252,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
       return pd->name();
   }
 
-  
+
   void fillgenjets(const edm::Event& iEvent){
     edm::Handle<reco::GenJetCollection> genjetHandle;
     iEvent.getByToken(genjetTag_,genjetHandle);
@@ -2257,29 +2267,29 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     }
   }
 
-  // GenParticles  
-  void fillgenparticles(const edm::Event& iEvent, const edm::EventSetup &es){    
-    
-    // get gen particle candidates 
-    edm::Handle<reco::GenParticleCollection> genCandidates;           
+  // GenParticles
+  void fillgenparticles(const edm::Event& iEvent, const edm::EventSetup &es){
+
+    // get gen particle candidates
+    edm::Handle<reco::GenParticleCollection> genCandidates;
     iEvent.getByToken(genParticles_, genCandidates);
 
     es.getData( pdt_ );
     std::vector<float> leptonpt,leptoneta,leptonphi,leptontheta,leptonpdgid;
-    
+
     for ( GenParticleCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
-      // lepton stable      
-   
-      if ( ( abs(mcIter->pdgId())==11 || abs(mcIter->pdgId())==13 || abs(mcIter->pdgId())==15  ) && mcIter->status()==1 ){	
-	
-	//@//	std::cout << " \n Found lepton with Id= " << mcIter->pdgId() << "  in the final state with mother= " ; 
+      // lepton stable
+
+      if ( ( abs(mcIter->pdgId())==11 || abs(mcIter->pdgId())==13 || abs(mcIter->pdgId())==15  ) && mcIter->status()==1 ){
+
+	//@//	std::cout << " \n Found lepton with Id= " << mcIter->pdgId() << "  in the final state with mother= " ;
 	leptonpt.push_back(mcIter->pt());
 	leptoneta.push_back(mcIter->eta());
 	leptonphi.push_back(mcIter->phi());
 	leptontheta.push_back(mcIter->theta());
         leptonpdgid.push_back(float(mcIter->pdgId()));
 
-	if (mcIter->numberOfMothers()>0){ 
+	if (mcIter->numberOfMothers()>0){
 	  //@// std::cout << getParticleName(int(mcIter->mother(0)->pdgId())) << " << ";
 	  if (mcIter->mother(0)->status()==3) continue;
 	  if (mcIter->mother(0)->numberOfMothers()>0 && mcIter->mother(0)->mother(0)->status()!=3 ){
@@ -2294,7 +2304,7 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
 		if (mcIter->mother(0)->mother(0)->mother(0)->mother(0)->numberOfMothers()>0 && mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status()!=3 ){
 		  //@// std::cout<< getParticleName(int(mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->pdgId())) << " << ";
 		  if (mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status()==3) continue;
-		  if (mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->numberOfMothers()>0 && 
+		  if (mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->numberOfMothers()>0 &&
 mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status()!=3 ){
 		    //@//  std::cout << getParticleName(int(mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->pdgId())) << " << " << std::endl;
 		    if (mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status()==3) continue;
@@ -2305,13 +2315,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  }
 	}
 
-    
+
       }
     }
 
     sort(leptonpt.rbegin(),leptonpt.rend());
-    
-    if (leptonpt.size()>0) { 
+
+    if (leptonpt.size()>0) {
       //@// std::cout << "\n The 4 highest pt leptons in MCtruth are= ";
       for (unsigned int i=0;i<leptonpt.size();i++){
 	if (i>3) continue;
@@ -2329,15 +2339,15 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     int i=0;
       //j=0;
     for ( GenParticleCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
-      // Select the Z decay: status 3 
+      // Select the Z decay: status 3
       if ( abs(mcIter->pdgId())==23 && mcIter->status()==3 ) {
 	int j=0;
 	//@//	std::cout << "\n Found generated Z with PDGId = " << mcIter->pdgId() << " and status = "<< mcIter->status() << " and " << mcIter->numberOfDaughters() << " daughts |";
 	//@//	std::cout << " pt = "<<std::setw(12)<<mcIter->pt()<<" GeV/c | eta = "<<std::setw(12)<<mcIter->eta()<<" | phi = "<<std::setw(12)<<mcIter->phi();
 	//@//	std::cout << "   ===> Filled Z Bo at ["<<i<<"]["<<j<<"]";
 	MC_Z_PT[i][0]=mcIter->pt();       MC_Z_ETA[i][0]=mcIter->eta();   MC_Z_PHI[i][0]=mcIter->phi();
-        MC_Z_THETA[i][0]=mcIter->theta(); MC_Z_MASS[i][0]=mcIter->mass(); MC_Z_PDGID[i][0]=mcIter->pdgId();  
-	
+        MC_Z_THETA[i][0]=mcIter->theta(); MC_Z_MASS[i][0]=mcIter->mass(); MC_Z_PDGID[i][0]=mcIter->pdgId();
+
 	// Check daughters of Z decay: status 3
 	reco::GenParticle::daughters dst3 = mcIter->daughterRefVector();
 	for (reco::GenParticle::daughters::const_iterator it_dst3 = dst3.begin(), est3 = dst3.end(); it_dst3 != est3; ++it_dst3) {
@@ -2347,8 +2357,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<std::setw(12)<<(**it_dst3).pt()<<" GeV/c | eta = "<<std::setw(12)<<(**it_dst3).eta()<<" | phi = "<<std::setw(12)<<(**it_dst3).phi();
 	    // daughters of the status 3 electron, muon or tau
 	    reco::GenParticle::daughters dst1 = (**it_dst3).daughterRefVector();
-	    bool flag_emu_found = false; 
-	    // Ask for status 1 daughters as long as no status 1 daughters are found 
+	    bool flag_emu_found = false;
+	    // Ask for status 1 daughters as long as no status 1 daughters are found
 	    while (flag_emu_found == false) {
 	      reco::GenParticle::daughters::const_iterator it_dst1 = dst1.begin(), e_dst1 = dst1.end();
 	      for (it_dst1 = dst1.begin(); it_dst1 != e_dst1; ++it_dst1) {
@@ -2361,7 +2371,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		  MC_Z_PT[i][j]=(**it_dst1).pt();          MC_Z_ETA[i][j]=(**it_dst1).eta();      MC_Z_PHI[i][j]=(**it_dst1).phi();
 		  MC_Z_THETA[i][j]=(**it_dst1).theta();    MC_Z_MASS[i][j]=(**it_dst1).mass();    MC_Z_PDGID[i][j]=(**it_dst1).pdgId();
 		}
-		else if (((abs((**it_dst1).pdgId()) == 11) || (abs((**it_dst1).pdgId()) == 13) || (abs((**it_dst1).pdgId()) == 15) || 
+		else if (((abs((**it_dst1).pdgId()) == 11) || (abs((**it_dst1).pdgId()) == 13) || (abs((**it_dst1).pdgId()) == 15) ||
 			  (abs((**it_dst1).pdgId()) == 24)) && (**it_dst1).status() == 2) {
 		  // std::cout<<"   ===> Not Status 1 || Provided daughterRefVector";
 		  dst1 = (**it_dst1).daughterRefVector();
@@ -2396,18 +2406,18 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 
     // get 4l candidates
-    i=0; 
+    i=0;
     //j=0;
     edm::Handle<edm::View<Candidate> >  fourlCandidates;
     iEvent.getByToken(fourgenleptons_, fourlCandidates);
     for (edm::View<Candidate>::const_iterator mcIter=fourlCandidates->begin(); mcIter!=fourlCandidates->end(); ++mcIter ) {
       if (i>49 ) continue;
       //@// std::cout << " MC 4l Mass= " << mcIter->mass()
-      //@//   << " Charge= " 
-      //@//   << mcIter->daughter(0)->daughter(0)->charge() << " " 
+      //@//   << " Charge= "
+      //@//   << mcIter->daughter(0)->daughter(0)->charge() << " "
       //@//  << mcIter->daughter(0)->daughter(1)->charge() << " "
-      //@//   << mcIter->daughter(0)->daughter(2)->charge() << " " 
-      //@//   << mcIter->daughter(1)->charge() << " " 
+      //@//   << mcIter->daughter(0)->daughter(2)->charge() << " "
+      //@//   << mcIter->daughter(1)->charge() << " "
       //@//   << std::endl;
       MC_fourl_MASS[i][0]=mcIter->p4().mass();
       MC_fourl_PT[i][0]=mcIter->p4().pt();
@@ -2419,19 +2429,19 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (j==0){
 	  for (unsigned k = 0; k < mcIter->daughter(j)->numberOfDaughters(); ++k ) {
 	    //std::cout << abs(mcIter->daughter(j)->daughter(k)->pdgId()) << std::endl;
-	    if ( abs(mcIter->daughter(j)->daughter(k)->pdgId())==13 || 
-		 abs(mcIter->daughter(j)->daughter(k)->pdgId())==15 || 
+	    if ( abs(mcIter->daughter(j)->daughter(k)->pdgId())==13 ||
+		 abs(mcIter->daughter(j)->daughter(k)->pdgId())==15 ||
 		 abs(mcIter->daughter(j)->daughter(k)->pdgId())==11){
-	      
+
 	      //std::cout << "k+1= " << k+1 << std::endl;
 	      MC_fourl_MASS[i][k+1]=mcIter->daughter(j)->daughter(k)->p4().mass();
 	      MC_fourl_PT[i][k+1]=mcIter->daughter(j)->daughter(k)->p4().pt();
 	      MC_fourl_PDGID[i][k+1]=mcIter->daughter(j)->daughter(k)->pdgId();
-	      
+
 	    }
 	  }
 	}
-	
+
 	if (j==1) {
 	  //std::cout << "k+1= " << mcIter->daughter(0)->numberOfDaughters()+1 << std::endl;
 	  MC_fourl_MASS[i][mcIter->daughter(0)->numberOfDaughters()+1]=mcIter->daughter(j)->p4().mass();
@@ -2440,52 +2450,52 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	}
 
 	ii++;
-	
+
       }
 
       i++;
     }
-    
+
     // get ZZ candidates
     i =0;
     edm::Handle<edm::View<Candidate> >  ZZCandidates;
     iEvent.getByToken(digenZ_, ZZCandidates);
-    
+
     for (edm::View<Candidate>::const_iterator mcIterZZ=ZZCandidates->begin(); mcIterZZ!=ZZCandidates->end(); ++mcIterZZ ) {
       if (i>3 ) continue;
-      //@// std::cout << "MC ZZ Mass= " << mcIterZZ->p4().mass() 
-      //@//  << " and pT= " << mcIterZZ->p4().pt()  
+      //@// std::cout << "MC ZZ Mass= " << mcIterZZ->p4().mass()
+      //@//  << " and pT= " << mcIterZZ->p4().pt()
       //@//  << std::endl;
-      
-      
+
+
       MC_ZZ_MASS[i][0]   = mcIterZZ->p4().mass();
       MC_ZZ_PT[i][0]     = mcIterZZ->p4().pt();
       MC_ZZ_ETA[i][0]    = mcIterZZ->p4().eta();
       MC_ZZ_PHI[i][0]    = mcIterZZ->p4().phi();
       MC_ZZ_THETA[i][0]  = mcIterZZ->p4().theta();
       MC_ZZ_PDGID[i][0]  = mcIterZZ->pdgId();
-      
+
       int ii=0,l=0;
       for (unsigned j = 0; j < mcIterZZ->numberOfDaughters(); ++j ) {
 	// std::cout << " j= " << j << " " << abs(mcIterZZ->daughter(j)->pdgId()) << std::endl;
-	
+
 	MC_ZZ_MASS[i][j+1] = mcIterZZ->daughter(j)->p4().mass();
 	MC_ZZ_PT[i][j+1]   = mcIterZZ->daughter(j)->p4().pt();
 	MC_ZZ_ETA[i][j+1]  = mcIterZZ->daughter(j)->p4().eta();
 	MC_ZZ_PHI[i][j+1]  = mcIterZZ->daughter(j)->p4().phi();
 	MC_ZZ_THETA[i][j+1]= mcIterZZ->daughter(j)->p4().theta();
 	MC_ZZ_PDGID[i][j+1]= mcIterZZ->daughter(j)->pdgId();
-	
+
 	//std::cout << mcIterZZ->daughter(j)->numberOfDaughters()<< std::endl;
-	
+
 	int kk=0;
 	for (unsigned k = 0; k < mcIterZZ->daughter(j)->numberOfDaughters(); ++k ) {
 	  // std::cout << " k= " << k << abs(mcIterZZ->daughter(j)->daughter(k)->pdgId()) << std::endl;
-	  if ( abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==13 || 
-	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==15 || 
+	  if ( abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==13 ||
+	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==15 ||
 	       abs(mcIterZZ->daughter(j)->daughter(k)->pdgId())==11){
-	    l=ii+j+kk+3; 	      
-	    
+	    l=ii+j+kk+3;
+
 	    //std::cout << " l= " << l << " " << abs(mcIterZZ->daughter(j)->daughter(k)->pdgId()) << std::endl;
 	    MC_ZZ_MASS[i][l] = mcIterZZ->daughter(j)->daughter(k)->p4().mass();
 	    MC_ZZ_PT[i][l]   = mcIterZZ->daughter(j)->daughter(k)->p4().pt();
@@ -2496,35 +2506,35 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    kk++;
 	  }
 	}
-	ii++;	    	  
+	ii++;
       }
     }
-      
-    
-  }
-  
 
-  // MC Higgs 
+
+  }
+
+
+  // MC Higgs
   void fillmc(const edm::Event& iEvent){
     //This is bugged in a way similar to how MC_ZZ_... branches were
     edm::Handle<edm::View<Candidate> > Candidates;
     iEvent.getByToken(MCcollName, Candidates);
     //@//   std::cout << "running fillmc" << std::endl;
     //@// std::cout << "size= " << Candidates->end()-Candidates->begin() << std::endl;
-    for( edm::View<Candidate>::const_iterator cand = Candidates->begin();cand != Candidates->end(); ++ cand ) { 
+    for( edm::View<Candidate>::const_iterator cand = Candidates->begin();cand != Candidates->end(); ++ cand ) {
       //@//  std::cout << "Filling MC variables" << std::endl;
       const reco::Candidate& theParticle = (*cand);
-      SetMCValues(theParticle,0);   
+      SetMCValues(theParticle,0);
       int i=0,l=0;
       for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	if (cand->daughter(j)->pdgId()==23){	  
+	if (cand->daughter(j)->pdgId()==23){
 	  const reco::Candidate& theParticle = (*cand->daughter(j));
 	  SetMCValues(theParticle,j+1);
 	  for (unsigned k = 0; k < cand->daughter(j)->numberOfDaughters(); ++k ) {
-	    if ( abs(cand->daughter(j)->daughter(k)->pdgId())==13 || 
-		 abs(cand->daughter(j)->daughter(k)->pdgId())==15 || 
+	    if ( abs(cand->daughter(j)->daughter(k)->pdgId())==13 ||
+		 abs(cand->daughter(j)->daughter(k)->pdgId())==15 ||
 		 abs(cand->daughter(j)->daughter(k)->pdgId())==11){
-	      l=i+j+k+3; 	      
+	      l=i+j+k+3;
 	      const reco::Candidate& theParticle = (*cand->daughter(j)->daughter(k));
 	      SetMCValues(theParticle,l);
 	    }
@@ -2532,29 +2542,29 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  i++;
 	}
       }
-    }    
+    }
     //fillMCCP(iEvent);
   }
 
-  
-  
+
+
   struct SortCandByDecreasingPt {
     bool operator()( const reco::Candidate &c1, const reco::Candidate &c2) const {
       return c1.pt() > c2.pt();
     }
   };
-  
 
-  
+
+
   void fillAdditionalRECO(const edm::Event& iEvent){
-   
+
     //Matching ZtoMuMu:
     edm::Handle<edm::Association<std::vector<reco::GenParticle> > > GenParticlesMatchZMuMu;
     iEvent.getByToken(goodZtoMuMuMCMatch_, GenParticlesMatchZMuMu);
     if (GenParticlesMatchZMuMu.isValid() ){
       //@//  std::cout << "The matched map collection has size= " <<  GenParticlesMatchZMuMu->size() << std::endl;
     }
-    
+
     //Matching ZtoEE:
     edm::Handle<edm::Association<std::vector<reco::GenParticle> > > GenParticlesMatchZEE;
     iEvent.getByToken(goodZtoEEMCMatch_, GenParticlesMatchZEE);
@@ -2565,16 +2575,16 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     // di-leptons OS
     leptonscands_Z0->clear();
     leptonscands_Z1->clear();
-   
-    
+
+
     //@// std::cout << "RECOcollNameZ size " << RECOcollNameZ.size() << std::endl;
     //@// std::cout << "RECOcollNameZ std::string" << RECOcollNameZ.at(0) << std::endl;
-    for (unsigned int i=0; i<RECOcollNameZ.size(); i++) {  
+    for (unsigned int i=0; i<RECOcollNameZ.size(); i++) {
       edm::Handle<edm::View<Candidate> > CandidatesZ;
-      if(i==0) iEvent.getByToken(zToMuMu, CandidatesZ); 
+      if(i==0) iEvent.getByToken(zToMuMu, CandidatesZ);
       else if(i==1) iEvent.getByToken(zToEE, CandidatesZ);
       int kk=0;
-      for( edm::View<Candidate>::const_iterator cand = CandidatesZ->begin();cand != CandidatesZ->end(); ++ cand ) { 
+      for( edm::View<Candidate>::const_iterator cand = CandidatesZ->begin();cand != CandidatesZ->end(); ++ cand ) {
 	if (kk>49) continue;
 	if (i==0) RECO_ZMM_MASS[kk]=cand->p4().mass();
 	if (i==0) RECO_ZMM_PT[0][kk]=cand->p4().pt();
@@ -2586,7 +2596,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (i==1) RECO_ZEE_PHI[0][kk]=cand->p4().phi();
 	//@//	std::cout << "di-lepton candidate of type=" << RECOcollNameZ.at(i).label() << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<std::endl;
 	for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	  //@//  std::cout << "Daugthter with pt and charge=" << cand->daughter(j)->p4().pt() << " " << cand->daughter(j)->charge() << std::endl; 
+	  //@//  std::cout << "Daugthter with pt and charge=" << cand->daughter(j)->p4().pt() << " " << cand->daughter(j)->charge() << std::endl;
 	  if (i==0) {
 	    RECO_ZMM_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZMM_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
@@ -2600,13 +2610,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    leptonscands_Z1->push_back( cand->daughter(j)->clone());
 	  }
 	}
-	
+
 	if (i==0 && fillMCTruth==true){
 	  // Matching ZtoMuMu
 	  edm::Ref<edm::View<reco::Candidate> > Ref(CandidatesZ,kk);
-	  edm::Ref<std::vector<reco::GenParticle> > genrefZMuMu = (*GenParticlesMatchZMuMu)[Ref]; 
+	  edm::Ref<std::vector<reco::GenParticle> > genrefZMuMu = (*GenParticlesMatchZMuMu)[Ref];
 	  if (!genrefZMuMu.isNull()){
-	    //@//  std::cout << "Gen Z with pT= " << genrefZMuMu->p4().pt() << " and mass="<< genrefZMuMu->p4().mass() << std::endl;	  
+	    //@//  std::cout << "Gen Z with pT= " << genrefZMuMu->p4().pt() << " and mass="<< genrefZMuMu->p4().mass() << std::endl;
 	    RECOzMuMu_MatchingMCTruth[kk]= true;
 	    RECOzMuMu_MatchingMCpT[kk]= genrefZMuMu->p4().pt();
 	    RECOzMuMu_MatchingMCmass[kk]= genrefZMuMu->p4().mass();
@@ -2617,9 +2627,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (i==1 && fillMCTruth==true){
 	  // Matching ZtoEE
 	  edm::Ref<edm::View<reco::Candidate> > Ref(CandidatesZ,kk);
-	  edm::Ref<std::vector<reco::GenParticle> > genrefZEE = (*GenParticlesMatchZEE)[Ref]; 
+	  edm::Ref<std::vector<reco::GenParticle> > genrefZEE = (*GenParticlesMatchZEE)[Ref];
 	  if (!genrefZEE.isNull()){
-	    //@//  std::cout << "Gen Z with pT= " << genrefZEE->p4().pt() << " and mass="<< genrefZEE->p4().mass() << std::endl;	  
+	    //@//  std::cout << "Gen Z with pT= " << genrefZEE->p4().pt() << " and mass="<< genrefZEE->p4().mass() << std::endl;
 	    RECOzEE_MatchingMCTruth[kk]= true;
 	    RECOzEE_MatchingMCpT[kk]= genrefZEE->p4().pt();
 	    RECOzEE_MatchingMCmass[kk]= genrefZEE->p4().mass();
@@ -2639,14 +2649,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     leptonscands_Zcross->clear();
 
 
-    //@//  std::cout << "RECOcollNameZss size " << RECOcollNameZss.size() << std::endl; 
-    for (unsigned int i=0; i<RECOcollNameZss.size(); i++) {  
+    //@//  std::cout << "RECOcollNameZss size " << RECOcollNameZss.size() << std::endl;
+    for (unsigned int i=0; i<RECOcollNameZss.size(); i++) {
       edm::Handle<edm::View<Candidate> > CandidatesZss;
       if(i==0)   iEvent.getByToken(zToMuMussmerge, CandidatesZss);
       if(i==1)   iEvent.getByToken(zToEEssmerge, CandidatesZss);
-      if(i==2)   iEvent.getByToken(zToCrossLeptons, CandidatesZss); 
+      if(i==2)   iEvent.getByToken(zToCrossLeptons, CandidatesZss);
       int kk=0;
-      for( edm::View<Candidate>::const_iterator cand = CandidatesZss->begin();cand != CandidatesZss->end(); ++ cand ) { 
+      for( edm::View<Candidate>::const_iterator cand = CandidatesZss->begin();cand != CandidatesZss->end(); ++ cand ) {
 	if (kk>49) continue;
 	if (i==0)  RECO_ZMMss_MASS[kk]=cand->p4().mass();
 	if (i==0)  RECO_ZMMss_PT[0][kk]=cand->p4().pt();
@@ -2665,7 +2675,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 	//@//std::cout << "di-lepton candidate of type=" << RECOcollNameZss.at(i).label() << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<std::endl;
 	for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
-	  //@//  std::cout << "Daugthter with pt and charge=" << cand->daughter(j)->p4().pt() << " " << cand->daughter(j)->charge() << std::endl; 
+	  //@//  std::cout << "Daugthter with pt and charge=" << cand->daughter(j)->p4().pt() << " " << cand->daughter(j)->charge() << std::endl;
 	  if (i==0) {
 	    RECO_ZMMss_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZMMss_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
@@ -2682,7 +2692,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    RECO_ZEM_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZEM_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZEM_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Zcross->push_back( cand->daughter(j)->clone());	  
+	    leptonscands_Zcross->push_back( cand->daughter(j)->clone());
 	  }
 	}
 	kk++;
@@ -2694,15 +2704,15 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     leptonscands_DiLep->clear();
 
     edm::Handle<edm::View<Candidate> > CandidatesDiLep;
-    iEvent.getByToken(RECOcollNameDiLep_, CandidatesDiLep); 
+    iEvent.getByToken(RECOcollNameDiLep_, CandidatesDiLep);
     int kkk=0;
-    for( edm::View<Candidate>::const_iterator cand = CandidatesDiLep->begin();cand != CandidatesDiLep->end(); ++ cand ) { 
+    for( edm::View<Candidate>::const_iterator cand = CandidatesDiLep->begin();cand != CandidatesDiLep->end(); ++ cand ) {
       if (kkk>49) continue;
       RECO_DiLep_MASS[kkk]=cand->p4().mass();
       RECO_DiLep_PT[0][kkk]=cand->p4().pt();
       RECO_DiLep_ETA[0][kkk]=cand->p4().eta();
       RECO_DiLep_PHI[0][kkk]=cand->p4().phi();
-      
+
       //@//  std::cout << "di-lepton candidate of type=" << RECOcollNameDiLep.label() << " of mass=" << cand->p4().mass() << " and pt=" << cand->p4().pt() <<std::endl;
       for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
 	//@//	std::cout << "Daugthter with pt and charge=" << cand->daughter(j)->p4().pt() << " " << cand->daughter(j)->charge() << std::endl;
@@ -2717,7 +2727,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 
     // MuMuMuMu
-    int i=1; 
+    int i=1;
     leptonscands_MMMM->clear();
     edm::Handle<edm::View<Candidate> > CandidatesMMMM;
     iEvent.getByToken(RECOcollNameMMMM_, CandidatesMMMM);
@@ -2729,7 +2739,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
 
     int kk=0;
-    for( edm::View<Candidate>::const_iterator cand = CandidatesMMMM->begin();cand != CandidatesMMMM->end(); ++ cand ) { 
+    for( edm::View<Candidate>::const_iterator cand = CandidatesMMMM->begin();cand != CandidatesMMMM->end(); ++ cand ) {
       //if (kk>99) break;
       if(kk==100) break; // std::cout << "Warning: number of CandidatesMMMM exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       RECO_MMMM_MASS[i-1][kk]=cand->p4().mass();
@@ -2751,7 +2761,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  RECO_MMMM_PHI[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().phi();
 	  leptonscands_MMMM->push_back( cand->daughter(j)->daughter(k)->clone());
 	  //std::cout << "index" << i+j+k+l+2 <<std::endl;
-	} 
+	}
 	l++;
       }
 
@@ -2759,9 +2769,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       // Matching HiggsToMMMM
       if (fillMCTruth==true){
 	edm::Ref<edm::View<reco::Candidate> > Ref(CandidatesMMMM,kk);
-	edm::Ref<std::vector<reco::GenParticle> > genrefHzzMMMM = (*GenParticlesMatchHMMMM)[Ref]; 
+	edm::Ref<std::vector<reco::GenParticle> > genrefHzzMMMM = (*GenParticlesMatchHMMMM)[Ref];
 	if (!genrefHzzMMMM.isNull()){
-	  //@// std::cout << "Gen Z with pT= " << genrefHzzMMMM->p4().pt() << " and mass="<< genrefHzzMMMM->p4().mass() << std::endl;	  
+	  //@// std::cout << "Gen Z with pT= " << genrefHzzMMMM->p4().pt() << " and mass="<< genrefHzzMMMM->p4().mass() << std::endl;
 	  RECOHzzMMMM_MatchingMCTruth[kk]= true;
 	  RECOHzzMMMM_MatchingMCpT[kk]= genrefHzzMMMM->p4().pt();
 	  RECOHzzMMMM_MatchingMCmass[kk]= genrefHzzMMMM->p4().mass();
@@ -2773,7 +2783,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       kk++;
     }
 
-    
+
     // EEEE
     i=1;
     leptonscands_EEEE->clear();
@@ -2816,9 +2826,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       // Matching HiggsToEEEE
       if (fillMCTruth==true){
 	edm::Ref<edm::View<reco::Candidate> > Ref(CandidatesEEEE,kk);
-	edm::Ref<std::vector<reco::GenParticle> > genrefHzzEEEE = (*GenParticlesMatchHEEEE)[Ref]; 
+	edm::Ref<std::vector<reco::GenParticle> > genrefHzzEEEE = (*GenParticlesMatchHEEEE)[Ref];
 	if (!genrefHzzEEEE.isNull()){
-	  //@// std::cout << "Gen Z with pT= " << genrefHzzEEEE->p4().pt() << " and mass="<< genrefHzzEEEE->p4().mass() << std::endl;	  
+	  //@// std::cout << "Gen Z with pT= " << genrefHzzEEEE->p4().pt() << " and mass="<< genrefHzzEEEE->p4().mass() << std::endl;
 	  RECOHzzEEEE_MatchingMCTruth[kk]= true;
 	  RECOHzzEEEE_MatchingMCpT[kk]= genrefHzzEEEE->p4().pt();
 	  RECOHzzEEEE_MatchingMCmass[kk]= genrefHzzEEEE->p4().mass();
@@ -2875,9 +2885,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       // Matching HiggsToEEMM
       if (fillMCTruth==true){
 	edm::Ref<edm::View<reco::Candidate> > Ref(CandidatesEEMM,kk);
-	edm::Ref<std::vector<reco::GenParticle> > genrefHzzEEMM = (*GenParticlesMatchHEEMM)[Ref]; 
+	edm::Ref<std::vector<reco::GenParticle> > genrefHzzEEMM = (*GenParticlesMatchHEEMM)[Ref];
 	if (!genrefHzzEEMM.isNull()){
-	  //@// std::cout << "Gen Z with pT= " << genrefHzzEEMM->p4().pt() << " and mass="<< genrefHzzEEMM->p4().mass() << std::endl;	  
+	  //@// std::cout << "Gen Z with pT= " << genrefHzzEEMM->p4().pt() << " and mass="<< genrefHzzEEMM->p4().mass() << std::endl;
 	  RECOHzzEEMM_MatchingMCTruth[kk]= true;
 	  RECOHzzEEMM_MatchingMCpT[kk]= genrefHzzEEMM->p4().pt();
 	  RECOHzzEEMM_MatchingMCmass[kk]= genrefHzzEEMM->p4().mass();
@@ -2901,11 +2911,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     MC_PDGID[nMC] = cand.pdgId();
   }
 
- 
- 
-  
+
+
+
   bool match(double mass, double pt, int charge, const reco::CandidateCollection *c1Coll){
-    
+
     bool found=false;
     for( reco::CandidateCollection::const_iterator pp = c1Coll->begin();pp != c1Coll->end(); ++ pp ) {
       if ((fabs(pp->p4().mass()-mass)  <0.001 ) &&
@@ -2917,36 +2927,36 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
     return found;
   }
-  
+
   bool matchParticle(double mass, double pt, int charge, const reco::Candidate *c1){
-    
+
     bool found=false;
     if ((fabs(c1->p4().mass()-mass)  <0.001 ) &&
 	(fabs(c1->p4().pt()  -pt)    <0.001 ) &&
 	(fabs(c1->charge()   -charge)<0.001 )  ){
       found=true;
       //std::cout << "Found lepton in the higgs-like leptons collection" << std::endl;
-    }    
+    }
     return found;
   }
-  
-  
+
+
   void fillElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   
- 
+
+
     // Supercluster collection
     edm::Handle<reco::SuperClusterCollection> clusters;
     iEvent.getByLabel(clusterCollectionTag_,clusters);
-    
+
 
     // EG isolation
     //edm::Handle<reco::GsfElectronRefVector> EleRefs;
     //iEvent.getByLabel(electronEgmTag_, EleRefs);
     edm::Handle<edm::View<pat::Electron> > EleRefs;
     iEvent.getByToken(electronEgmTag_, EleRefs);
-    
-    
-    
+
+
+
     //Electron ID MVA Trig and Non Trig
     //edm::Handle<edm::ValueMap<float> >  mvaTrigV0map;
     //iEvent.getByToken(mvaTrigV0MapTag_, mvaTrigV0map);
@@ -2954,36 +2964,36 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     edm::Handle<edm::ValueMap<float> >  mvamap;
     iEvent.getByToken(mvaValuesMapToken_, mvamap);
 
-    
+
     // edm::Handle<edm::ValueMap<float> >  mvaNonTrigV0map;
     //iEvent.getByToken(mvaNonTrigV0MapTag_, mvaNonTrigV0map);
 
 
     // primary vertex
-   
 
- 
+
+
     Vertex primVertex;
     math::XYZPoint pVertex(0., 0., 0.);
     bool pvfound = (PV.size() != 0);
     //@// std::cout << "pvfound=" << pvfound << std::endl;
-    if(pvfound){       
+    if(pvfound){
       for(reco::VertexCollection::const_iterator it=PV.begin() ; it!=PV.end() ; ++it){
-	if(!it->isFake() && it->ndof() > 4 && fabs(it->position().z()) <= 24 && fabs(it->position().rho()) <= 2){ 	  	  
+	if(!it->isFake() && it->ndof() > 4 && fabs(it->position().z()) <= 24 && fabs(it->position().rho()) <= 2){
 	  pVertex = math::XYZPoint(it->position().x(), it->position().y(), it->position().z());
 	  //@//
-	  /*std::cout << "P vertex position used for computing dxy and dz for electron and muons is (x,y,z)= " << 
+	  /*std::cout << "P vertex position used for computing dxy and dz for electron and muons is (x,y,z)= " <<
 	    pVertex.x() << " " <<
 	    pVertex.y() << " " <<
 	    pVertex.z() << std::endl;*/
 	  break;
 	}
       }
-    } 
-    
+    }
+
     int index=0;
     RECO_NELE=EleRefs->size();
-   
+
     ///* to add matching informations
     // Matching
     edm::Handle<edm::Association<std::vector<reco::GenParticle> > > GenParticlesMatchEle;
@@ -2998,43 +3008,43 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     //
 
     for (edm::View<pat::Electron>::const_iterator cand = EleRefs->begin(); cand != EleRefs->end(); ++cand) {
-      
+
       //if(index>99) break;
       if(index==100) break; // std::cout << "Warning: number of EleRefs exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
-      
+
       edm::Ref<edm::View<pat::Electron> > eletrackref(EleRefs,index);
       // edm::Ref<edm::View<pat::Electron> > eletrackrefv(VertEleCandidates,index);
-     
-    
+
+
       /* // kinematic //Reham comment to check the new corrected pt
 	 RECOELE_E[index]       = cand->p4().energy();
 	 RECOELE_PT[index]      = cand->p4().pt();
-	 
-	 
+
+
 	 RECOELE_P[index]=sqrt(cand->p4().px()*cand->p4().px()+cand->p4().py()*cand->p4().py()+cand->p4().pz()*cand->p4().pz());
 	 RECOELE_ETA[index]     = cand->p4().eta();
 	 RECOELE_THETA[index]   = cand->p4().theta();
 	 RECOELE_PHI[index]     = cand->p4().phi();
 	 RECOELE_MASS[index]    = cand->p4().mass();
 	 RECOELE_CHARGE[index]  = cand->charge();*/
-      
+
       ///// For the elctron energy correction
       //Reham
-      
+
       float corrEt = cand->et() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
       auto corrP4  = cand->p4() * cand->userFloat("ecalTrkEnergyPostCorr")/cand->energy();
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"corrEt= "<<corrEt<<"corrP4 = "<<corrP4<<std::endl;
-     
+
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"TESTTTT Kinematics corrPT = "<<corrP4.pt()<<" corrE = "<<corrP4.energy()<<"corrEta = "<<corrP4.eta()<<"corr phi = "<<corrP4.phi()<<"corrTheta = "<<corrP4.theta()<<"corrcharge = "<<cand->charge()<<std::endl;
 
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"TESTTTT Kinematics BEFORE corr. PT = "<< cand->p4().pt()<<" E = "<<cand->p4().energy()<<"Eta = "<<cand->p4().eta()<<" phi = "<<cand->p4().phi()<<"Theta = "<<cand->p4().theta()<<"charge = "<<cand->charge()<<std::endl;
- 
+
 
       if (corrP4.pt() <7 )continue;
       if (corrP4.eta() >2.5)continue;
-     
+
       RECOELE_E[index]       = corrP4.energy();
-      RECOELE_PT[index]      = corrP4.pt();   
+      RECOELE_PT[index]      = corrP4.pt();
       RECOELE_P[index]=sqrt(corrP4.px()*corrP4.px()+corrP4.py()*corrP4.py()+corrP4.pz()*corrP4.pz());
       RECOELE_ETA[index]     = corrP4.eta();
       RECOELE_THETA[index]   = corrP4.theta();
@@ -3049,7 +3059,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     RECOELE_SCV_ETA[index][ecand]  = cand->associatedPackedPFCandidates()[ecand]->eta();
     RECOELE_SCV_PHI[index][ecand]  = cand->associatedPackedPFCandidates()[ecand]->phi();
     RECOELE_SCV_PT[index][ecand]   = cand->associatedPackedPFCandidates()[ecand]->pt();
-    
+
 //    RECOELE_scv_ETA[index]  = cand->associatedPackedPFCandidates()[ecand]->eta();
 //    RECOELE_scv_PHI[index]  = cand->associatedPackedPFCandidates()[ecand]->phi();
 //    RECOELE_scv_PT[index]   = cand->associatedPackedPFCandidates()[ecand]->pt();
@@ -3057,11 +3067,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
         ////////////END WALAA//////
 
 
-	//Reham error in PT and some systematic variables 
-      
+	//Reham error in PT and some systematic variables
+
       // std::cout<<"ecalTrkEnergyErrPostCorr = "<<cand->userFloat("ecalTrkEnergyErrPostCorr")<<std::endl;
       // std::cout<<"ecalTrkEnergyPreCorr"<<cand->userFloat("ecalTrkEnergyPreCorr")<<" ecalTrkEnergyErrPreCorr = "<<cand->userFloat("ecalTrkEnergyErrPreCorr");
-   
+
       RECOELE_ecalTrkEnergyPreCorr[index]  = cand->userFloat("ecalTrkEnergyPreCorr");
       RECOELE_ecalTrkEnergyErrPreCorr[index]  = cand->userFloat("ecalTrkEnergyErrPreCorr");
       RECOELE_ecalTrkEnergyErrPostCorr[index]  = cand->userFloat("ecalTrkEnergyErrPostCorr");
@@ -3084,9 +3094,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOELE_energySigmaRhoUp[index]          = cand->userFloat("energySigmaRhoUp");
       RECOELE_energySigmaRhoDown[index]          = cand->userFloat("energySigmaRhoDown");
 
-      ///// */    
+      ///// */
 
-      
+
         /* std::cout << "--kinematic:" 		 */
 	/* 	<< "  pT="     << RECOELE_PT[index]   */
 	/* 	<< "  E="      << RECOELE_E[index]   */
@@ -3122,8 +3132,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	/* 	  <<"\n RECOELE_energySigmaRhoUp[index]"<<RECOELE_energySigmaRhoUp[index]        */
 	/* 	  <<"\n RECOELE_energySigmaRhoDown[index]"<<RECOELE_energySigmaRhoDown[index]        */
 	/* 	  <<std::endl; */
-	
-	
+
+
 	if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 1 "<<std::endl;
 
      // Global variables
@@ -3132,12 +3142,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
      //@//
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "\n Electron in the event: "
-	 << "  isEcalDriven="    << RECOELE_isEcalDriven[index]  
-	 << "  isTrackerDriven=" << RECOELE_isTrackerDriven[index] 
+	 << "  isEcalDriven="    << RECOELE_isEcalDriven[index]
+	 << "  isTrackerDriven=" << RECOELE_isTrackerDriven[index]
 	 << std::endl;
 
       ///@@@/// Electron ID  REHAM
-      
+
 
      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << cand->electronID("mvaEleID-Autumn18-ID-ISO-HZZ") << " " << std::abs(cand->dB(pat::Electron::PV3D))/cand->edB(pat::Electron::PV3D) << std::endl;
      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<">>>>>MVA value " <<cand->userFloat("ElectronMVAEstimatorRun2Autumn18IdIsoValues")<<std::endl;
@@ -3154,7 +3164,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
      RECOELE_IPERROR[index]= cand->edB(pat::Electron::PV3D);
 
      // std::cout<<"ID = "<<RECOELE_ID[index]<<" SIP = "<<RECOELE_SIP[index]<<std::endl;
-      
+
       // SuperCluster
       reco::SuperClusterRef sclRef = cand->superCluster();
       math::XYZPoint sclPos = cand->superClusterPosition();
@@ -3171,7 +3181,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       ele_sclX[index]  = sclPos.X();
       ele_sclY[index] =  sclPos.Y();
       ele_sclZ[index] =  sclPos.Z();
-			
+
       //@//
       /* std::cout << "--supercluster properties:"
 	<< "  E_sc="    << RECOELE_scl_E[index]
@@ -3184,12 +3194,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       TMatrixDSym bigCov;
       double dp = 0.;
       if (cand->ecalDriven()) {
-	dp = cand->p4Error(pat::Electron::P4_COMBINATION);	
+	dp = cand->p4Error(pat::Electron::P4_COMBINATION);
 	RECOELE_PTError[index]=dp;
       }
-      
+
       else {
-	// Parametrization from Claude Charlot, 
+	// Parametrization from Claude Charlot,
 	// http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/CJLST/ZZAnalysis/AnalysisStep/src/ZZMassErrors.cc?revision=1.2&view=markup
 #if CMSSW_VERSION<500
 	double ecalEnergy = cand->ecalEnergy() ;
@@ -3198,11 +3208,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 #endif
 	double err2 = 0.0;
 	if (cand->isEB()) {
-	  err2 += (5.24e-02*5.24e-02)/ecalEnergy;  
+	  err2 += (5.24e-02*5.24e-02)/ecalEnergy;
 	  err2 += (2.01e-01*2.01e-01)/(ecalEnergy*ecalEnergy);
 	  err2 += 1.00e-02*1.00e-02;
 	} else if (cand->isEE()) {
-	  err2 += (1.46e-01*1.46e-01)/ecalEnergy;  
+	  err2 += (1.46e-01*1.46e-01)/ecalEnergy;
 	  err2 += (9.21e-01*9.21e-01)/(ecalEnergy*ecalEnergy);
 	  err2 += 1.94e-03*1.94e-03;
 	}
@@ -3218,12 +3228,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       ptop3(1,0) = cand->py()/cand->p();
       ptop3(2,0) = cand->pz()/cand->p();
       AlgebraicSymMatrix33 mat = ROOT::Math::Similarity(ptop3, AlgebraicSymMatrix11(dp*dp) );
-      for (int i = 0; i < 3; ++i) { 
+      for (int i = 0; i < 3; ++i) {
 	for (int j = 0; j < 3; ++j) {
 	  RECOELE_COV[index][i][j]=mat[i][j];
 	}
       }
-      
+
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 2 "<<std::endl;
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"RECOELE_PTError[index]= "<<RECOELE_PTError[index]<<std::endl;
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"cand ecal energy = "<<cand->correctedEcalEnergy()<<std::endl;
@@ -3238,8 +3248,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       RECOELE_EGMECALISO[index]=(eletrackref->dr03EcalRecHitSumEt())/eletrackref->pt();
       RECOELE_EGMHCALISO[index]=(eletrackref->dr03HcalTowerSumEt())/eletrackref->pt();
       RECOELE_EGMX[index]=RECOELE_EGMTRACKISO[index]+RECOELE_EGMECALISO[index]+RECOELE_EGMHCALISO[index];
-   
-      //@//   
+
+      //@//
       /* std::cout << "--EG isolation: electron"
 		<< "  X="     << RECOELE_EGMX[index]
 		<< "  Track=" << RECOELE_EGMTRACKISO[index]
@@ -3273,15 +3283,15 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (fabs(RECOELE_scl_Eta[index]) >= 2.3   && fabs(RECOELE_scl_Eta[index]) < 2.4 )   EffectiveArea = 0.22;
 	if (fabs(RECOELE_scl_Eta[index]) >= 2.4 )                                       EffectiveArea = 0.29;
       }
-      else { 
-	// 7_4_X use eta 
+      else {
+	// 7_4_X use eta
 	//if (fabs(RECOELE_ETA[index]) >= 0.0   && fabs(RECOELE_ETA[index]) < 0.8 )   EffectiveArea = 0.1830;
 	//if (fabs(RECOELE_ETA[index]) >= 0.8   && fabs(RECOELE_ETA[index]) < 1.3 )   EffectiveArea = 0.1734;
 	//if (fabs(RECOELE_ETA[index]) >= 1.3   && fabs(RECOELE_ETA[index]) < 2.0 )   EffectiveArea = 0.1077;
 	//if (fabs(RECOELE_ETA[index]) >= 2.0   && fabs(RECOELE_ETA[index]) < 2.2 )   EffectiveArea = 0.1565;
 	//if (fabs(RECOELE_ETA[index]) >= 2.2 )                                       EffectiveArea = 0.2680;
 
-	// 7_6_X use eta supercluster   
+	// 7_6_X use eta supercluster
 //	if (fabs(RECOELE_scl_Eta[index]) >= 0.0   && fabs(RECOELE_scl_Eta[index]) < 1.0 )   EffectiveArea = 0.1752;
 //        if (fabs(RECOELE_scl_Eta[index]) >= 1.0   && fabs(RECOELE_scl_Eta[index]) < 1.479 ) EffectiveArea = 0.1862;
 //        if (fabs(RECOELE_scl_Eta[index]) >= 1.479 && fabs(RECOELE_scl_Eta[index]) < 2.0 )   EffectiveArea = 0.1411;
@@ -3289,7 +3299,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //        if (fabs(RECOELE_scl_Eta[index]) >= 2.2   && fabs(RECOELE_scl_Eta[index]) < 2.3 )   EffectiveArea = 0.1903;
 //        if (fabs(RECOELE_scl_Eta[index]) >= 2.3   && fabs(RECOELE_scl_Eta[index]) < 2.4 )   EffectiveArea = 0.2243;
 //        if (fabs(RECOELE_scl_Eta[index]) >= 2.4   && fabs(RECOELE_scl_Eta[index]) < 5.0  )  EffectiveArea = 0.2687;
-        // 8_0_X  
+        // 8_0_X
         if (fabs(RECOELE_scl_Eta[index]) >= 0.0   && fabs(RECOELE_scl_Eta[index]) < 1.0 )   EffectiveArea = 0.1752;
         if (fabs(RECOELE_scl_Eta[index]) >= 1.0   && fabs(RECOELE_scl_Eta[index]) < 1.479 ) EffectiveArea = 0.1862;
         if (fabs(RECOELE_scl_Eta[index]) >= 1.479 && fabs(RECOELE_scl_Eta[index]) < 2.0 )   EffectiveArea = 0.1411;
@@ -3302,7 +3312,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 3 "<<std::endl;
 
       //RECOELE_PFX_rho[index]=(RECOELE_PFchHad[index]+
-      //		      max( (RECOELE_PFneuHad[index]+RECOELE_PFphoton[index]-max(RHO_ele,0.0)*EffectiveArea),0.0) )/cand->p4().pt(); 
+      //		      max( (RECOELE_PFneuHad[index]+RECOELE_PFphoton[index]-max(RHO_ele,0.0)*EffectiveArea),0.0) )/cand->p4().pt();
 
       RECOELE_PFX_rho[index]= (cand->pfIsolationVariables().sumChargedHadronPt+
 			       std::max(
@@ -3313,10 +3323,10 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 			       )/cand->p4().pt();
 
       RECOELE_PFchHad[index]  = (cand->pfIsolationVariables().sumChargedHadronPt);
-      RECOELE_PFneuHad[index] = (cand->pfIsolationVariables().sumNeutralHadronEt); 
-      RECOELE_PFphoton[index] = (cand->pfIsolationVariables().sumPhotonEt); 
-      //RECOELE_PFsumPUPt[index]= (cand->pfIsolationVariables().sumPUPt); 
-      RECOELE_PFPUchAllPart[index]=(cand->pfIsolationVariables().sumPUPt);   
+      RECOELE_PFneuHad[index] = (cand->pfIsolationVariables().sumNeutralHadronEt);
+      RECOELE_PFphoton[index] = (cand->pfIsolationVariables().sumPhotonEt);
+      //RECOELE_PFsumPUPt[index]= (cand->pfIsolationVariables().sumPUPt);
+      RECOELE_PFPUchAllPart[index]=(cand->pfIsolationVariables().sumPUPt);
 
 
 
@@ -3341,77 +3351,77 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
        RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfAllHits(HitPattern::MISSING_INNER_HITS);//Reham
       // RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->hitPattern().numberOfValidHits();//Reham
       // RECOELE_gsftrack_expected_inner_hits[index] = cand->gsfTrack()->trackerExpectedHitsInner().numberOfHits();//Nicola Not work
-     
+
        //@//
-       /*  std::cout << "--gfstrack properties: " 
+       /*  std::cout << "--gfstrack properties: "
 	<< "  nPixhits=" << RECOELE_gsftrack_NPixHits[index]
 	<< "  nStriphits=" << RECOELE_gsftrack_NStripHits[index]
-	<< "  chi2="     << RECOELE_gsftrack_chi2[index] 
-	<< "  dxy="      << RECOELE_gsftrack_dxy[index] 
-	<< "  dxyB="     << RECOELE_gsftrack_dxyB[index] 
-	<< "  dxyError=" << RECOELE_gsftrack_dxyError[index] 
+	<< "  chi2="     << RECOELE_gsftrack_chi2[index]
+	<< "  dxy="      << RECOELE_gsftrack_dxy[index]
+	<< "  dxyB="     << RECOELE_gsftrack_dxyB[index]
+	<< "  dxyError=" << RECOELE_gsftrack_dxyError[index]
 	<< "  dz="       << RECOELE_gsftrack_dz[index]
 	<< "  dzB="      << RECOELE_gsftrack_dzB[index]
-        << "  dzError="  << RECOELE_gsftrack_dzError[index] 
-	<< "  losthits=" << RECOELE_gsftrack_losthits[index] 
-	<< "  validhits="<< RECOELE_gsftrack_validhits[index] 
-        << "  innerhits="<< RECOELE_gsftrack_expected_inner_hits[index] 
+        << "  dzError="  << RECOELE_gsftrack_dzError[index]
+	<< "  losthits=" << RECOELE_gsftrack_losthits[index]
+	<< "  validhits="<< RECOELE_gsftrack_validhits[index]
+        << "  innerhits="<< RECOELE_gsftrack_expected_inner_hits[index]
 	<< std::endl;*/
 
       // Track-Cluster matching attributes
-      RECOELE_ep[index]             = cand->eSuperClusterOverP(); 
-      RECOELE_eSeedp[index]         = cand->eSeedClusterOverP();     
-      RECOELE_eSeedpout[index]      = cand->eSeedClusterOverPout(); 
-      RECOELE_eElepout[index]       = cand->eEleClusterOverPout();        
-      
-      RECOELE_deltaEtaIn [index]  = cand->deltaEtaSuperClusterTrackAtVtx(); 
-      RECOELE_deltaEtaSeed[index] = cand->deltaEtaSeedClusterTrackAtCalo(); 
-      RECOELE_deltaEtaEle[index]  = cand->deltaEtaEleClusterTrackAtCalo();  
+      RECOELE_ep[index]             = cand->eSuperClusterOverP();
+      RECOELE_eSeedp[index]         = cand->eSeedClusterOverP();
+      RECOELE_eSeedpout[index]      = cand->eSeedClusterOverPout();
+      RECOELE_eElepout[index]       = cand->eEleClusterOverPout();
+
+      RECOELE_deltaEtaIn [index]  = cand->deltaEtaSuperClusterTrackAtVtx();
+      RECOELE_deltaEtaSeed[index] = cand->deltaEtaSeedClusterTrackAtCalo();
+      RECOELE_deltaEtaEle[index]  = cand->deltaEtaEleClusterTrackAtCalo();
       RECOELE_deltaPhiIn[index]   = cand->deltaPhiSuperClusterTrackAtVtx();
-      RECOELE_deltaPhiSeed[index] = cand->deltaPhiSeedClusterTrackAtCalo(); 
-      RECOELE_deltaPhiEle[index]  = cand->deltaPhiEleClusterTrackAtCalo() ;  
+      RECOELE_deltaPhiSeed[index] = cand->deltaPhiSeedClusterTrackAtCalo();
+      RECOELE_deltaPhiEle[index]  = cand->deltaPhiEleClusterTrackAtCalo() ;
 
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 5 "<<std::endl;
 
-      //@// 
-     /* std::cout << "--track-cluster matching: " 
-	<< "  eSC_p="        << RECOELE_ep[index] 
-	<< "  eSeed_p="      << RECOELE_eSeedp[index] 
-	<< "  eSeed_pout="   << RECOELE_eSeedpout[index] 
-	<< "  eEle_pout="    << RECOELE_eElepout[index] 
-	<< "  deltaEtaIn="   << RECOELE_deltaEtaIn[index] 
-        << "  deltaEtaSeed=" << RECOELE_deltaEtaSeed[index] 
-        << "  deltaEtaEle="  << RECOELE_deltaEtaEle[index] 
-        << "  deltaPhiIn="   << RECOELE_deltaPhiIn[index] 
-        << "  deltaPhiSeed=" << RECOELE_deltaPhiSeed[index] 
-	<< "  deltaPhiEle="  << RECOELE_deltaPhiEle[index] 
+      //@//
+     /* std::cout << "--track-cluster matching: "
+	<< "  eSC_p="        << RECOELE_ep[index]
+	<< "  eSeed_p="      << RECOELE_eSeedp[index]
+	<< "  eSeed_pout="   << RECOELE_eSeedpout[index]
+	<< "  eEle_pout="    << RECOELE_eElepout[index]
+	<< "  deltaEtaIn="   << RECOELE_deltaEtaIn[index]
+        << "  deltaEtaSeed=" << RECOELE_deltaEtaSeed[index]
+        << "  deltaEtaEle="  << RECOELE_deltaEtaEle[index]
+        << "  deltaPhiIn="   << RECOELE_deltaPhiIn[index]
+        << "  deltaPhiSeed=" << RECOELE_deltaPhiSeed[index]
+	<< "  deltaPhiEle="  << RECOELE_deltaPhiEle[index]
 	<< std::endl;*/
-      
+
        // Fiducial flags
-      if (cand->isEB()) RECOELE_isbarrel[index] = 1 ; 
+      if (cand->isEB()) RECOELE_isbarrel[index] = 1 ;
       else  RECOELE_isbarrel[index] = 0 ;
-      if (cand->isEE()) RECOELE_isendcap[index] = 1 ; 
+      if (cand->isEE()) RECOELE_isendcap[index] = 1 ;
       else  RECOELE_isendcap[index] = 0 ;
-      if (cand->isEBEtaGap())  RECOELE_isEBetaGap[index]  = 1 ;  
-      if (cand->isEBPhiGap())  RECOELE_isEBphiGap[index]  = 1 ;  
-      if (cand->isEEDeeGap())  RECOELE_isEEdeeGap[index]  = 1 ;  
+      if (cand->isEBEtaGap())  RECOELE_isEBetaGap[index]  = 1 ;
+      if (cand->isEBPhiGap())  RECOELE_isEBphiGap[index]  = 1 ;
+      if (cand->isEEDeeGap())  RECOELE_isEEdeeGap[index]  = 1 ;
       if (cand->isEERingGap()) RECOELE_isEEringGap[index] = 1 ;
       if (cand->isGap())       RECOELE_isGap[index] = 1 ;
 
       //@//
-      /*  std::cout << "--fiducial flags: " 
-	<< "  isEB="        << RECOELE_isbarrel[index] 
-	<< "  isEBetagap="  << RECOELE_isEBetaGap[index] 
-	<< "  isEBphigap="  << RECOELE_isEBphiGap[index] 
-	<< "  isEE="        << RECOELE_isendcap[index] 
-        << "  isEEdeegap="  << RECOELE_isEEdeeGap[index] 
-	<< "  isEEringgap=" << RECOELE_isEEringGap[index] 
+      /*  std::cout << "--fiducial flags: "
+	<< "  isEB="        << RECOELE_isbarrel[index]
+	<< "  isEBetagap="  << RECOELE_isEBetaGap[index]
+	<< "  isEBphigap="  << RECOELE_isEBphiGap[index]
+	<< "  isEE="        << RECOELE_isendcap[index]
+        << "  isEEdeegap="  << RECOELE_isEEdeeGap[index]
+	<< "  isEEringgap=" << RECOELE_isEEringGap[index]
         << "  isGap="       << RECOELE_isGap[index]
 	<< std::endl;*/
-      
+
 
       // Shower shape
-      RECOELE_sigmaIetaIeta[index] = cand->sigmaIetaIeta() ; 
+      RECOELE_sigmaIetaIeta[index] = cand->sigmaIetaIeta() ;
       RECOELE_sigmaEtaEta[index]   = cand->sigmaEtaEta() ;
       RECOELE_e15[index]           = cand->e1x5() ;
       RECOELE_e25max[index]        = cand->e2x5Max() ;
@@ -3420,16 +3430,16 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       // RECOELE_r9[index]            = cand->r9() ;
 
       //@//
-      /*  std::cout << "--shower shape:" 
-	<< "  sigmaIetaIeta=" << RECOELE_sigmaIetaIeta[index] 
-	<< "  sigmaEtaEta=" << RECOELE_sigmaEtaEta[index]  
-	<< "  e15=" << RECOELE_e15[index] 
-	<< "  e25max=" << RECOELE_e25max[index] 
-	<< "  e55=" << RECOELE_e55[index]  
-	<< "  he=" << RECOELE_he[index] 
-	<< "  r9=" << RECOELE_r9[index] 
+      /*  std::cout << "--shower shape:"
+	<< "  sigmaIetaIeta=" << RECOELE_sigmaIetaIeta[index]
+	<< "  sigmaEtaEta=" << RECOELE_sigmaEtaEta[index]
+	<< "  e15=" << RECOELE_e15[index]
+	<< "  e25max=" << RECOELE_e25max[index]
+	<< "  e55=" << RECOELE_e55[index]
+	<< "  he=" << RECOELE_he[index]
+	<< "  r9=" << RECOELE_r9[index]
 	<< std::endl;*/
-      
+
       // also variables on hcal
       // Isolation
       // Particle flow
@@ -3454,14 +3464,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       // Corrections
       /*        RECOELE_isEcalEnergyCorrected[index] = cand->isEcalEnergyCorrected(); */
-              RECOELE_ecalEnergy[index]            = cand->ecalEnergy(); 
+              RECOELE_ecalEnergy[index]            = cand->ecalEnergy();
       /*        RECOELE_ecalEnergyError[index]       = cand->ecalEnergyError(); */
       /*        RECOELE_isMomentumCorrected[index]   = cand->isMomentumCorrected(); */
       /*        RECOELE_trackMomentumError[index]    = cand->trackMomentumError(); */
       /*        RECOELE_electronMomentumError[index] = cand->electronMomentumError(); */
-      
+
 	      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 6 "<<std::endl;
-    
+
       // Seed Collection
       if (useRECOformat) {
 	edm::RefToBase<TrajectorySeed> seed = cand->gsfTrack()->extra()->seedRef();
@@ -3469,7 +3479,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	ele_seedSubdet2[index] = int(MyS->subDet2());
 	if(fabs(MyS->dPhi2()) < 100.) ele_seedDphi2[index] = double(MyS->dPhi2());
 	if(fabs(MyS->dRz2()) < 100.)  ele_seedDrz2[index]  = double(MyS->dRz2());
-	
+
 	ele_seedSubdet1[index] = int(MyS->subDet1());
 	if(fabs(MyS->dPhi1()) < 100.) ele_seedDphi1[index] = double(MyS->dPhi1());
 	if(fabs(MyS->dRz1()) < 100.)  ele_seedDrz1[index]  = double(MyS->dRz1());
@@ -3479,7 +3489,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#########Electron step 6a "<<std::endl;
 
 
-      //add Gen Level info for electrons 
+      //add Gen Level info for electrons
 
       ////////
 
@@ -3513,8 +3523,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       ///////
 
       index ++;
-    }  
-  } 
+    }
+  }
 
   void fillMuons(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 
@@ -3522,7 +3532,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     // Get the B-field
     //edm::ESHandle<MagneticField> magfield_;
-    iSetup.get<IdealMagneticFieldRecord>().get( magfield_ );        
+    iSetup.get<IdealMagneticFieldRecord>().get( magfield_ );
 
 
     // Muons
@@ -3533,7 +3543,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     iEvent.getByToken(muonCorrPtErrorMapTag_,corrpterrormumap);
 
     edm::Handle<double> rhoHandle;
-    iEvent.getByToken(rhojetsTag_,rhoHandle); 
+    iEvent.getByToken(rhojetsTag_,rhoHandle);
     ////////////////////////////////////////////
 
     //Kalman Muon Calibrator for 2016 data
@@ -3571,12 +3581,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       vcorrPt.push_back(smearedPt);
       vcorrPtError.push_back(smearedPtError);
     }
-    */  
+    */
   /////////////////////////////////////////////////////////////////
-   
+
      //Reham To get the error in muon PT
 
-    
+
       // To add matching informations Reham
     // Matching
 
@@ -3589,8 +3599,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       //@//  std::cout << std::endl<< "#Muons:"<<std::endl<<"#The reco collection to be matched has size= " <<  CollMu->size() << std::endl;
       //@//  std::cout << "#The matched map collection has size= " <<  GenParticlesMatchMu->size() << std::endl;
     }
-    
-    
+
+
     //using Rochester muon correction for 2017 data
 
     edm::Handle<edm::View<pat::Muon> > SlimmedMuons;
@@ -3606,14 +3616,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     int nl;
 
     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"######## //ROOT TREE Muon correction// ########"<<std::endl;
-   
-    //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath()); 
+
+    //calibrator->init(edm::FileInPath("RoccoR2017.txt").fullPath());
 
     edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2018.txt");
     calibrator = std::unique_ptr<RoccoR>(new RoccoR(corrPath.fullPath()));
 
     if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE open the txt file for muon corrections"<<std::endl;
-   
+
     int ii=0;
 
     for(edm::View<pat::Muon>::const_iterator SlimmedMuonsIter = SlimmedMuons->begin(); SlimmedMuonsIter != SlimmedMuons->end(); ++SlimmedMuonsIter){
@@ -3629,13 +3639,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       oldPt=SlimmedMuonsIter->pt();
       oldPtError=SlimmedMuonsIter->muonBestTrack()->ptError();
-      
+
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"Slimmed Muon Pt = "<<oldPt<<"old pt error from muon best track= "<<oldPtError<<std::endl;
       ////
-      
+
       /* // To add matching informations Reham */
       /* // Matching */
-        if (fillMCTruth==true){ 
+        if (fillMCTruth==true){
       /*  	int i=0; */
       /*  	for ( reco::CandidateCollection::const_iterator hIter=CollMu->begin(); hIter!= CollMu->end(); ++hIter ){ */
       /*  	  std::cout << "ROOT TREE Reco Muon with pT= " << hIter->pt() << " and mass="<< hIter->mass()<< std::endl; */
@@ -3643,38 +3653,38 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       /*  	    std::cout<<"Match found "<<std::endl; */
       /*  	      i=hIter-(CollMu->begin()); */
       /*  	      std::cout<<"i = "<<i<<std::endl; */
-	  //        	      CandidateRef Ref(SlimmedMuons, ii ); 
-        	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[muref]; 
-        	      if (!genrefMu.isNull()){ 
-        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE Matched found "<<std::endl; 
-        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "#ROOT TREE GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< std::endl; 
-        		 Muon_Match = true; 
-        		 Gen_Mu_pt = genrefMu->p4().pt(); 
+	  //        	      CandidateRef Ref(SlimmedMuons, ii );
+        	      edm::Ref<std::vector<reco::GenParticle> > genrefMu = (*GenParticlesMatchMu)[muref];
+        	      if (!genrefMu.isNull()){
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"#ROOT TREE Matched found "<<std::endl;
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "#ROOT TREE GenMuon with pT= " << genrefMu->p4().pt() << " and mass="<< genrefMu->p4().mass()<< std::endl;
+        		 Muon_Match = true;
+        		 Gen_Mu_pt = genrefMu->p4().pt();
 			 Gen_Mu_eta = genrefMu->p4().eta();
 			 Gen_Mu_phi = genrefMu->p4().phi();
 			 Muon_match.push_back(Muon_Match);
 			 GenMuon_pt.push_back(Gen_Mu_pt);
 			 GenMuon_eta.push_back(Gen_Mu_eta);
 			 GenMuon_phi.push_back(Gen_Mu_phi);
-        	      } 
-        	      else { 
-        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "ROOT TREE There is no reference to a genMuon" << std::endl; 
+        	      }
+        	      else {
+        		if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "ROOT TREE There is no reference to a genMuon" << std::endl;
         		Muon_Match = false;
 			Muon_match.push_back(Muon_Match);
-			GenMuon_pt.push_back(Gen_Mu_pt); 
+			GenMuon_pt.push_back(Gen_Mu_pt);
 			GenMuon_eta.push_back(Gen_Mu_eta);
 			GenMuon_phi.push_back(Gen_Mu_phi);
-        	      } 
+        	      }
       /*  	  } */
       /*  	} //end of matching */
-        } 
+        }
       ////
-      
-	if(Muon_Match == true){std::cout<<"Gen muon pt ="<<Gen_Mu_pt<<"Gen muon eta = "<< Gen_Mu_eta<<"Gen muon phi = "<< Gen_Mu_phi<<std::endl; } 
-	
+
+	if(Muon_Match == true){std::cout<<"Gen muon pt ="<<Gen_Mu_pt<<"Gen muon eta = "<< Gen_Mu_eta<<"Gen muon phi = "<< Gen_Mu_phi<<std::endl; }
+
 
      std::cout<<"#ROOT TREE slimmed muon pt = "<<SlimmedMuonsIter->pt()<<" and best track type = "<<SlimmedMuonsIter->muonBestTrackType()<<std::endl;
-     
+
       if (SlimmedMuonsIter->muonBestTrackType() == 1 && SlimmedMuonsIter->pt()<=200.){
 
 	nl =  SlimmedMuonsIter->track()->hitPattern().trackerLayersWithMeasurement();
@@ -3686,67 +3696,67 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     	  if (SlimmedMuonsIter->pt()>2.0 && fabs(SlimmedMuonsIter->eta())<2.4){
 
 	    //RoccoR Calibrator;
-	    correction = calibrator->kScaleDT( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), 0 ,0); 
+	    correction = calibrator->kScaleDT( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), 0 ,0);
 	     correction_error = calibrator->kScaleDTerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi()); }//end eta > 2.4
 	    else {// with pt<2 or not in the acceptance
 	       correction =1;
 	       correction_error =0;}//end else
 	}//end data
-   
+
     	else if(!isData && nl>5 ){ // isMC - calibration from data + smearing
 
 	  std::cout<<"#ROOT TREE This is MC Muon correction"<<std::endl;
 
 	  if ( Muon_Match == true){// when matched gen muon available
-	    
-	    std::cout<<"ROOT TREE MC and matched gen muon "<<std::endl;	    
+
+	    std::cout<<"ROOT TREE MC and matched gen muon "<<std::endl;
 	    std::cout<<"ROOT TREE gen muon pt = "<<Gen_Mu_pt<<std::endl;
-	    
-	    correction = calibrator->kSpreadMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt , 0 ,0 ); 
+
+	    correction = calibrator->kSpreadMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt , 0 ,0 );
 	    correction_error = calibrator->kSpreadMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(),  Gen_Mu_pt);
 	    std::cout<<"TREE Corrrection = "<<correction<<std::endl;}
-	  
+
 	  else { //when matched gen muon not available
-	    
-	    std::cout<<"#rOOT TREE MC and No matched gen muon "<<std::endl;		 
-	    
-	    correction = calibrator->kSmearMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl , u, 0 ,0 ); 
+
+	    std::cout<<"#rOOT TREE MC and No matched gen muon "<<std::endl;
+
+	    correction = calibrator->kSmearMC( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl , u, 0 ,0 );
 	    correction_error = calibrator->kSmearMCerror( SlimmedMuonsIter->charge(), SlimmedMuonsIter->pt(), SlimmedMuonsIter->eta(), SlimmedMuonsIter->phi(), nl ,u );
  std::cout<<"TREE Corrrection = "<<correction<<std::endl;}
-	  
+
 	}//ends if !isdata
       }//end if tracker , pt<200
-   
+
     smearedPt = oldPt*correction;
     smearedPtError = correction_error;
     std::cout<<"ROOT TREE #Old Muon Pt = "<<oldPt<<" , correction = "<<correction<<" smeared muon pt = "<<smearedPt<<std::endl;
     std::cout<<"ROOT TREE #Old Muon Pt error = "<<oldPtError<<" , correction = "<<correction_error<<" smeared muon pt Error = "<<smearedPtError<<std::endl;
-    vuncorrpt.push_back(oldPt); 
+    vuncorrpt.push_back(oldPt);
     vcorrPt.push_back(smearedPt);
     vcorrPtError.push_back(smearedPtError);
-    
+
     ii++;
 
  }//end of for loop
 
-  
+
     for (unsigned int k=0; k < Muon_match.size(); k++){
       std::cout<<"muon match std::vector = "<<Muon_match.at(k)<<"gen muon std::vector = "<< GenMuon_pt.at(k)<<"gen muon eta = "<<GenMuon_eta.at(k)<<"gen muon phi = "<<GenMuon_phi.at(k); }
     ///////////////////////////////////////////////////////////
- 
+
 
    // primary vertex
- 
+
     Vertex primVertex;
     math::XYZPoint pVertex(0., 0., 0.);
     bool pvfound = (PV.size() != 0);
     //@// std::cout << "pvfound=" << pvfound << std::endl;
-    if(pvfound){       
+    if(pvfound){
       for(reco::VertexCollection::const_iterator it=PV.begin() ; it!=PV.end() ; ++it){
-	if(!it->isFake() && it->ndof() > 4 && fabs(it->position().z()) <= 24 && fabs(it->position().rho()) <= 2){ 	  	  
+	if(!it->isFake() && it->ndof() > 4 && fabs(it->position().z()) <= 24 && fabs(it->position().rho()) <= 2){
 	  pVertex = math::XYZPoint(it->position().x(), it->position().y(), it->position().z());
 	  //@//
-	  /*  std::cout << "P vertex position used for computing dxy and dz for electron and muons is (x,y,z)= " << 
+	  /*  std::cout << "P vertex position used for computing dxy and dz for electron and muons is (x,y,z)= " <<
 	    pVertex.x() << " " <<
 	    pVertex.y() << " " <<
 	    pVertex.z() << std::endl;*/
@@ -3754,26 +3764,26 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	}
       }
     }
-    
-    //pVertex = math::XYZPoint(                                                                                                                                                    
-    //			     PV.at(2).position().x(),                                                                                                                       
-    //			     PV.at(2).position().y(),                                                                                                                               
-    //			     PV.at(2).position().z());                            
+
+    //pVertex = math::XYZPoint(
+    //			     PV.at(2).position().x(),
+    //			     PV.at(2).position().y(),
+    //			     PV.at(2).position().z());
 
     int indexbis=0;
     RECO_NMU=MuCandidates->size();
 
 
     for (edm::View<pat::Muon>::const_iterator cand = MuCandidates->begin(); cand != MuCandidates->end(); ++cand) {
-            
+
       //if(indexbis>99) break;
       if(indexbis==100) break; // std::cout << "Warning: number of MuCandidates exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 
       edm::Ref<edm::View<pat::Muon> > muonref(MuCandidates,indexbis);
 
-           /////Reham need to check this part 
-      //Reham comment for now 
-      
+           /////Reham need to check this part
+      //Reham comment for now
+
      //@ finds the pt error
       float calibratorPtError = 0, mu_uncorr_pt = 0, gen_muon_pt=0, gen_muon_eta=0, gen_muon_phi=0;
       bool MUMATCH=false;
@@ -3789,7 +3799,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  mu_uncorr_pt =vuncorrpt.at(iref);
 	  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<< "MuCandPt = " << cand->pt() << ", calibratorPt = " << vcorrPt.at(iref) << ", calibratorPtError = " << vcorrPtError.at(iref) << std::endl;
 	  if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"mu uncorr pt = "<<mu_uncorr_pt<<std::endl;
-	 
+
 	  if (fillMCTruth==true){
 	  if(Muon_match.at(iref)== true) {
 	    MUMATCH = Muon_match.at(iref);
@@ -3799,24 +3809,24 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"MUMATCH = "<<MUMATCH<<"gen_muon = "<<gen_muon_pt<<"eta = "<<gen_muon_eta<<" phi = "<<gen_muon_phi<<std::endl;
 	  }
 	  }
-	} 
+	}
       }
-      
+
       RECOMU_MatchingMCTruth[indexbis]=MUMATCH;
       RECOMU_MatchingMCpT[indexbis]= gen_muon_pt;
       RECOMU_MatchingMCEta[indexbis]= gen_muon_eta;
       RECOMU_MatchingMCPhi[indexbis]= gen_muon_phi;
-      
+
      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCTruth[indexbis] = "<< RECOMU_MatchingMCTruth[indexbis]<<std::endl;
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCpT[indexbis] = "<< RECOMU_MatchingMCpT[indexbis]<<std::endl;
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCEta[indexbis] = "<< RECOMU_MatchingMCEta[indexbis]<<std::endl;
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<" RECOMU_MatchingMCPhi[indexbis] = "<< RECOMU_MatchingMCPhi[indexbis]<<std::endl;
-      
-      edm::Ref<edm::View<pat::Muon> > mutrackref(MuCandidates,indexbis); 
-      //@// edm::Ref<edm::View<pat::Muon> > mutrackrefv(VertMuCandidates,indexbis); 
 
-    
-      RECOMU_isPFMu[indexbis]=cand->isPFMuon();     
+      edm::Ref<edm::View<pat::Muon> > mutrackref(MuCandidates,indexbis);
+      //@// edm::Ref<edm::View<pat::Muon> > mutrackrefv(VertMuCandidates,indexbis);
+
+
+      RECOMU_isPFMu[indexbis]=cand->isPFMuon();
       RECOMU_isGlobalMu[indexbis]=cand->isGlobalMuon();
       RECOMU_isStandAloneMu[indexbis]=cand->isStandAloneMuon();
       RECOMU_isTrackerMu[indexbis]=cand->isTrackerMuon();
@@ -3824,9 +3834,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
       if(cand->track().isNonnull()){//Reham
       // if(cand->innerTrack().isNonnull()){//Reham
-      RECOMU_isTrackerHighPtMu[indexbis]=isTrackerHighPtMu(*cand,pVertex); //Reham error here 
+      RECOMU_isTrackerHighPtMu[indexbis]=isTrackerHighPtMu(*cand,pVertex); //Reham error here
        }//Reham
-      //@//   
+      //@//
    /* std::cout << "\n Muon in the event: "
 	        <<   "  isPF=" << RECOMU_isPFMu[indexbis]
 		<<   "  isGB=" << RECOMU_isGlobalMu[indexbis]
@@ -3853,7 +3863,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
         float PFNeutralHadIso   = cand->pfIsolationR03().sumNeutralHadronEt;
         float PFPhotonIso       = cand->pfIsolationR03().sumPhotonEt;
         float SIP               = std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D);
-        
+
         float dxy = 999.;
         float dz  = 999.;
         dxy = fabs(cand->muonBestTrack()->dxy(pVertex));
@@ -3890,7 +3900,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       //@// ///////////////////////////End of DBT//////////////////////////
 
 
-      //@//    
+      //@//
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "--kinematic:"
 		<< "  pT="     << RECOMU_PT[indexbis]
 	        << "  E="      << RECOMU_E[indexbis]
@@ -3902,9 +3912,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		<< "  charge=" << RECOMU_CHARGE[indexbis]
 		 <<"uncorr pt = "<< RECOMU_PT_uncorr[indexbis]
 		<< std::endl;
-	
+
       // Covariance matrix
-      
+
       if(cand->innerTrack().isAvailable()){
 
 	GlobalTrajectoryParameters gp(GlobalPoint(cand->innerTrack()->vx(), cand->innerTrack()->vy(),  cand->innerTrack()->vz()),
@@ -3914,14 +3924,14 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	JacobianCurvilinearToCartesian curv2cart(gp);
 	CartesianTrajectoryError cartErr= ROOT::Math::Similarity(curv2cart.jacobian(), cand->innerTrack()->covariance());
 	const AlgebraicSymMatrix66 mat = cartErr.matrix();
-	for (int i = 0; i < 3; ++i) { 
-	  for (int j = 0; j < 3; ++j) { 
-	    //bigCov(i,j) = mat[i+3][j+3]; 
+	for (int i = 0; i < 3; ++i) {
+	  for (int j = 0; j < 3; ++j) {
+	    //bigCov(i,j) = mat[i+3][j+3];
 	    //	  std::cout << "index= " << indexbis << "i= " << i << "j= " << j <<std::endl;
-	    RECOMU_COV[indexbis][i][j]=mat[i+3][j+3]; 
-	  }  
-	}  
-	
+	    RECOMU_COV[indexbis][i][j]=mat[i+3][j+3];
+	  }
+	}
+
       }
 
       // Isolation
@@ -3956,7 +3966,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (fabs(RECOMU_ETA[indexbis]) >= 2.2 && fabs(RECOMU_ETA[indexbis]) < 2.3 ) EffectiveArea = 0.168;
 	if (fabs(RECOMU_ETA[indexbis]) >= 2.3 )                                     EffectiveArea = 0.189;
       }
-      else {       
+      else {
 	if (fabs(RECOMU_ETA[indexbis]) >= 0.0 && fabs(RECOMU_ETA[indexbis]) < 1.0 ) EffectiveArea = 0.674;
 	if (fabs(RECOMU_ETA[indexbis]) >= 1.0 && fabs(RECOMU_ETA[indexbis]) < 1.5 ) EffectiveArea = 0.565;
 	if (fabs(RECOMU_ETA[indexbis]) >= 1.5 && fabs(RECOMU_ETA[indexbis]) < 2.0 ) EffectiveArea = 0.442;
@@ -3964,11 +3974,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	if (fabs(RECOMU_ETA[indexbis]) >= 2.2 && fabs(RECOMU_ETA[indexbis]) < 2.3 ) EffectiveArea = 0.821;
 	if (fabs(RECOMU_ETA[indexbis]) >= 2.3 )                                     EffectiveArea = 0.660;
       }
-       
-      RECOMU_PFX_rho[indexbis]=(RECOMU_PFchHad[indexbis]+max( (RECOMU_PFneuHad[indexbis]+RECOMU_PFphoton[indexbis]-max(RHO_mu,0.0)*(EffectiveArea)),0.0) 
+
+      RECOMU_PFX_rho[indexbis]=(RECOMU_PFchHad[indexbis]+max( (RECOMU_PFneuHad[indexbis]+RECOMU_PFphoton[indexbis]-max(RHO_mu,0.0)*(EffectiveArea)),0.0)
 )/double(cand->p4().pt());
 
- 
+
 
       //Reham
       RECOMU_SIP[indexbis]= std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D);
@@ -3978,7 +3988,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"SIP = "<<RECOMU_SIP[indexbis]<<"IP , error = "<<RECOMU_IP[indexbis]<<", "<<RECOMU_IPERROR[indexbis]<<"std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D) = "<<std::abs(cand->dB(pat::Muon::PV3D))/cand->edB(pat::Muon::PV3D)<<"cand->dB(pat::Muon::PV3D) ="<<cand->dB(pat::Muon::PV3D)<<"cand->edB(pat::Muon::PV3D)= "<<cand->edB(pat::Muon::PV3D)<<std::endl;
 
 
-      
+
       // Other properties
       RECOMU_numberOfMatches[indexbis]=cand->numberOfMatches();
       RECOMU_numberOfMatchedStations[indexbis]=cand->numberOfMatchedStations();
@@ -3994,7 +4004,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	        << "  glbmuPromptTight=" << RECOMU_glbmuPromptTight[indexbis]
 		<< std::endl;*/
 
-  
+
       // Track properties
       if(cand->muonBestTrack().isAvailable()){
 	RECOMU_mubesttrkType[indexbis]=cand->muonBestTrackType();
@@ -4025,11 +4035,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_mutrkDzB[indexbis]=cand->globalTrack()->dz(bs.position());
 	RECOMU_mutrkChi2PerNdof[indexbis]=cand->globalTrack()->normalizedChi2();
 	RECOMU_mutrkCharge[indexbis]=cand->globalTrack()->charge();
- 	RECOMU_mutrkNHits[indexbis]=cand->globalTrack()->numberOfValidHits(); 
+ 	RECOMU_mutrkNHits[indexbis]=cand->globalTrack()->numberOfValidHits();
 	RECOMU_mutrkNPixHits[indexbis]=cand->globalTrack()->hitPattern().numberOfValidPixelHits();
         RECOMU_mutrkNStripHits[indexbis]=cand->globalTrack()->hitPattern().numberOfValidStripHits();
-	RECOMU_mutrkNMuonHits[indexbis]=cand->globalTrack()->hitPattern().numberOfValidMuonHits(); 
-	RECOMU_mutrktrackerLayersWithMeasurement[indexbis]=cand->globalTrack()->hitPattern().trackerLayersWithMeasurement(); 
+	RECOMU_mutrkNMuonHits[indexbis]=cand->globalTrack()->hitPattern().numberOfValidMuonHits();
+	RECOMU_mutrktrackerLayersWithMeasurement[indexbis]=cand->globalTrack()->hitPattern().trackerLayersWithMeasurement();
 
 	RECOMU_muInnertrkDxy[indexbis]=cand->innerTrack()->dxy(pVertex);
 	RECOMU_muInnertrkDxyError[indexbis]=cand->innerTrack()->dxyError();
@@ -4038,13 +4048,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_muInnertrkDzError[indexbis]=cand->innerTrack()->dzError();
 	RECOMU_muInnertrkDzB[indexbis]=cand->innerTrack()->dz(bs.position());
 	RECOMU_muInnertrkChi2PerNdof[indexbis]=cand->innerTrack()->normalizedChi2();
-	RECOMU_muInnertrktrackerLayersWithMeasurement[indexbis]=cand->innerTrack()->hitPattern().trackerLayersWithMeasurement(); 
-	RECOMU_muInnertrkPT[indexbis]=cand->innerTrack()->pt();	
+	RECOMU_muInnertrktrackerLayersWithMeasurement[indexbis]=cand->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+	RECOMU_muInnertrkPT[indexbis]=cand->innerTrack()->pt();
 	//RECOMU_muInnertrkPTError[indexbis]=cand->innerTrack()->ptError();
 	RECOMU_muInnertrkPTError[indexbis]=cand->bestTrack()->ptError(); // Besttrack
 
 	RECOMU_muInnertrkCharge[indexbis]=cand->innerTrack()->charge();
- 	RECOMU_muInnertrkNHits[indexbis]=cand->innerTrack()->numberOfValidHits(); 
+ 	RECOMU_muInnertrkNHits[indexbis]=cand->innerTrack()->numberOfValidHits();
 	RECOMU_muInnertrkNPixHits[indexbis]=cand->innerTrack()->hitPattern().numberOfValidPixelHits();
         RECOMU_muInnertrkNStripHits[indexbis]=cand->innerTrack()->hitPattern().numberOfValidStripHits();
 
@@ -4057,12 +4067,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_muInnertrkDzError[indexbis]=cand->innerTrack()->dzError();
 	RECOMU_muInnertrkDzB[indexbis]=cand->innerTrack()->dz(bs.position());
 	RECOMU_muInnertrkChi2PerNdof[indexbis]=cand->innerTrack()->normalizedChi2();
-	RECOMU_muInnertrktrackerLayersWithMeasurement[indexbis]=cand->innerTrack()->hitPattern().trackerLayersWithMeasurement(); 
-	RECOMU_muInnertrkPT[indexbis]=cand->innerTrack()->pt();	
+	RECOMU_muInnertrktrackerLayersWithMeasurement[indexbis]=cand->innerTrack()->hitPattern().trackerLayersWithMeasurement();
+	RECOMU_muInnertrkPT[indexbis]=cand->innerTrack()->pt();
 	//RECOMU_muInnertrkPTError[indexbis]=cand->innerTrack()->ptError();
 	RECOMU_muInnertrkPTError[indexbis]=cand->bestTrack()->ptError(); // Besttrack
 	RECOMU_muInnertrkCharge[indexbis]=cand->innerTrack()->charge();
- 	RECOMU_muInnertrkNHits[indexbis]=cand->innerTrack()->numberOfValidHits(); 
+ 	RECOMU_muInnertrkNHits[indexbis]=cand->innerTrack()->numberOfValidHits();
 	RECOMU_muInnertrkNPixHits[indexbis]=cand->innerTrack()->hitPattern().numberOfValidPixelHits();
         RECOMU_muInnertrkNStripHits[indexbis]=cand->innerTrack()->hitPattern().numberOfValidStripHits();
       }
@@ -4071,24 +4081,24 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 	//@//
 	/*	std::cout << "--muon track properties: "
-	          << "  pt="        << RECOMU_mutrkPT[indexbis] 
+	          << "  pt="        << RECOMU_mutrkPT[indexbis]
 	          << "  bestTrackType= " << RECOMU_mubesttrkType[indexbis]
 		  << "  dxy="       << RECOMU_mubesttrkDxy[indexbis]
 		  << "  dxyError="  << RECOMU_mubesttrkDxyError[indexbis]
-		  << "  dxyB="      << RECOMU_mubesttrkDxyB[indexbis] 
-		  << "  dz="        << RECOMU_mubesttrkDz[indexbis] 
+		  << "  dxyB="      << RECOMU_mubesttrkDxyB[indexbis]
+		  << "  dz="        << RECOMU_mubesttrkDz[indexbis]
 		  << "  dzError="   << RECOMU_mubesttrkDzError[indexbis]
 		  << "  dzB="       << RECOMU_mubesttrkDzB[indexbis]
 		  << "  PtError="   << RECOMU_mubesttrkPTError[indexbis]
 		  << "  chi2_nodf=" << RECOMU_mutrkChi2PerNdof[indexbis]
 		  << "  charge="    << RECOMU_mutrkCharge[indexbis]
-		  << "  nhits="     << RECOMU_mutrkNHits[indexbis] 
+		  << "  nhits="     << RECOMU_mutrkNHits[indexbis]
 		  << "  nPixhits="   << RECOMU_mutrkNPixHits[indexbis]
 	          << "  nStriphits=" << RECOMU_mutrkNStripHits[indexbis]
 	          << "  nMuonhits="  << RECOMU_mutrkNMuonHits[indexbis]
 		  << std::endl;*/
-	
-	
+
+
 	// Tracker muon properties
 	// RECOMU_trkmuArbitration[indexbis]=(muon::isGoodMuon( (*cand),muon::TrackerMuonArbitrated));
 	RECOMU_trkmuArbitration[indexbis]=(muon::segmentCompatibility((*cand),pat::Muon::SegmentAndTrackArbitration));
@@ -4104,7 +4114,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECOMU_trkmuLastStationAngTight[indexbis]=(muon::isGoodMuon( (*cand),muon::TMLastStationAngTight));
 	RECOMU_trkmuLastStationOptimizedLowPtLoose[indexbis]=(muon::isGoodMuon( (*cand),muon::TMLastStationOptimizedLowPtLoose));
 	RECOMU_trkmuLastStationOptimizedLowPtTight[indexbis]=(muon::isGoodMuon( (*cand),muon::TMLastStationOptimizedLowPtTight));
-	
+
 
 	//@//
 	/*	std::cout << "--tracker muon properties:"
@@ -4123,7 +4133,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 		  << "  LastStationOptLowptTight=" << RECOMU_trkmuLastStationOptimizedLowPtTight[indexbis]
 		  << std::endl;*/
       }
-  
+
          //    To add matching informations Reham */
       /* // Matching */
       /* if (fillMCTruth==true){  */
@@ -4151,11 +4161,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
       /* 	  } */
       /* 	} */
       /* } //end of matching  */
-      
+
       indexbis++;
     }
   }
-  
+
 //////FSR photons Added by Walaa///////////////////////////////////////////////////
     void fillPhotonsForFsr(const edm::Event& iEvent){
     //    cout<<"Check photon "<< endl;
@@ -4164,7 +4174,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     iEvent.getByToken(photonsTag_, photons);
     RECO_NPHOT=photons->size();
    // cout<<"RECOPHOT_size=  "<< photons->size() <<endl;
-        
+
     edm::Handle<pat::PackedCandidateCollection> pfCands;
     iEvent.getByToken(pfTag_, pfCands);
     edm::Handle<edm::View<pat::PFParticle> > photonsForFsr;
@@ -4186,31 +4196,31 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     RECOPFPHOT_PFX_rho [iphot]= photonPfIso03(*cand,pfCands)/cand->pt();
  //   cout<<"PF photon pt = "<<cand->pt()<<endl;
     iphot++;
-        
+
     }
    ////////////////Photons Added for HCal prob of 2018////////////////
     for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
         if (iphot>19) break;
-            
-            
+
+
     RECOPHOT_PT[iphot]=cand->pt();
     RECOPHOT_ETA[iphot]=cand->eta();
     RECOPHOT_PHI[iphot]=cand->phi();
     RECOPHOT_THETA[iphot]=cand->theta();
     RECOPHOT_ID[iphot] =cand->photonID("cutBasedPhotonID-Fall17-94X-V2-loose");
     iphot++;
-            
+
    // cout<<"photon pt = "<<RECOPHOT_PT[iphot]<<"eta= "<<RECOPHOT_ETA[iphot]<<endl;
-        
+
                 /////////////////////
     auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
-        
+
     RECOPHOTCOR_PT[iphot]= corrP4.pt();
-            
+
             // cout<<"corrP4"<<corrP4<<endl;
             //   cout<<"Corrected PF photon pt = "<<corrP4.pt()<<" eta = "<<corrP4.eta()<<" phi = "<<corrP4.phi()<<" energy E = "<<corrP4.E()<<" energy Energy= "<<corrP4.energy()<<" energy Et= "<<corrP4.Et()<<endl;
-            
-            
+
+
             // error on pt of photon taken from #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
     double C;
     double S;
@@ -4220,12 +4230,12 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     double  perr = TMath::Sqrt(C*C*cand->p4().e()*cand->p4().e() + S*S*cand->p4().e() + N*N);
     double pterr = perr*cand->pt()/cand->p();
     RECOPHOTCOR_PTError[iphot]=float(pterr);
-            
-            
+
+
   /*  cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<endl;
     cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<endl;
     cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<endl;*/
-    
+
     RECOPFPHOT_ecalEnergyPreCorr[iphot]  = cand->userFloat("ecalEnergyPreCorr");
     RECOPFPHOT_ecalEnergyErrPreCorr[iphot]  = cand->userFloat("ecalEnergyErrPreCorr");
     RECOPFPHOT_ecalEnergyErrPostCorr[iphot]  = cand->userFloat("ecalEnergyErrPostCorr");
@@ -4262,13 +4272,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //    iEvent.getByToken(myGammas_, CollPhot);
 //    bool ismyGammas=false;
 //    if (CollPhot.isValid()) ismyGammas=true;
-//    
+//
 //    int iphot=0;
 //    for (edm::View<pat::Photon>::const_iterator cand = photons->begin(); cand != photons->end(); ++cand) {
 //      //if (iphot>19) break;
 //      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 //
-//      
+//
 //      RECOPHOT_PT[iphot]=cand->pt();
 //      RECOPHOT_ETA[iphot]=cand->eta();
 //      RECOPHOT_PHI[iphot]=cand->phi();
@@ -4290,9 +4300,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //	      RECOPHOT_MatchingMCTruth[i]= true;
 //	      RECOPHOT_MatchingMCpT[i]= genrefPhot->p4().pt();
 //	      RECOPHOT_MatchingMCEta[i]= genrefPhot->p4().eta();
-//	      RECOPHOT_MatchingMCPhi[i]= genrefPhot->p4().phi();	    
-//	    } 
-//	  }   
+//	      RECOPHOT_MatchingMCPhi[i]= genrefPhot->p4().phi();
+//	    }
+//	  }
 //	}
 //      }
 //
@@ -4319,16 +4329,16 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //      //if (iphot>19) break;
 //      if(iphot==20) break; // std::cout << "Warning: number of photons exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 //
-//      edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot); 
+//      edm::Ref<edm::View<pat::Photon> > phtrackref(photons,iphot);
 //
 //       RECOPFPHOT_PT_uncorr[iphot]=cand->pt();
 //
 //      std::cout<<"PF photon uncorr pt = "<< RECOPFPHOT_PT_uncorr[iphot]<<"eta= "<<cand->eta()<<std::endl;
 //
-//      //Reham correction of photon energy 
+//      //Reham correction of photon energy
 //
 //      auto corrP4  = cand->p4() * cand->userFloat("ecalEnergyPostCorr")/cand->energy();
-//     
+//
 //      RECOPFPHOT_PT[iphot]= corrP4.pt();
 //
 //      // std::cout<<"corrP4"<<corrP4<<std::endl;
@@ -4340,38 +4350,38 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //      double S;
 //      double N;
 //      if(TMath::Abs(cand->eta())<1.48){C=0.35/100; S=5.51/100; N=98./1000.;}
-//      else{C=0; S=12.8/100; N=440./1000.;} 
+//      else{C=0; S=12.8/100; N=440./1000.;}
 //      double  perr = TMath::Sqrt(C*C*cand->p4().e()*cand->p4().e() + S*S*cand->p4().e() + N*N);
-//      double pterr = perr*cand->pt()/cand->p(); 
+//      double pterr = perr*cand->pt()/cand->p();
 //      RECOPFPHOT_PTError[iphot]=float(pterr);
-//      
+//
 //        std::cout << "PF Photon : pT= " << RECOPFPHOT_PT[iphot] << " pTerr= " << RECOPFPHOT_PTError[iphot]<< std::endl;
 //
 //      RECOPFPHOT_ETA[iphot]=cand->eta();
 //      RECOPFPHOT_PHI[iphot]=cand->phi();
 //      RECOPFPHOT_THETA[iphot]=cand->theta();
-///*      
-//      RECOPFPHOT_PFchAllPart[iphot]      =  (*isoPFChargedAllphmap)[phtrackref]; 
-//      RECOPFPHOT_PFchHad[iphot]          =  (*isoPFChargedphmap)[phtrackref]; 
-//      RECOPFPHOT_PFneuHad[iphot]         =  (*isoPFNeutralphmap)[phtrackref]; 
-//      RECOPFPHOT_PFphoton[iphot]         =  (*isoPFGammaphmap)[phtrackref]; 
-//      RECOPFPHOT_PFPUchAllPart[iphot]    =  (*isoPFPUphmap)[phtrackref]; 
+///*
+//      RECOPFPHOT_PFchAllPart[iphot]      =  (*isoPFChargedAllphmap)[phtrackref];
+//      RECOPFPHOT_PFchHad[iphot]          =  (*isoPFChargedphmap)[phtrackref];
+//      RECOPFPHOT_PFneuHad[iphot]         =  (*isoPFNeutralphmap)[phtrackref];
+//      RECOPFPHOT_PFphoton[iphot]         =  (*isoPFGammaphmap)[phtrackref];
+//      RECOPFPHOT_PFPUchAllPart[iphot]    =  (*isoPFPUphmap)[phtrackref];
 //*/
-////TODO      RECOPFPHOT_PFchAllPart[iphot]      =  (cand->PflowIsolationVariables().sumChargedParticlePt); 
+////TODO      RECOPFPHOT_PFchAllPart[iphot]      =  (cand->PflowIsolationVariables().sumChargedParticlePt);
 //      RECOPFPHOT_PFchHad[iphot]          =  (cand->chargedHadronIso());
-//      RECOPFPHOT_PFneuHad[iphot]         =  (cand->neutralHadronIso()); 
-//      RECOPFPHOT_PFphoton[iphot]         =  (cand->photonIso()); 
+//      RECOPFPHOT_PFneuHad[iphot]         =  (cand->neutralHadronIso());
+//      RECOPFPHOT_PFphoton[iphot]         =  (cand->photonIso());
 //      RECOPFPHOT_PFPUchAllPart[iphot]    =  (cand->puChargedHadronIso());
-//    
-//      RECOPFPHOT_PFX_rho[iphot]=( 
-// 				 RECOPFPHOT_PFchHad[iphot]+ 
-// 				 RECOPFPHOT_PFneuHad[iphot]+ 
-// 				 RECOPFPHOT_PFphoton[iphot]+ 
-// 				 RECOPFPHOT_PFPUchAllPart[iphot] 
-//				  )/double(cand->p4().pt()); 
 //
-//     	//Reham error in PT and some systematic variables 
-//      
+//      RECOPFPHOT_PFX_rho[iphot]=(
+// 				 RECOPFPHOT_PFchHad[iphot]+
+// 				 RECOPFPHOT_PFneuHad[iphot]+
+// 				 RECOPFPHOT_PFphoton[iphot]+
+// 				 RECOPFPHOT_PFPUchAllPart[iphot]
+//				  )/double(cand->p4().pt());
+//
+//     	//Reham error in PT and some systematic variables
+//
 //      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPostCorr = "<<cand->userFloat("ecalEnergyErrPostCorr")<<std::endl;
 //      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyPreCorr = "<<cand->userFloat("ecalEnergyPreCorr")<<std::endl;
 //      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"ecalEnergyErrPreCorr = "<<cand->userFloat("ecalEnergyErrPreCorr")<<std::endl;
@@ -4421,11 +4431,11 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 //	/* 	  <<"\n RECOPFPHOT_energySigmaRhoUp[iphot]= "<<RECOPFPHOT_energySigmaRhoUp[iphot]        */
 //	/* 	  <<"\n RECOPFPHOT_energySigmaRhoDown[iphot]= "<<RECOPFPHOT_energySigmaRhoDown[iphot]        */
 //	/* 	  <<std::endl;  */
-//     
+//
 //      iphot++;
-//      
+//
 //    }
-//    
+//
 //  }
 
 void fillTracks(const edm::Event& iEvent){
@@ -4433,10 +4443,10 @@ void fillTracks(const edm::Event& iEvent){
   using namespace edm; using namespace std; using namespace reco;
   edm::Handle<pat::PackedCandidateCollection> cands;
   iEvent.getByToken(pfTag_,cands);
- 
+
   int countk=0;
   RECO_NTRACK=0;
-  
+
 //  for(edm::View<pat::PackedCandidate>::const_iterator i=cands->begin(); i!=cands->end(); i++){
   for(unsigned int i=0;i<cands->size();i++){
      //if (countk>199) break;
@@ -4460,20 +4470,25 @@ void fillTracks(const edm::Event& iEvent){
   }
   //@// std::cout << "Number of Tracks in the event= " << RECO_NTRACK << std::endl;
 }
-        
+
 
 
   void fillMET(const edm::Event& iEvent){
 
     //Type I Muon Correction MET
     //cormetmuons = SetCaloMET(iEvent,cormetMuTag_);
-    
+
     //PFMET
     //@// std::cout<<"met uncer"<< pat::MET::METUncertainty(12) <<std::endl;
     edm::Handle<pat::METCollection> pfmetHandle;
+    edm::Handle<pat::METCollection> puppimetHandle;
     iEvent.getByToken(pfmetTag_,pfmetHandle);
+    iEvent.getByToken(puppimetTag_,puppimetHandle);
     for ( pat::METCollection::const_iterator i=pfmetHandle->begin(); i!=pfmetHandle->end(); i++) {
-      
+      if(i!=pfmetHandle->begin()) {
+        std::cout << "Multiple pat::MET in pfmet. This is weird.\n";
+        break;
+      }
       //Read the decision of MET Filter Reham
 
       //new filter to be use (under test)
@@ -4481,7 +4496,7 @@ void fillTracks(const edm::Event& iEvent){
       /* edm::Handle <bool> passecalBadCalibFilterUpdate ; */
       /* iEvent.getByToken(ecalBadCalibFilterUpdate_token,passecalBadCalibFilterUpdate); */
       /* PassecalBadCalibFilterUpdated =  (*passecalBadCalibFilterUpdate ); */
-      /* std::cout<<" PassecalBadCalibFilterUpdated = "<< PassecalBadCalibFilterUpdated<<std::endl; */ 
+      /* std::cout<<" PassecalBadCalibFilterUpdated = "<< PassecalBadCalibFilterUpdated<<std::endl; */
 
       //old filters
 
@@ -4496,32 +4511,34 @@ void fillTracks(const edm::Event& iEvent){
       /* filterbadPFMuon = (*ifilterbadPFMuon); */
 
       /* std::cout<<"filterbadPFMuon = "<<filterbadPFMuon<<std::endl; */
-      
+
       cormetmuons = i->pt();
-      
+
       //Type1 correction Reham
-      pfmet       = i->corPt();     
+      pfmet       = i->corPt();
       pfmet_x     = i->corPx();
       pfmet_y     = i->corPy();
       pfmet_phi   = i->corPhi();
       pfmet_theta = i->corP3().theta();
-      
+
       //Type1 XY correction
 
       std::tie(pfmet_xycorr,pfmet_phi_xycorr)=METXYCorr_Met_MetPhi(pfmet,pfmet_phi,irun,year,!isData,RECO_NVTX);
-      
+
+      //PUPPI MET
+
       //uncorrected met Reham
-      pfmet_uncorr       = i->uncorPt();     
+      pfmet_uncorr       = i->uncorPt();
       pfmet_x_uncorr     = i->uncorPx();
       pfmet_y_uncorr     = i->uncorPy();
       pfmet_phi_uncorr   = i->uncorPhi();
       pfmet_theta_uncorr = i->uncorP3().theta();
 
 
-      
+
       //std::cout<<"met uncer"<< i->MET::METUncertainty(0) <<std::endl;
 
-      //MET uncertinities 
+      //MET uncertinities
 
       pfmet_JetEnUp         = i->shiftedPt(pat::MET::JetEnUp, pat::MET::Type1);
       pfmet_JetEnDn         = i->shiftedPt(pat::MET::JetEnDown, pat::MET::Type1);
@@ -4536,15 +4553,26 @@ void fillTracks(const edm::Event& iEvent){
       pfmet_PhotonEnUp      = i->shiftedPt(pat::MET::PhotonEnUp, pat::MET::Type1);
       pfmet_PhotonEnDn      = i->shiftedPt(pat::MET::PhotonEnDown, pat::MET::Type1);
       pfmet_TauEnUp         = i->shiftedPt(pat::MET::TauEnUp , pat::MET::Type1);
-      pfmet_TauEnDown       = i->shiftedPt(pat::MET::TauEnDown, pat::MET::Type1); 
+      pfmet_TauEnDown       = i->shiftedPt(pat::MET::TauEnDown, pat::MET::Type1);
 
     }
-     
+
+    for ( pat::METCollection::const_iterator i=puppimetHandle->begin(); i!=puppimetHandle->end(); i++) {
+      if(i!=puppimetHandle->begin()) {
+        std::cout << "Multiple METs in puppi met. This is weird.\n";
+        break;
+      }
+      puppimet       = i->corPt();
+      puppimet_x     = i->corPx();
+      puppimet_y     = i->corPy();
+      puppimet_phi   = i->corPhi();
+    }
+
   }
 
 
   void fillMETFilters(const edm::Event& iEvent){
-    
+
   //filters decision from trigger results
 
    edm::Handle<edm::TriggerResults> noiseFilterBits_; //our trigger result object
@@ -4553,7 +4581,7 @@ void fillTracks(const edm::Event& iEvent){
 
    for (unsigned int i = 0, n = noiseFilterBits_->size(); i < n; ++i) {
      // std::cout <<"&&&&&&&"<< names.triggerName(i) << std::endl;
-     
+
 
      if (names.triggerName(i) == GoodVtxNoiseFilter_Selector_ ){
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass GoodVtxNoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
@@ -4566,7 +4594,7 @@ void fillTracks(const edm::Event& iEvent){
      if (names.triggerName(i) == HBHENoiseFilter_Selector_){
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&& Pass HBHENoiseFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterHBHENoise = int(noiseFilterBits_->accept(i));};
-     
+
      if (names.triggerName(i) == HBHENoiseIsoFilter_Selector_ ){
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass HBHENoiseIsoFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterHBHENoiseIso = int(noiseFilterBits_->accept(i));};
@@ -4590,10 +4618,10 @@ void fillTracks(const edm::Event& iEvent){
     if (names.triggerName(i) == EcalBadCalibFilter_Selector_ ){
        if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout<<"&&&&& pass EcalBadCalibFilter = "<< noiseFilterBits_->accept(i)<<std::endl;
        passFilterEcalBadCalib = int(noiseFilterBits_->accept(i));};
-      
+
    };
    // std::cout<<"passFilterHBHE ="<< passFilterHBHE <<", "
-   //  <<"passFilterEEBadSC ="<< passFilterEEBadSC 
+   //  <<"passFilterEEBadSC ="<< passFilterEEBadSC
    //  << std::endl;
   }
 
@@ -4606,7 +4634,7 @@ void fillTracks(const edm::Event& iEvent){
       jjj++;
     }
 
-   
+
     edm::Handle<std::vector<double> > GeomDlag;
     iEvent.getByLabel(ftsigmalag_Vert, GeomDlag);
     jjj=0;
@@ -4689,7 +4717,7 @@ void fillTracks(const edm::Event& iEvent){
       ftsigmaMMMM[jjj]=(*cand);
       jjj++;
     }
-  
+
     edm::Handle<std::vector<double> > GeomDlag_MMMM;
     iEvent.getByLabel(ftsigmalag_VertMMMM, GeomDlag_MMMM);
     jjj=0;
@@ -4772,7 +4800,7 @@ void fillTracks(const edm::Event& iEvent){
       ftsigmaEEEE[jjj]=(*cand);
       jjj++;
     }
-  
+
     edm::Handle<std::vector<double> > GeomDlag_EEEE;
     iEvent.getByLabel(ftsigmalag_VertEEEE, GeomDlag_EEEE);
     jjj=0;
@@ -4860,20 +4888,20 @@ void fillTracks(const edm::Event& iEvent){
       StdFitVertexZ[jjj]=cand->position().z();
       StdFitVertexChi2r[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProb[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      //@//   
-      /*  std::cout << "Std Fit: " 
-	   <<  StdFitVertexX[jjj] << " " 
-	   <<  StdFitVertexY[jjj] << " " 
-	   <<  StdFitVertexZ[jjj] << " " 
-	   <<  StdFitVertexChi2r[jjj] << " " 
+      //@//
+      /*  std::cout << "Std Fit: "
+	   <<  StdFitVertexX[jjj] << " "
+	   <<  StdFitVertexY[jjj] << " "
+	   <<  StdFitVertexZ[jjj] << " "
+	   <<  StdFitVertexChi2r[jjj] << " "
 	   <<  StdFitVertexProb[jjj] << std::endl;*/
 
-      
-      // Refitted tracks     
+
+      // Refitted tracks
       bool hasRefittedTracks = cand->hasRefittedTracks();
-      if(hasRefittedTracks){	
-	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
-	for(unsigned int i=0; i< refit_tks.size(); i++){	 
+      if(hasRefittedTracks){
+	std::vector<reco::Track> refit_tks= cand->refittedTracks();
+	for(unsigned int i=0; i< refit_tks.size(); i++){
 	  //if (i > 3) break;
       if(i==4) break; // std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
 	  //@//  std::cout << "Track momentum Refit=" << refit_tks[i].pt() << std::endl;
@@ -4882,11 +4910,11 @@ void fillTracks(const edm::Event& iEvent){
 	  StdFitVertexTrack_PHI[i][jjj]=refit_tks[i].phi();
 	}
       }
-                   
+
       jjj++;
     }
 
-    
+
 
     edm::Handle<edm::View<Candidate> > CandidatesEEMM;
     iEvent.getByToken(RECOcollNameEEMM, CandidatesEEMM);
@@ -4916,12 +4944,12 @@ void fillTracks(const edm::Event& iEvent){
       KinFitVertexChi2r[jjj]=cand->chi2()/cand->ndof();
       KinFitVertexProb[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
 
-      //@//  
-    /*  std::cout << "Kin Fit: " 
-	   <<  KinFitVertexX[jjj] << " " 
-	   <<  KinFitVertexY[jjj] << " " 
-	   <<  KinFitVertexZ[jjj] << " " 
-	   <<  KinFitVertexChi2r[jjj] << " " 
+      //@//
+    /*  std::cout << "Kin Fit: "
+	   <<  KinFitVertexX[jjj] << " "
+	   <<  KinFitVertexY[jjj] << " "
+	   <<  KinFitVertexZ[jjj] << " "
+	   <<  KinFitVertexChi2r[jjj] << " "
 	   <<  KinFitVertexProb[jjj] << std::endl;*/
       jjj++;
     }
@@ -4939,18 +4967,18 @@ void fillTracks(const edm::Event& iEvent){
       StdFitVertexZMMMM[jjj]=cand->position().z();
       StdFitVertexChi2rMMMM[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMMMM[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      
-      /* std::cout << "Std Fit MMMM: " 
-	   <<  StdFitVertexXMMMM[jjj] << " " 
-	   <<  StdFitVertexYMMMM[jjj] << " " 
-	   <<  StdFitVertexZMMMM[jjj] << " " 
-	   <<  StdFitVertexChi2rMMMM[jjj] << " " 
+
+      /* std::cout << "Std Fit MMMM: "
+	   <<  StdFitVertexXMMMM[jjj] << " "
+	   <<  StdFitVertexYMMMM[jjj] << " "
+	   <<  StdFitVertexZMMMM[jjj] << " "
+	   <<  StdFitVertexChi2rMMMM[jjj] << " "
 	   <<  StdFitVertexProbMMMM[jjj] << std::endl;*/
 
-      // Refitted tracks     
+      // Refitted tracks
       bool hasRefittedTracks = cand->hasRefittedTracks();
-      if(hasRefittedTracks){	
-	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
+      if(hasRefittedTracks){
+	std::vector<reco::Track> refit_tks= cand->refittedTracks();
 	for(unsigned int i=0; i< refit_tks.size(); i++){
 	  //if (i > 3) break;
       if(i==4) break; // std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
@@ -4994,13 +5022,13 @@ void fillTracks(const edm::Event& iEvent){
       KinFitVertexZMMMM[jjj]=cand->position().z();
       KinFitVertexChi2rMMMM[jjj]=cand->chi2()/cand->ndof();
       KinFitVertexProbMMMM[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-    
 
-      /*std::cout << "Kin Fit MMMM: " 
-	   <<  KinFitVertexXMMMM[jjj] << " " 
-	   <<  KinFitVertexYMMMM[jjj] << " " 
-	   <<  KinFitVertexZMMMM[jjj] << " " 
-	   <<  KinFitVertexChi2rMMMM[jjj] << " " 
+
+      /*std::cout << "Kin Fit MMMM: "
+	   <<  KinFitVertexXMMMM[jjj] << " "
+	   <<  KinFitVertexYMMMM[jjj] << " "
+	   <<  KinFitVertexZMMMM[jjj] << " "
+	   <<  KinFitVertexChi2rMMMM[jjj] << " "
 	   <<  KinFitVertexProbMMMM[jjj] << std::endl;*/
       jjj++;
     }
@@ -5018,17 +5046,17 @@ void fillTracks(const edm::Event& iEvent){
       StdFitVertexZEEEE[jjj]=cand->position().z();
       StdFitVertexChi2rEEEE[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbEEEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      /*  std::cout << "Std Fit EEEE: " 
-	   <<  StdFitVertexXEEEE[jjj] << " " 
-	   <<  StdFitVertexYEEEE[jjj] << " " 
-	   <<  StdFitVertexZEEEE[jjj] << " " 
-	   <<  StdFitVertexChi2rEEEE[jjj] << " " 
+      /*  std::cout << "Std Fit EEEE: "
+	   <<  StdFitVertexXEEEE[jjj] << " "
+	   <<  StdFitVertexYEEEE[jjj] << " "
+	   <<  StdFitVertexZEEEE[jjj] << " "
+	   <<  StdFitVertexChi2rEEEE[jjj] << " "
 	   <<  StdFitVertexProbEEEE[jjj] << std::endl;*/
 
-      // Refitted tracks     
+      // Refitted tracks
       bool hasRefittedTracks = cand->hasRefittedTracks();
-      if(hasRefittedTracks){	
-	std::vector<reco::Track> refit_tks= cand->refittedTracks(); 	
+      if(hasRefittedTracks){
+	std::vector<reco::Track> refit_tks= cand->refittedTracks();
 	for(unsigned int i=0; i< refit_tks.size(); i++){
 	  //if (i > 3) break;
       if(i==4) break; // std::cout << "Warning: number of refit_tks exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
@@ -5039,7 +5067,7 @@ void fillTracks(const edm::Event& iEvent){
 	}
       }
 
-      jjj++;      
+      jjj++;
 
     }
 
@@ -5072,12 +5100,12 @@ void fillTracks(const edm::Event& iEvent){
       KinFitVertexZEEEE[jjj]=cand->position().z();
       KinFitVertexChi2rEEEE[jjj]=cand->chi2()/cand->ndof();
       KinFitVertexProbEEEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      //@//   
-      /* std::cout << "Kin Fit EEEE: " 
-	   <<  KinFitVertexXEEEE[jjj] << " " 
-	   <<  KinFitVertexYEEEE[jjj] << " " 
-	   <<  KinFitVertexZEEEE[jjj] << " " 
-	   <<  KinFitVertexChi2rEEEE[jjj] << " " 
+      //@//
+      /* std::cout << "Kin Fit EEEE: "
+	   <<  KinFitVertexXEEEE[jjj] << " "
+	   <<  KinFitVertexYEEEE[jjj] << " "
+	   <<  KinFitVertexZEEEE[jjj] << " "
+	   <<  KinFitVertexChi2rEEEE[jjj] << " "
 	   <<  KinFitVertexProbEEEE[jjj] << std::endl;*/
       jjj++;
     }
@@ -5092,8 +5120,8 @@ void fillTracks(const edm::Event& iEvent){
       StdFitVertexChi2rDiLep[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbDiLep[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
       //@//
-      /*  std::cout << "Std Fit DiLeptons: " 
-	   <<  StdFitVertexChi2rDiLep[jjj] << " " 
+      /*  std::cout << "Std Fit DiLeptons: "
+	   <<  StdFitVertexChi2rDiLep[jjj] << " "
 	   <<  StdFitVertexProbDiLep[jjj] << std::endl;*/
       jjj++;
     }
@@ -5109,9 +5137,9 @@ void fillTracks(const edm::Event& iEvent){
       if(jjj==40) break; // std::cout << "Warning: number of StandardFitVtxMMM_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMMM[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMMM[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-   
-      /*   std::cout << "Std Fit MMM: " 
-	   <<  StdFitVertexChi2rMMM[jjj] << " " 
+
+      /*   std::cout << "Std Fit MMM: "
+	   <<  StdFitVertexChi2rMMM[jjj] << " "
 	   <<  StdFitVertexProbMMM[jjj] << std::endl;*/
       jjj++;
     }
@@ -5124,8 +5152,8 @@ void fillTracks(const edm::Event& iEvent){
       if(jjj==20) break; // std::cout << "Warning: number of StandardFitVtxMME_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMME[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMME[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      /*  std::cout << "Std Fit MME: " 
-	   <<  StdFitVertexChi2rMME[jjj] << " " 
+      /*  std::cout << "Std Fit MME: "
+	   <<  StdFitVertexChi2rMME[jjj] << " "
 	   <<  StdFitVertexProbMME[jjj] << std::endl;*/
       jjj++;
     }
@@ -5138,8 +5166,8 @@ void fillTracks(const edm::Event& iEvent){
       if(jjj==20) break; // std::cout << "Warning: number of StandardFitVtxEEE_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rEEE[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbEEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      /*  std::cout << "Std Fit EEE: " 
-	   <<  StdFitVertexChi2rEEE[jjj] << " " 
+      /*  std::cout << "Std Fit EEE: "
+	   <<  StdFitVertexChi2rEEE[jjj] << " "
 	   <<  StdFitVertexProbEEE[jjj] << std::endl;*/
       jjj++;
     }
@@ -5152,25 +5180,25 @@ void fillTracks(const edm::Event& iEvent){
       if(jjj==20) break; // std::cout << "Warning: number of StandardFitVtxMEE_ exceeds previous max value," << irun << ":" << ils << ":" << ievt << std::endl;
       StdFitVertexChi2rMEE[jjj]=cand->chi2()/cand->ndof();
       StdFitVertexProbMEE[jjj]=TMath::Prob(cand->chi2(),cand->ndof());
-      /*  std::cout << "Std Fit MEE: " 
-	   <<  StdFitVertexChi2rMEE[jjj] << " " 
+      /*  std::cout << "Std Fit MEE: "
+	   <<  StdFitVertexChi2rMEE[jjj] << " "
 	   <<  StdFitVertexProbMEE[jjj] << std::endl;*/
       jjj++;
     }
 
-    
+
   }
 
-  
-  		      
+
+
   void filljets(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     edm::Handle<pat::JetCollection> pfjets,pfjetsmva;
 
    iEvent.getByToken(jetsTag_, pfjets);
    iEvent.getByToken(jetsMVATag_, pfjetsmva);
-    
+
     edm::Handle<double> rhoHandle;
-    iEvent.getByToken(rhojetsTag_,rhoHandle); 
+    iEvent.getByToken(rhojetsTag_,rhoHandle);
 
     //@ To retrieve JEC Uncertainty
      edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
@@ -5178,7 +5206,7 @@ void fillTracks(const edm::Event& iEvent){
      JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
      std::unique_ptr<JetCorrectionUncertainty> jecUnc = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
 
-/*    
+/*
     if (fillMCTruth == 1){
       std::cout << "Using Jet energy collection for MC " << std::endl;
 
@@ -5189,43 +5217,43 @@ void fillTracks(const edm::Event& iEvent){
     else{
       iEvent.getByToken(jetsDataTag_, pfjets);
       iEvent.getByToken(jetsMVATag_, pfjetsmva);
-      iEvent.getByToken(PuJetMvaDatafullDiscr_,puJetIdMVAData);      
-      
+      iEvent.getByToken(PuJetMvaDatafullDiscr_,puJetIdMVAData);
+
     }
 */
 
     RECO_PFJET_N = pfjets->size();
     //@// std::cout << "Number of PFJets in the event= " << RECO_PFJET_N << std::endl;
-    
+
     int index_jets = 0;
-    
-    for ( pat::JetCollection::const_iterator i=pfjets->begin(); i!=pfjets->end(); i++) {  
+
+    for ( pat::JetCollection::const_iterator i=pfjets->begin(); i!=pfjets->end(); i++) {
       if (index_jets>99) continue;
-      
-      edm::Ref<pat::JetCollection> pfjetref(pfjets,index_jets);      
+
+      edm::Ref<pat::JetCollection> pfjetref(pfjets,index_jets);
       edm::Ref<pat::JetCollection> pfjetrefmva(pfjetsmva,index_jets);
-      
+
       float mva = 0.;
       // int pupass = 1;
-  
-//      mva = i->userFloat("vtxPx");    
+
+//      mva = i->userFloat("vtxPx");
       mva = i->userFloat("pileupJetId:fullDiscriminant");
 
- 
+
       ////////////////////////////////////
 
-     //test Reham    
+     //test Reham
 
       bool passLoose_PUID = (i->userInt("pileupJetId:fullId") & (1 << 2));
       bool passMedium_PUID = (i->userInt("pileupJetId:fullId") & (1 << 1));
       bool passTight_PUID = (i->userInt("pileupJetId:fullId") & (1 << 0));
-      
-      
+
+
       // std::cout<<"passLoose_PUID = "<<passLoose_PUID<<std::endl;
       // std::cout<<"passMedium_PUID = "<<passMedium_PUID<<std::endl;
       // std::cout<<"passTight_PUID = "<<passTight_PUID<<std::endl;
-      
-      
+
+
       RECO_PFJET_CHARGE[index_jets] = i->charge();
       RECO_PFJET_ET[index_jets]     = i->et();
       RECO_PFJET_PT[index_jets]     = i->pt();
@@ -5238,12 +5266,12 @@ void fillTracks(const edm::Event& iEvent){
       RECO_PFJET_PUID_MVA[index_jets] = mva;
 
       //@//
-      /*    std::cout 
-	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]   
-	<< " PT="   << RECO_PFJET_PT[index_jets]   
-	<< " ETA="  << RECO_PFJET_ETA[index_jets]  
-	<< " PHI="  << RECO_PFJET_PHI[index_jets]  
-	<< " PUID=" << RECO_PFJET_PUID[index_jets] 
+      /*    std::cout
+	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]
+	<< " PT="   << RECO_PFJET_PT[index_jets]
+	<< " ETA="  << RECO_PFJET_ETA[index_jets]
+	<< " PHI="  << RECO_PFJET_PHI[index_jets]
+	<< " PUID=" << RECO_PFJET_PUID[index_jets]
 	<< " PUID_MVA=" << RECO_PFJET_PUID_MVA[index_jets]
        //qier test
         << " Uncorrected Pt=" << i->correctedP4("Uncorrected").Pt()
@@ -5328,14 +5356,14 @@ void fillTracks(const edm::Event& iEvent){
         RECO_PFJET_COMPONENT_VERTEX_CHI2[index_jets][i1] = o_jc_vchi2[ci2];
         o_jc_pt[ci2] = -2;
       }
-    
-      //@// 
-     /*    std::cout 
-	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]   
-	<< " PT="   << RECO_PFJET_PT[index_jets]   
-	<< " ETA="  << RECO_PFJET_ETA[index_jets]  
-	<< " PHI="  << RECO_PFJET_PHI[index_jets]  
-	<< " PUID=" << RECO_PFJET_PUID[index_jets] 
+
+      //@//
+     /*    std::cout
+	<< "PF Jet with ET= " << RECO_PFJET_ET[index_jets]
+	<< " PT="   << RECO_PFJET_PT[index_jets]
+	<< " ETA="  << RECO_PFJET_ETA[index_jets]
+	<< " PHI="  << RECO_PFJET_PHI[index_jets]
+	<< " PUID=" << RECO_PFJET_PUID[index_jets]
 	<< " PUID_MVA=" << RECO_PFJET_PUID_MVA[index_jets]
        //qier test
         << " Uncorrected Pt=" << i->correctedP4("Uncorrected").Pt()
@@ -5343,17 +5371,17 @@ void fillTracks(const edm::Event& iEvent){
         << " L2Relative Pt=" << i->correctedP4("L2Relative").Pt()
         << " L3Absolute Pt=" << i->correctedP4("L3Absolute").Pt()
 	<< std::endl;*/
-      
+
       index_jets++;
 
-      
+
     } // for loop on PFJets jets
 
 
     /////////////////////////////////////
 
     //QGTagger REHAM
-    
+
     edm::Handle<edm::ValueMap<float> > QGjetmap;
     iEvent.getByToken(jetQGMapTag_, QGjetmap);
 
@@ -5367,14 +5395,14 @@ void fillTracks(const edm::Event& iEvent){
     iEvent.getByToken(jetQGMapTag_mult_, QGjetmap_mult);
 
     edm::Handle<pat::JetCollection> pfjetsQG;
-    iEvent.getByToken(jetsQGTag_, pfjetsQG); 
-    
+    iEvent.getByToken(jetsQGTag_, pfjetsQG);
+
     int N_QGjets = 0;
-    
-    for ( pat::JetCollection::const_iterator i=pfjetsQG->begin(); i!=pfjetsQG->end(); i++) {  
+
+    for ( pat::JetCollection::const_iterator i=pfjetsQG->begin(); i!=pfjetsQG->end(); i++) {
       if (N_QGjets>99) continue;
-    
-      edm::Ref<pat::JetCollection> pfjetref(pfjetsQG , N_QGjets);     
+
+      edm::Ref<pat::JetCollection> pfjetref(pfjetsQG , N_QGjets);
 
       float qgLikelihood = (*QGjetmap)[pfjetref];
       float qgaxis2 = (*QGjetmap_axis2)[pfjetref];
@@ -5398,7 +5426,7 @@ void fillTracks(const edm::Event& iEvent){
 
     //@
     //For Q/G study
-    
+
     if( fillMCTruth ){
       //Prepare LHE particles list (only the partons in final state and check if they have DR=0.4 clean)
 
@@ -5440,26 +5468,26 @@ void fillTracks(const edm::Event& iEvent){
     }
 
     ////////////////////////////////////
-    
+
     if (rhoHandle.isValid() ) {
       RHO_mu=*rhoHandle;
-       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO mu fastjet= " << RHO_mu << std::endl; 
+       if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO mu fastjet= " << RHO_mu << std::endl;
     }
     else {
        std::cout << "Not valid RHO mu collection" << std::endl;
     }
-    
-    iEvent.getByToken(rhojetsTag_,rhoHandle); 
+
+    iEvent.getByToken(rhojetsTag_,rhoHandle);
     if (rhoHandle.isValid() ) {
       RHO_ele=*rhoHandle;
-      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO ele fastjet= " << RHO_ele << std::endl; 
+      if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << "RHO ele fastjet= " << RHO_ele << std::endl;
     }
     else {
       std::cout << "Not valid RHO ele collection" << std::endl;
-    } 
-    
+    }
+
   }
-  
+
 
 
   void fillBTagging(const edm::Event& iEvent){
@@ -5471,10 +5499,10 @@ void fillTracks(const edm::Event& iEvent){
     for (pat::JetCollection::const_iterator btagIter=bTagHandle->begin(); btagIter!=bTagHandle->end();++btagIter) {
       if(l>=49) continue;
       double discrCSV1 = btagIter->bDiscriminator(tCHighEff_bTag_);
-      //@//     
+      //@//
       /*	std::cout<<" Jet "<< l
-	    <<" has b tag discriminator trackCountingHighEffBJetTags = "<< discrCSV1 
-	    << " and jet Pt = "<<btagIter->pt()<<std::endl;   */  
+	    <<" has b tag discriminator trackCountingHighEffBJetTags = "<< discrCSV1
+	    << " and jet Pt = "<<btagIter->pt()<<std::endl;   */
 	tCHighEff_BTagJet_PT[l]=btagIter->pt();
 	tCHighEff_BTagJet_ETA[l]=btagIter->eta();
 	tCHighEff_BTagJet_PHI[l]=btagIter->phi();
@@ -5485,7 +5513,7 @@ void fillTracks(const edm::Event& iEvent){
      //@//
      /*	std::cout<<" Jet "<< l
 	    <<" has b tag discriminator trackCountingHighPurBJetTags = "<< discrCSV2
-	    << " and jet Pt = "<<btagIter->pt()<<std::endl; */     
+	    << " and jet Pt = "<<btagIter->pt()<<std::endl; */
 	tCHighPur_BTagJet_PT[l]=btagIter->pt();
 	tCHighPur_BTagJet_ETA[l]=btagIter->eta();
 	tCHighPur_BTagJet_PHI[l]=btagIter->phi();
@@ -5499,7 +5527,7 @@ void fillTracks(const edm::Event& iEvent){
     //@//
     /*	std::cout<<" Jet "<< l
 	    <<" has b tag discriminator pfDeepCSVJetTags:probb  = "<< discrCSV3_1<<" and pfDeepCSVJetTags:probbb  = "<<discrCSV3_2<<" and total = "
-            <<discrCSV3 << " and jet Pt = "<<btagIter->pt()<<std::endl; */     
+            <<discrCSV3 << " and jet Pt = "<<btagIter->pt()<<std::endl; */
 	cSV_BTagJet_PT[l]=btagIter->pt();
 	cSV_BTagJet_ETA[l]=btagIter->eta();
 	cSV_BTagJet_PHI[l]=btagIter->phi();
@@ -5509,14 +5537,14 @@ void fillTracks(const edm::Event& iEvent){
     }
 
   }
-  
-  
+
+
   void fillP3Covariance(const reco::PFCandidate &c, TMatrixDSym &bigCov, int offset) const {
     double dp = PFEnergyResolution().getEnergyResolutionEm(c.energy(), c.eta());
     // In order to produce a 3x3 matrix, we need a jacobian from (p) to (px,py,pz), i.e.
-    //            [ Px/P  ]                
+    //            [ Px/P  ]
     //  C_(3x3) = [ Py/P  ] * sigma^2(P) * [ Px/P Py/P Pz/P  ]
-    //            [ Pz/P  ]                
+    //            [ Pz/P  ]
     AlgebraicMatrix31 ptop3;
     ptop3(0,0) = c.px()/c.p();
     ptop3(1,0) = c.py()/c.p();
@@ -5524,20 +5552,20 @@ void fillTracks(const edm::Event& iEvent){
     AlgebraicSymMatrix33 mat = ROOT::Math::Similarity(ptop3, AlgebraicSymMatrix11(dp*dp) );
     for (int i = 0; i < 3; ++i) { for (int j = 0; j < 3; ++j) {
 	bigCov(offset+i,offset+j) = mat(i,j);
-      } } 
+      } }
   }
-  
-  
-  
+
+
+
  private:
- 
+
   std::vector<std::string> module_to_search;
   std::string par_to_search;
-  
+
   // ROOT definition
   TFile *theFile_ ;
   TTree *theTree_ ;
-  
+
   bool useRECOformat;
   std::string inputfileName;
 
@@ -5552,7 +5580,7 @@ void fillTracks(const edm::Event& iEvent){
   bool fillPUinfo;
   int num_PU_vertices;
   int PU_BunchCrossing; // bunch crossing for the PU event added
-  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > PileupSrc_;     
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > PileupSrc_;
 
   // MC weight
   float MC_weighting;
@@ -5562,27 +5590,27 @@ void fillTracks(const edm::Event& iEvent){
   bool fillHLTinfo;
   edm::InputTag HLTInfoFired;
   std::string HLTAnalysisinst;
-  std::vector<edm::InputTag> flagHLTnames; 
+  std::vector<edm::InputTag> flagHLTnames;
 
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent;     
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent;
 
   edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
   edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
 
   //Reham Read MET filter decision from trigger results
 
-  edm::EDGetTokenT<edm::TriggerResults> noiseFilterTag_; 
+  edm::EDGetTokenT<edm::TriggerResults> noiseFilterTag_;
 
 
   edm::InputTag triggerMatchObjectEle;
   edm::EDGetTokenT<edm::Association<std::vector<pat::TriggerObjectStandAlone> > > triggerMatchObject;
   std::string triggerFilter,triggerEleFilter,triggerHLTcollection;
-  
-  
+
+
   // SkimEarlyData
   std::string SkimEarlyDataAnalysisinst;
-  std::vector<edm::InputTag> flagSkimEarlyDatanames; 
- 
+  std::vector<edm::InputTag> flagSkimEarlyDatanames;
+
   // MC truth
   bool fillMCTruth;
   edm::EDGetTokenT<edm::View<reco::Candidate> > MCcollName;
@@ -5591,7 +5619,7 @@ void fillTracks(const edm::Event& iEvent){
   edm::EDGetTokenT<edm::View<reco::Candidate> > fourgenleptons_;
   edm::EDGetTokenT<edm::View<reco::Candidate> > digenZ_;
 
-	
+
   // RECO
   bool useAdditionalRECO;
   bool use2011EA;
@@ -5609,7 +5637,7 @@ void fillTracks(const edm::Event& iEvent){
  //   RECOcollNameMMMM,RECOcollNameEEEE,RECOcollNameEEMM,
     RECOcollNameLLLLss,RECOcollNameLLL,RECOcollNameLLLl,RECOcollNameLLLLssos;
   edm::InputTag RECOcollNameDiLep;//RECOcollNameLLLL,RECOcollNameDiLep;
-  
+
   // electron and muon tags
   bool useBestCandidate;
   edm::InputTag BestCandidatesLeptonsTag_;
@@ -5619,14 +5647,14 @@ void fillTracks(const edm::Event& iEvent){
   edm::EDGetTokenT<edm::View<pat::Muon> > muonTag_;
 
   edm::EDGetTokenT<edm::ValueMap<float> > muonCorrPtErrorMapTag_;
-    
+
   edm::InputTag electronEgmTkMapTag_;
   edm::InputTag electronEgmEcalMapTag_;
   edm::InputTag electronEgmHcalMapTag_;
   edm::EDGetTokenT<edm::View<pat::Electron> > mvaElectronTag_;
   ///@@@/// TEST Electron ID  REHAM
   // edm::EDGetTokenT<edm::ValueMap<float> > /*//@// mvaTrigV0MapTag_,*/mvaNonTrigV0MapTag_;
-  //edm::EDGetToken eleIDToken_; 
+  //edm::EDGetToken eleIDToken_;
   edm::EDGetToken electronsMiniAODToken_;
    edm::EDGetTokenT<edm::ValueMap<bool> > eleIDToken_;
    edm::EDGetTokenT<edm::ValueMap<float> > mvaValuesMapToken_;
@@ -5637,7 +5665,7 @@ void fillTracks(const edm::Event& iEvent){
     electronPFIsoValueChargedTag_,
     electronPFIsoValueNeutralTag_,
     electronPFIsoValueGammaTag_,
-    electronPFIsoValuePUTag_;   
+    electronPFIsoValuePUTag_;
 
 
   edm::InputTag eleRegressionEnergyErrorTag_,eleRegressionEnergyTag_;
@@ -5647,7 +5675,7 @@ void fillTracks(const edm::Event& iEvent){
     muonPFIsoValueChargedTag_,
     muonPFIsoValueNeutralTag_,
     muonPFIsoValueGammaTag_,
-    muonPFIsoValuePUTag_;   
+    muonPFIsoValuePUTag_;
 
 
   edm::EDGetTokenT<edm::ValueMap<double> >
@@ -5655,12 +5683,12 @@ void fillTracks(const edm::Event& iEvent){
     photonPFIsoValueChargedTag_,
     photonPFIsoValueNeutralTag_,
     photonPFIsoValueGammaTag_,
-    photonPFIsoValuePUTag_;   
+    photonPFIsoValuePUTag_;
 
 */
 
 
-  // vertexing 3D 
+  // vertexing 3D
   edm::InputTag electronTag_Vert,muonTag_Vert;
   edm::EDGetTokenT<edm::ValueMap<float> > electronMapTag_Vert,electronMapTag_VertKF,muonMapTag_Vert,muonMapTag_VertKF,
     electronMapTag_VertValue,electronMapTag_VertValueKF,muonMapTag_VertValue,muonMapTag_VertValueKF,
@@ -5680,28 +5708,28 @@ void fillTracks(const edm::Event& iEvent){
     electronSLIPMapTag_VertValue,muonSLIPMapTag_VertValue,
     electronSTIPMapTag_VertError,muonSTIPMapTag_VertError,
     electronSLIPMapTag_VertError,muonSLIPMapTag_VertError;
-  
+
   // vertexing GD
   edm::InputTag ftsigma_Vert,ftsigmalag_Vert,
                 ftsigma_VertMMMM,ftsigmalag_VertMMMM,
                 ftsigma_VertEEEE,ftsigmalag_VertEEEE;
-  edm::InputTag 
+  edm::InputTag
     gdX_Vert,gdY_Vert,gdZ_Vert,
     gdX_VertMMMM,gdY_VertMMMM,gdZ_VertMMMM,
     gdX_VertEEEE,gdY_VertEEEE,gdZ_VertEEEE;
-   edm::InputTag 
+   edm::InputTag
     gdlagX_Vert,gdlagY_Vert,gdlagZ_Vert,gdlagProb_Vert,gdlagNdof_Vert,
      gdlagX_VertMMMM,gdlagY_VertMMMM,gdlagZ_VertMMMM,gdlagProb_VertMMMM,gdlagNdof_VertMMMM,
      gdlagX_VertEEEE,gdlagY_VertEEEE,gdlagZ_VertEEEE,gdlagProb_VertEEEE,gdlagNdof_VertEEEE;
   //
 
    // ConstraintVtx
-   edm::InputTag 
+   edm::InputTag
      StandardFitVertex,StandardFitVertexMMMM,StandardFitVertexEEEE,
      KinematicFitVertex,KinematicFitVertexMMMM,KinematicFitVertexEEEE,
      RefittedMass,RefittedMassMMMM,RefittedMassEEEE;
 
-   edm::InputTag 
+   edm::InputTag
      StandardFitVertexEEE,StandardFitVertexMMM,StandardFitVertexMEE,StandardFitVertexMME,StandardFitVertexDiLep;
 
   //electronID
@@ -5715,17 +5743,17 @@ void fillTracks(const edm::Event& iEvent){
   edm::InputTag EleID_HZZLooseTag_  ;
   edm::InputTag EleID_HZZMediumTag_  ;
   edm::InputTag EleID_HZZTightTag_ ;
-  
+
   edm::InputTag allelectronsColl, allmuonsColl;
   edm::InputTag isoVarTagElectronsCal,isoVarTag,isoVarTagElectronsTracker,isoVarTagElectronsX;
   edm::InputTag isoVarTagMuonsHCalIso,isoVarTagMuonsECalIso,
     isoVarTagMuonsCalIso,isoVarTagMuonsTracker,isoVarTagMuonsX;
-  
+
   edm::InputTag theECALIsoDepositLabel;    //EM calorimeter Isolation deposit label
   edm::InputTag theHCALIsoDepositLabel;    //Hadron calorimeter Isolation deposit label
   edm::InputTag theHOCALIsoDepositLabel;   //Outer calorimeter Isolation deposit label
-  edm::InputTag theTrackerIsoDepositLabel; //Tracker Isolation deposit label 
-  
+  edm::InputTag theTrackerIsoDepositLabel; //Tracker Isolation deposit label
+
   // Photon, Tracks, Jets, Vertices
 //  edm::EDGetTokenT<std::vector<reco::Track> > tracksTag_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pfTag_;
@@ -5745,10 +5773,11 @@ void fillTracks(const edm::Event& iEvent){
 
   // genJet
   edm::EDGetTokenT<std::vector<reco::GenJet> >  genjetTag_;
-  
+
   // MET
   edm::InputTag trackermetTag_;
   edm::EDGetTokenT<std::vector<pat::MET> >  pfmetTag_;
+  edm::EDGetTokenT<std::vector<pat::MET> >  puppimetTag_;
   edm::EDGetTokenT<std::vector<reco::GenMET> > genmetTag_;
   edm::InputTag calometTag_,calometoptTag_,calometoptnohfTag_,calometoptnohfhoTag_;
   edm::InputTag calometopthoTag_,calometnohfTag_,calometnohfhoTag_,calomethoTag_;
@@ -5767,8 +5796,8 @@ void fillTracks(const edm::Event& iEvent){
   // Matching
   edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodElectronMCMatch_;
   edm::EDGetTokenT<reco::CandidateCollection> myElectrons_;
-  edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodMuonMCMatch_; 
-  edm::EDGetTokenT<reco::CandidateCollection> myMuons_; 
+  edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodMuonMCMatch_;
+  edm::EDGetTokenT<reco::CandidateCollection> myMuons_;
   edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > goodGammaMCMatch_;
   edm::EDGetTokenT<reco::CandidateCollection> myGammas_;
 
@@ -5781,7 +5810,7 @@ void fillTracks(const edm::Event& iEvent){
   edm::EDGetTokenT<reco::BeamSpot> offlineBeamSpot_;
 
   // bTagging
-//  edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >  
+//  edm::EDGetTokenT<edm::AssociationVector<edm::RefToBaseProd<reco::Jet>,std::vector<float>,edm::RefToBase<reco::Jet>,unsigned int,edm::helper::AssociationIdenticalKeyReference> >
   std::string tCHighEff_bTag_, tCHighPur_bTag_,cSV_bTag1_,cSV_bTag2_;
 
 //  const std::vector<std::string> bDiscriminators_;
@@ -5794,10 +5823,10 @@ void fillTracks(const edm::Event& iEvent){
   int RECO_nMuHLTMatch,RECO_nEleHLTMatch,PFCand;
   ArrayMDVector<float,1,-999>RECOMU_PT_MuHLTMatch,RECOMU_ETA_MuHLTMatch,RECOMU_PHI_MuHLTMatch,RECOMU_BDT_Id;
   ArrayMDVector<float,1,-999>RECOELE_PT_EleHLTMatch,RECOELE_ETA_EleHLTMatch,RECOELE_PHI_EleHLTMatch;
-  
+
   char HLTPathsFired[20000];
 
- 
+
   // tmp candidate collections
 //  reco::CandidateCollection *leptonscands2e2mu_;//unused branch
 //  reco::CandidateCollection *leptonscands2e2murf_;//unused branch
@@ -5805,7 +5834,7 @@ void fillTracks(const edm::Event& iEvent){
 //  reco::CandidateCollection *leptonscands4murf_;//unused branch
 //  reco::CandidateCollection *leptonscands4e_;//unused branch
 //  reco::CandidateCollection *leptonscands4erf_;//unused branch
-  
+
   reco::CandidateCollection *leptonscands_Z0;
   reco::CandidateCollection *leptonscands_Z1;
   reco::CandidateCollection *leptonscands_Zss0;
@@ -5829,13 +5858,13 @@ void fillTracks(const edm::Event& iEvent){
 
   // MC info
   edm::ESHandle<ParticleDataTable>  pdt_;
-  
+
   // MC truth
   ArrayMDVector<float,1,-999>MC_E,MC_PT,MC_ETA,MC_THETA,MC_PHI,MC_MASS,MC_PDGID;
 
-  ArrayMDVector<double,1,-999>MCRF_cosTheta1_spin, MCRF_cosTheta2_spin, MCRF_cosThetaStar_spin, MCRF_Phi_spin, 
+  ArrayMDVector<double,1,-999>MCRF_cosTheta1_spin, MCRF_cosTheta2_spin, MCRF_cosThetaStar_spin, MCRF_Phi_spin,
     MCRF_Phi1_spin, MCRF_Phi2_spin, MCRF_phi1RF_spin, MCRF_phi2RF_spin, MCRF_MELA;
-  
+
   ArrayMDVector<float,1,-999>MC_LEPT_PT,MC_LEPT_ETA,MC_LEPT_PHI,MC_LEPT_THETA,MC_LEPT_PDGID;
   ArrayMDVector<float,2,-999>MC_Z_MASS,MC_Z_PT,MC_Z_ETA,MC_Z_PHI,MC_Z_THETA,MC_Z_PDGID;
 
@@ -5843,21 +5872,21 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<float,2,-999>MC_ZZ_MASS,MC_ZZ_PT,MC_ZZ_ETA,MC_ZZ_PHI,MC_ZZ_THETA,MC_ZZ_PDGID;
 
   // RECO collection
- 
-  
+
+
   // RECORF
-    
-  ArrayMDVector<double,1,-999>RECORF_2e2mu_cosTheta1_spin, RECORF_2e2mu_cosTheta2_spin, RECORF_2e2mu_cosThetaStar_spin, RECORF_2e2mu_Phi_spin, 
+
+  ArrayMDVector<double,1,-999>RECORF_2e2mu_cosTheta1_spin, RECORF_2e2mu_cosTheta2_spin, RECORF_2e2mu_cosThetaStar_spin, RECORF_2e2mu_Phi_spin,
     RECORF_2e2mu_Phi1_spin, RECORF_2e2mu_Phi2_spin, RECORF_2e2mu_phi1RF_spin, RECORF_2e2mu_phi2RF_spin,RECORF_2e2mu_MELA;
-  
-    
-  ArrayMDVector<double,1,-999>RECORF_4e_cosTheta1_spin, RECORF_4e_cosTheta2_spin, RECORF_4e_cosThetaStar_spin, RECORF_4e_Phi_spin,RECORF_4e_MELA, 
+
+
+  ArrayMDVector<double,1,-999>RECORF_4e_cosTheta1_spin, RECORF_4e_cosTheta2_spin, RECORF_4e_cosThetaStar_spin, RECORF_4e_Phi_spin,RECORF_4e_MELA,
     RECORF_4e_Phi1_spin, RECORF_4e_Phi2_spin, RECORF_4e_phi1RF_spin, RECORF_4e_phi2RF_spin,RECORF_4mu_MELA;
-  
-    
-  ArrayMDVector<double,1,-999>RECORF_4mu_cosTheta1_spin, RECORF_4mu_cosTheta2_spin, RECORF_4mu_cosThetaStar_spin, RECORF_4mu_Phi_spin, 
+
+
+  ArrayMDVector<double,1,-999>RECORF_4mu_cosTheta1_spin, RECORF_4mu_cosTheta2_spin, RECORF_4mu_cosThetaStar_spin, RECORF_4mu_Phi_spin,
     RECORF_4mu_Phi1_spin, RECORF_4mu_Phi2_spin, RECORF_4mu_phi1RF_spin, RECORF_4mu_phi2RF_spin;
-  
+
 
   int leptonflavor;
 
@@ -5896,7 +5925,7 @@ void fillTracks(const edm::Event& iEvent){
     RECO_LLLL1ss_PT,
     RECO_LLLL2ss_PT;
   // RECO electrons
-  edm::ESHandle<CaloGeometry> theCaloGeom_;  
+  edm::ESHandle<CaloGeometry> theCaloGeom_;
   ArrayMDVector<float,1,-999>RECOELE_E,RECOELE_PT,RECOELE_PTError,RECOELE_P,RECOELE_ETA,RECOELE_THETA,RECOELE_PHI,RECOELE_MASS;
   ArrayMDVector<float,1,-999>RECOELE_CHARGE,RECOELE_ID, RECOELE_PT_uncorr;
   ArrayMDVector<float,2,-999>RECOELE_SCV_PT,RECOELE_SCV_ETA,RECOELE_SCV_PHI;
@@ -5904,26 +5933,26 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<int,1,0> RECOELE_isEcalDriven, RECOELE_isTrackerDriven;
   ArrayMDVector<float,1,-999>    RECOELE_gsftrack_NPixHits,
     RECOELE_gsftrack_NStripHits,
-    RECOELE_gsftrack_chi2, 
+    RECOELE_gsftrack_chi2,
     RECOELE_gsftrack_dxyB, RECOELE_gsftrack_dxy, RECOELE_gsftrack_dxyError,
     RECOELE_gsftrack_dzB, RECOELE_gsftrack_dz,RECOELE_gsftrack_dzError;
-  ArrayMDVector<int,1,-999>RECOELE_gsftrack_losthits,RECOELE_gsftrack_validhits,RECOELE_gsftrack_expected_inner_hits; 
-  ArrayMDVector<float,1,-999>    RECOELE_scl_E,RECOELE_scl_Et,RECOELE_scl_Eta,RECOELE_scl_Phi; 
+  ArrayMDVector<int,1,-999>RECOELE_gsftrack_losthits,RECOELE_gsftrack_validhits,RECOELE_gsftrack_expected_inner_hits;
+  ArrayMDVector<float,1,-999>    RECOELE_scl_E,RECOELE_scl_Et,RECOELE_scl_Eta,RECOELE_scl_Phi;
   //float RECOELE_eSuperClusterOverP[100], RECOELE_eSeedClusterOverPout[100], RECOELE_deltaEtaSuperClusterTrackAtVtx[100], RECOELE_deltaPhiSuperClusterTrackAtVtx[100];
   ArrayMDVector<float,1,-999>    RECOELE_ep, RECOELE_eSeedp, RECOELE_eSeedpout, RECOELE_eElepout,
     RECOELE_deltaEtaIn,RECOELE_deltaEtaSeed,RECOELE_deltaEtaEle,RECOELE_deltaPhiIn,
     RECOELE_deltaPhiSeed,RECOELE_deltaPhiEle,RECOELE_ecalEnergy;
-  ArrayMDVector<int,1,0>RECOELE_isbarrel, RECOELE_isendcap, RECOELE_isEBetaGap, RECOELE_isEBphiGap, RECOELE_isEEdeeGap, RECOELE_isEEringGap, RECOELE_isGap; 
+  ArrayMDVector<int,1,0>RECOELE_isbarrel, RECOELE_isendcap, RECOELE_isEBetaGap, RECOELE_isEBphiGap, RECOELE_isEEdeeGap, RECOELE_isEEringGap, RECOELE_isGap;
   ArrayMDVector<float,1,-999>RECOELE_sigmaIetaIeta, RECOELE_sigmaEtaEta, RECOELE_e15, RECOELE_e25max, RECOELE_e55, RECOELE_he, RECOELE_r9;
   ArrayMDVector<float,1,-999>RECOELE_mva, RECOELE_fbrem,RECOELE_fbrem_mean,RECOELE_fbrem_mode;
   ArrayMDVector<int,1,-999>RECOELE_nbrems, RECOELE_Class;
-  
+
   ArrayMDVector<float,1,-999>RECOELE_EGMTRACKISO,RECOELE_EGMECALISO,RECOELE_EGMHCALISO,RECOELE_EGMX,
     RECOELE_IP_KF,RECOELE_SIP_KF,RECOELE_IPERROR_KF,
     RECOELE_STIP,RECOELE_TIP,RECOELE_TIPERROR,
     RECOELE_SLIP,RECOELE_LIP,RECOELE_LIPERROR,
     RECOELE_SIP_GD, RECOELE_SIP_GDEEEE,
-    RECOELE_SIP_Std, RECOELE_SIP_StdEEEE, 
+    RECOELE_SIP_Std, RECOELE_SIP_StdEEEE,
     RECOELE_SIP_Kin, RECOELE_SIP_KinEEEE;
   ArrayMDVector<float,1,-9999>
     RECOELE_IP,RECOELE_SIP,RECOELE_IPERROR;
@@ -5940,7 +5969,7 @@ void fillTracks(const edm::Event& iEvent){
     RECOELE_LLLLss0_MATCHED,RECOELE_LLLLss1_MATCHED,RECOELE_LLLLss2_MATCHED,
     RECOELE_LLLl0_MATCHED,RECOELE_LLLl1_MATCHED,RECOELE_LLLL_MATCHED;
   ArrayMDVector<double,1,-999>RECOELE_mvaTrigV0,RECOELE_mvaNonTrigV0;
-  
+
   ArrayMDVector<double,1,-999>ele_sclRawE ;
   ArrayMDVector<double,1,-999>ele_sclX, ele_sclY, ele_sclZ;
   ArrayMDVector<int,1,-999>ele_seedSubdet1;
@@ -5961,12 +5990,12 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<double,3,-999>RECOMU_COV;
   ArrayMDVector<double,1,-999>/*,RECOMU_Roch_calib_error,*/ RECOMU_PT_uncorr;
 
-  ArrayMDVector<float,1,-999>    RECOMU_TRACKISO,RECOMU_TRACKISO_SUMPT,RECOMU_ECALISO,RECOMU_HCALISO, RECOMU_X,   
+  ArrayMDVector<float,1,-999>    RECOMU_TRACKISO,RECOMU_TRACKISO_SUMPT,RECOMU_ECALISO,RECOMU_HCALISO, RECOMU_X,
     RECOMU_IP_KF,RECOMU_SIP_KF,RECOMU_IPERROR_KF,
     RECOMU_STIP,RECOMU_TIP,RECOMU_TIPERROR,
     RECOMU_SLIP,RECOMU_LIP,RECOMU_LIPERROR,
     RECOMU_SIP_GD, RECOMU_SIP_GDMMMM,
-    RECOMU_SIP_Std, RECOMU_SIP_StdMMMM, 
+    RECOMU_SIP_Std, RECOMU_SIP_StdMMMM,
     RECOMU_SIP_Kin, RECOMU_SIP_KinMMMM;
   ArrayMDVector<float,1,-9999>
     RECOMU_IP,RECOMU_SIP,RECOMU_IPERROR;
@@ -5985,7 +6014,7 @@ void fillTracks(const edm::Event& iEvent){
     RECOMU_LLLl0_MATCHED,RECOMU_LLLl1_MATCHED,RECOMU_LLLL_MATCHED;
   ArrayMDVector<int,1,-999>RECOMU_numberOfMatches,RECOMU_numberOfMatchedStations;
   ArrayMDVector<int,1,-999>RECOMU_mubesttrkType;
-  
+
   ArrayMDVector<float,1,-999>    RECOMU_mutrkPT,RECOMU_mutrkPTError,
     RECOMU_mutrkDxy,RECOMU_mutrkDxyError,RECOMU_mutrkDxyB,
     RECOMU_mutrkDz,RECOMU_mutrkDzError,RECOMU_mutrkDzB,
@@ -6005,17 +6034,17 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<int,1,0>RECOMU_trkmuLastStationAngLoose,RECOMU_trkmuLastStationAngTight;
   ArrayMDVector<int,1,0>RECOMU_trkmuOneStationAngLoose,RECOMU_trkmuOneStationAngTight;
   ArrayMDVector<int,1,0>RECOMU_trkmuLastStationOptimizedLowPtLoose,RECOMU_trkmuLastStationOptimizedLowPtTight;
-  
+
    // Photons
   ArrayMDVector<float,1,-999>RECOPHOT_PT,RECOPHOT_ETA,RECOPHOT_PHI,RECOPHOT_ID,RECOPHOT_THETA,RECOPHOT_TLE_ParentSC_X,RECOPHOT_TLE_ParentSC_Y,RECOPHOT_TLE_ParentSC_Z;
   ArrayMDVector<float,1,-999>RECOPFPHOT_PT,RECOPFPHOT_PTError,RECOPFPHOT_ETA,RECOPFPHOT_PHI,RECOPFPHOT_THETA,RECOPHOTCOR_PT,RECOPHOTCOR_PTError;
   ArrayMDVector<double,1,-999>RECOPFPHOT_PFchAllPart,RECOPFPHOT_PFchHad,RECOPFPHOT_PFneuHad,RECOPFPHOT_PFphoton,
     RECOPFPHOT_PFPUchAllPart,RECOPFPHOT_PFX_rho, RECOPFPHOT_PT_uncorr;
 
-  //Reham 
-  
+  //Reham
+
   ArrayMDVector<float,1,-999>RECOPFPHOT_ecalEnergyErrPostCorr,RECOPFPHOT_energyScaleValue,RECOPFPHOT_energySigmaValue, RECOPFPHOT_energyScaleUp, RECOPFPHOT_energyScaleDown, RECOPFPHOT_energyScaleStatUp, RECOPFPHOT_energyScaleStatDown, RECOPFPHOT_energyScaleSystUp, RECOPFPHOT_energyScaleSystDown, RECOPFPHOT_energyScaleGainUp, RECOPFPHOT_energyScaleGainDown,RECOPFPHOT_energyScaleEtUp, RECOPFPHOT_energyScaleEtDown, RECOPFPHOT_energySigmaUp, RECOPFPHOT_energySigmaDown, RECOPFPHOT_energySigmaPhiUp, RECOPFPHOT_energySigmaPhiDown, RECOPFPHOT_energySigmaRhoUp, RECOPFPHOT_energySigmaRhoDown,RECOPFPHOT_ecalEnergyPreCorr,RECOPFPHOT_ecalEnergyErrPreCorr;
-  
+
 
   // Vertexing
   ArrayMDVector<double,1,-999>ftsigma,ftsigmalag,ftsigmaMMMM,ftsigmalagMMMM,ftsigmaEEEE,ftsigmalagEEEE;
@@ -6044,14 +6073,14 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<double,1,-999>StdFitVertexChi2rMME, StdFitVertexProbMME;
   ArrayMDVector<double,1,-999>StdFitVertexChi2rEEE, StdFitVertexProbEEE;
   ArrayMDVector<double,1,-999>StdFitVertexChi2rMEE, StdFitVertexProbMEE;
-   
-  
+
+
   //Muons Matching
   ArrayMDVector<int,1,0>RECOMU_MatchingMCTruth;
   ArrayMDVector<float,1,-999>RECOMU_MatchingMCpT;
   ArrayMDVector<float,1,-999>RECOMU_MatchingMCEta;
   ArrayMDVector<float,1,-999>RECOMU_MatchingMCPhi;
-  
+
   //Electrons:
   ArrayMDVector<int,1,0>RECOELE_MatchingMCTruth;
   ArrayMDVector<float,1,-999>RECOELE_MatchingMCpT;
@@ -6097,19 +6126,19 @@ void fillTracks(const edm::Event& iEvent){
   ArrayMDVector<float,1,-999>RECOHzzEEMM_MatchingMCmass;
   ArrayMDVector<float,1,-999>RECOHzzEEMM_MatchingMCEta;
   ArrayMDVector<float,1,-999>RECOHzzEEMM_MatchingMCPhi;
-  
- 
+
+
 
   // RECO counters
   int RECO_NMU, RECO_NELE, RECO_NTRACK, RECO_NPHOT, RECO_NPFPHOT,RECO_NJET, RECO_NVTX,RECO_NAssocPFcands,RECO_NFSR;
 
 ArrayMDVector<float,1,-999>RECO_TRACK_PT, RECO_TRACK_ETA, RECO_TRACK_PHI,
-   RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB, 
-   RECO_TRACK_DXY,RECO_TRACK_DXYERR, 
+   RECO_TRACK_CHI2,RECO_TRACK_CHI2RED,RECO_TRACK_CHI2PROB,
+   RECO_TRACK_DXY,RECO_TRACK_DXYERR,
    RECO_TRACK_DZ,RECO_TRACK_DZERR;
 ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
 
-  
+
   // Primary Vertices
   ArrayMDVector<float,1,-999> RECO_VERTEX_x, RECO_VERTEX_y, RECO_VERTEX_z,RECO_VERTEX_ndof,RECO_VERTEX_chi2,RECO_VERTEXPROB;
   ArrayMDVector<float,2,-999>RECO_VERTEX_TRACK_PT;
@@ -6117,7 +6146,7 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
   //Initialize to false
   ArrayMDVector<bool,1,0> RECO_VERTEX_isValid;
   ArrayMDVector<int,1,-999> RECO_VERTEX_ntracks;
-  
+
   // RECO JETS
   int RECO_PFJET_N;
   ArrayMDVector<float,1,-999> RECO_PFJET_ETA_DN,RECO_PFJET_ETA_UP,RECO_PFJET_MASS,RECO_PFJET_MASS_DN,RECO_PFJET_MASS_UP,RECO_PFJET_PHI_DN,RECO_PFJET_PHI_UP,RECO_PFJET_PT_DN,RECO_PFJET_PT_UP,RECO_PFJET_RAWPT;
@@ -6150,16 +6179,17 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
   // RECO MET
   float genmet;
   float calomet;
-    //calometopt,calometoptnohf,calometoptnohfho,calometoptho,calometnohf,calometnohfho,calometho;       
+    //calometopt,calometoptnohf,calometoptnohfho,calometoptho,calometnohf,calometnohfho,calometho;
   float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr,pfmet_xycorr,pfmet_phi_xycorr;
+  float puppimet,puppimet_x,puppimet_y,puppimet_phi;
   float pfmet_JetEnUp, pfmet_JetEnDn, pfmet_ElectronEnUp, pfmet_ElectronEnDn, pfmet_MuonEnUp, pfmet_MuonEnDn;
   float pfmet_JetResUp, pfmet_JetResDn, pfmet_UnclusteredEnUp, pfmet_UnclusteredEnDn, pfmet_PhotonEnUp, pfmet_PhotonEnDn,pfmet_TauEnUp,pfmet_TauEnDown;
   int PassecalBadCalibFilterUpdated, filterbadChCandidate, filterbadPFMuon;
 
-    //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;        
+    //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;
     float tcmet;
-    //jescormetic5,jescormetkt4,jescormetkt6,jescormetsc5,jescormetsc7;    
-  float cormetmuons; 
+    //jescormetic5,jescormetkt4,jescormetkt6,jescormetsc5,jescormetsc7;
+  float cormetmuons;
 
   //Read MET filter decisions
 
@@ -6170,17 +6200,17 @@ ArrayMDVector<int,1,0>RECO_TRACK_NHITS;
     std::string EcalDeadCellTriggerPrimitiveNoiseFilter_Selector_;
     std::string BadPFMuonFilter_Selector_;
     std::string BadChargedCandidateFilter_Selector_;
-    std::string EEBadScNoiseFilter_Selector_;                         
-    std::string EcalBadCalibFilter_Selector_; 
-  
-    int  passFilterGoodVtxNoise, passFilterGlobalSuperTightHalo2016NoiseFilter, passFilterHBHENoise, passFilterHBHENoiseIso, passFilterEcalDeadCellTriggerPrimitiveNoise, passFilterBadPFMuon, passFilterBadChargedCandidate, passFilterEEBadScNoise, passFilterEcalBadCalib, passecalBadCalibFilterUpdated; 
+    std::string EEBadScNoiseFilter_Selector_;
+    std::string EcalBadCalibFilter_Selector_;
+
+    int  passFilterGoodVtxNoise, passFilterGlobalSuperTightHalo2016NoiseFilter, passFilterHBHENoise, passFilterHBHENoiseIso, passFilterEcalDeadCellTriggerPrimitiveNoise, passFilterBadPFMuon, passFilterBadChargedCandidate, passFilterEEBadScNoise, passFilterEcalBadCalib, passecalBadCalibFilterUpdated;
 
   // Beam Spot
-  double BeamSpot_X,BeamSpot_Y,BeamSpot_Z;	
+  double BeamSpot_X,BeamSpot_Y,BeamSpot_Z;
   BeamSpot bs;
-  
- 
-  
+
+
+
   ArrayMDVector<float,1,-999>tCHighEff_BTagJet_PT,
     tCHighPur_BTagJet_PT,
     cSV_BTagJet_PT;

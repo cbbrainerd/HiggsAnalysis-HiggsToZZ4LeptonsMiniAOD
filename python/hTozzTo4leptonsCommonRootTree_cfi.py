@@ -330,6 +330,7 @@ hTozzTo4leptonsCommonRootTree = cms.EDAnalyzer("HZZ4LeptonsCommonRootTree",
     # PF MET
   # PfMETLabel             = cms.InputTag("slimmedMETs::MonoHiggs"), #reham comment to check "to use the updated MET"
     PfMETLabel             = cms.InputTag("slimmedMETsTEST"), #Reham after update MET
+    PuppiMETLabel          = cms.InputTag("slimmedMETsPuppi"),
     # HT MET                                          
 #    HtMET_IC5Label         = cms.InputTag("htMetIC5"), 
 #    HtMET_KT4Label         = cms.InputTag("htMetKT4"),
