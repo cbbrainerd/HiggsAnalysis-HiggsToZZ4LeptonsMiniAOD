@@ -58,9 +58,6 @@ void FSRPhotonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<reco::CandidateView> cands;
   iEvent.getByToken(srcCands_, cands);
 
-  edm::Handle<edm::View<pat::Muon> > muons;
-  if (extractMuonFSR_) iEvent.getByToken(muons_, muons);
-
   for( reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c ) 
   {
     if (c->charge()==0 && c->pdgId() == 22 && c->pt() > ptThresh_)  
@@ -73,6 +70,8 @@ void FSRPhotonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   // experimental version below, need to be verified.
   if (extractMuonFSR_) 
   {
+    edm::Handle<edm::View<pat::Muon> > muons;
+    iEvent.getByToken(muons_, muons);
     for( edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(); ++mu )
     {
       double mu_energy = mu->calEnergy().emS25;
