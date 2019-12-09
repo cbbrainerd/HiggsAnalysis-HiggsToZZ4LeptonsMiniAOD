@@ -65,7 +65,6 @@
 <use   name="CondFormats/JetMETObjects"/>
 <use   name="MuonMVAReader/Reader"/>
 <use   name="JetMETCorrections/Modules"/>
-<use   name="ZZMatrixElement/MELA"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
