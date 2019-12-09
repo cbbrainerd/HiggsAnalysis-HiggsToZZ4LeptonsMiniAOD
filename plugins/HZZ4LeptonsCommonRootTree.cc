@@ -87,6 +87,8 @@ HZZ4LeptonsCommonRootTree::HZZ4LeptonsCommonRootTree(const edm::ParameterSet& ps
 //    leptonscands_LLLl1= new (CandidateCollection);//unused branch
 //    leptonscands_LLLL= new (CandidateCollection);//unused branch
     rgen_ = std::unique_ptr<TRandom3>(new TRandom3(0));
+    edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2018.txt");
+    calibrator.reset(new RoccoR(corrPath.fullPath()));
 }
 
 // Destructor
