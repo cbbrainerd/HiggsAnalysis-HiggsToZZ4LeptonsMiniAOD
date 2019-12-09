@@ -2571,8 +2571,8 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
 
     // di-leptons OS
-    leptonscands_Z0->clear();
-    leptonscands_Z1->clear();
+    leptonscands_Z0.clear();
+    leptonscands_Z1.clear();
 
 
     //@// std::cout << "RECOcollNameZ size " << RECOcollNameZ.size() << std::endl;
@@ -2599,13 +2599,13 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    RECO_ZMM_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZMM_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZMM_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Z0->push_back( cand->daughter(j)->clone());
+	    leptonscands_Z0.push_back( cand->daughter(j)->clone());
 	  }
 	  if (i==1) {
 	    RECO_ZEE_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZEE_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZEE_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Z1->push_back( cand->daughter(j)->clone());
+	    leptonscands_Z1.push_back( cand->daughter(j)->clone());
 	  }
 	}
 
@@ -2642,9 +2642,9 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
     }
 
     // di-leptons SS and cross-leptons
-    leptonscands_Zss0->clear();
-    leptonscands_Zss1->clear();
-    leptonscands_Zcross->clear();
+    leptonscands_Zss0.clear();
+    leptonscands_Zss1.clear();
+    leptonscands_Zcross.clear();
 
 
     //@//  std::cout << "RECOcollNameZss size " << RECOcollNameZss.size() << std::endl;
@@ -2678,19 +2678,19 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	    RECO_ZMMss_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZMMss_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZMMss_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Zss0->push_back( cand->daughter(j)->clone());
+	    leptonscands_Zss0.push_back( cand->daughter(j)->clone());
 	  }
 	  if (i==1) {
 	    RECO_ZEEss_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZEEss_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZEEss_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Zss1->push_back( cand->daughter(j)->clone());
+	    leptonscands_Zss1.push_back( cand->daughter(j)->clone());
 	  }
 	  if (i==2) {
 	    RECO_ZEM_PT[j+1][kk]=cand->daughter(j)->p4().pt();
 	    RECO_ZEM_ETA[j+1][kk]=cand->daughter(j)->p4().eta();
 	    RECO_ZEM_PHI[j+1][kk]=cand->daughter(j)->p4().phi();
-	    leptonscands_Zcross->push_back( cand->daughter(j)->clone());
+	    leptonscands_Zcross.push_back( cand->daughter(j)->clone());
 	  }
 	}
 	kk++;
@@ -2699,7 +2699,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
 
     // di-leptons ALL
-    leptonscands_DiLep->clear();
+    leptonscands_DiLep.clear();
 
     edm::Handle<edm::View<Candidate> > CandidatesDiLep;
     iEvent.getByToken(RECOcollNameDiLep_, CandidatesDiLep);
@@ -2717,7 +2717,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	RECO_DiLep_PT[j+1][kkk]=cand->daughter(j)->p4().pt();
 	RECO_DiLep_ETA[j+1][kkk]=cand->daughter(j)->p4().eta();
 	RECO_DiLep_PHI[j+1][kkk]=cand->daughter(j)->p4().phi();
-	leptonscands_DiLep->push_back( cand->daughter(j)->clone());
+	leptonscands_DiLep.push_back( cand->daughter(j)->clone());
       }
       kkk++;
     }
@@ -2726,7 +2726,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     // MuMuMuMu
     int i=1;
-    leptonscands_MMMM->clear();
+    leptonscands_MMMM.clear();
     edm::Handle<edm::View<Candidate> > CandidatesMMMM;
     iEvent.getByToken(RECOcollNameMMMM_, CandidatesMMMM);
 
@@ -2757,7 +2757,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  RECO_MMMM_PT[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
 	  RECO_MMMM_ETA[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().eta();
 	  RECO_MMMM_PHI[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().phi();
-	  leptonscands_MMMM->push_back( cand->daughter(j)->daughter(k)->clone());
+	  leptonscands_MMMM.push_back( cand->daughter(j)->daughter(k)->clone());
 	  //std::cout << "index" << i+j+k+l+2 <<std::endl;
 	}
 	l++;
@@ -2784,7 +2784,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     // EEEE
     i=1;
-    leptonscands_EEEE->clear();
+    leptonscands_EEEE.clear();
     edm::Handle<edm::View<Candidate> > CandidatesEEEE;
     iEvent.getByToken(RECOcollNameEEEE, CandidatesEEEE);
 
@@ -2815,7 +2815,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  RECO_EEEE_PT[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().pt();
 	  RECO_EEEE_ETA[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().eta();
 	  RECO_EEEE_PHI[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().phi();
-	  leptonscands_EEEE->push_back( cand->daughter(j)->daughter(k)->clone());
+	  leptonscands_EEEE.push_back( cand->daughter(j)->daughter(k)->clone());
 	  //std::cout << "index" << i+j+k+l+2 <<std::endl;
 	}
 	l++;
@@ -2842,7 +2842,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 
     // EEMM
     i=1;
-    leptonscands_EEMM->clear();
+    leptonscands_EEMM.clear();
     edm::Handle<edm::View<Candidate> > CandidatesEEMM;
     iEvent.getByToken(RECOcollNameEEMM, CandidatesEEMM);
 
@@ -2874,7 +2874,7 @@ mcIter->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->mother(0)->status
 	  RECO_EEMM_ETA[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().eta();
 	  RECO_EEMM_PHI[i+j+k+l+2][kk]=cand->daughter(j)->daughter(k)->p4().phi();
 
-	  leptonscands_EEMM->push_back( cand->daughter(j)->daughter(k)->clone());
+	  leptonscands_EEMM.push_back( cand->daughter(j)->daughter(k)->clone());
 	  //std::cout << "index" << i+j+k+l+2 <<std::endl;
 	}
 	l++;
@@ -5833,15 +5833,15 @@ void fillTracks(const edm::Event& iEvent){
 //  reco::CandidateCollection *leptonscands4e_;//unused branch
 //  reco::CandidateCollection *leptonscands4erf_;//unused branch
 
-  reco::CandidateCollection *leptonscands_Z0;
-  reco::CandidateCollection *leptonscands_Z1;
-  reco::CandidateCollection *leptonscands_Zss0;
-  reco::CandidateCollection *leptonscands_Zss1;
-  reco::CandidateCollection *leptonscands_Zcross;
-  reco::CandidateCollection *leptonscands_DiLep;
-  reco::CandidateCollection *leptonscands_MMMM;
-  reco::CandidateCollection *leptonscands_EEEE;
-  reco::CandidateCollection *leptonscands_EEMM;
+  reco::CandidateCollection leptonscands_Z0;
+  reco::CandidateCollection leptonscands_Z1;
+  reco::CandidateCollection leptonscands_Zss0;
+  reco::CandidateCollection leptonscands_Zss1;
+  reco::CandidateCollection leptonscands_Zcross;
+  reco::CandidateCollection leptonscands_DiLep;
+  reco::CandidateCollection leptonscands_MMMM;
+  reco::CandidateCollection leptonscands_EEEE;
+  reco::CandidateCollection leptonscands_EEMM;
 //  reco::CandidateCollection *leptonscands_LLL0;//unused branch
 //  reco::CandidateCollection *leptonscands_LLL1;//unused branch
 //  reco::CandidateCollection *leptonscands_LLL2;//unused branch

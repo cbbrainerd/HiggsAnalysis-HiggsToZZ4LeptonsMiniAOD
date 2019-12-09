@@ -67,15 +67,15 @@ HZZ4LeptonsCommonRootTree::HZZ4LeptonsCommonRootTree(const edm::ParameterSet& ps
 //    leptonscands4e_= new (CandidateCollection);//unused branch
 //    leptonscands4erf_= new (CandidateCollection);//unused branch
 
-    leptonscands_Z0= new (CandidateCollection);
-    leptonscands_Z1= new (CandidateCollection);
-    leptonscands_Zss0= new (CandidateCollection);
-    leptonscands_Zss1= new (CandidateCollection);
-    leptonscands_Zcross= new (CandidateCollection);
-    leptonscands_DiLep= new (CandidateCollection);
-    leptonscands_MMMM= new (CandidateCollection);
-    leptonscands_EEEE= new (CandidateCollection);
-    leptonscands_EEMM= new (CandidateCollection);
+    leptonscands_Z0.clear();
+    leptonscands_Z1.clear();
+    leptonscands_Zss0.clear();
+    leptonscands_Zss1.clear();
+    leptonscands_Zcross.clear();
+    leptonscands_DiLep.clear();
+    leptonscands_MMMM.clear();
+    leptonscands_EEEE.clear();
+    leptonscands_EEMM.clear();
 //    leptonscands_LLL0= new (CandidateCollection);//unused branch
 //    leptonscands_LLL1= new (CandidateCollection);//unused branch
 //    leptonscands_LLL2= new (CandidateCollection);//unused branch

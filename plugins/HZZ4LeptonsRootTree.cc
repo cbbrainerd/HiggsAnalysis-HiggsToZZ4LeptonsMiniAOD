@@ -3472,25 +3472,25 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 //    reco::CandidateCollection *leptonscands4e_;//unused branch
 //    reco::CandidateCollection *leptonscands4erf_;*///unused branch
   
-  reco::CandidateCollection *leptonscands_Z0;
-  reco::CandidateCollection *leptonscands_Z1;
-  reco::CandidateCollection *leptonscands_Zss0;
-  reco::CandidateCollection *leptonscands_Zss1;
-  reco::CandidateCollection *leptonscands_Zcross;
-  reco::CandidateCollection *leptonscands_DiLep;
-  reco::CandidateCollection *leptonscands_MMMM;
-  reco::CandidateCollection *leptonscands_EEEE;
-  reco::CandidateCollection *leptonscands_EEMM;
-  reco::CandidateCollection *leptonscands_LLL0;
-  reco::CandidateCollection *leptonscands_LLL1;
-  reco::CandidateCollection *leptonscands_LLL2;
-  reco::CandidateCollection *leptonscands_LLL3;
-  reco::CandidateCollection *leptonscands_LLLLss0;
-  reco::CandidateCollection *leptonscands_LLLLss1;
-  reco::CandidateCollection *leptonscands_LLLLss2;
-  reco::CandidateCollection *leptonscands_LLLl0;
-  reco::CandidateCollection *leptonscands_LLLl1;
-  reco::CandidateCollection *leptonscands_LLLL;
+  reco::CandidateCollection leptonscands_Z0;
+  reco::CandidateCollection leptonscands_Z1;
+  reco::CandidateCollection leptonscands_Zss0;
+  reco::CandidateCollection leptonscands_Zss1;
+  reco::CandidateCollection leptonscands_Zcross;
+  reco::CandidateCollection leptonscands_DiLep;
+  reco::CandidateCollection leptonscands_MMMM;
+  reco::CandidateCollection leptonscands_EEEE;
+  reco::CandidateCollection leptonscands_EEMM;
+  reco::CandidateCollection leptonscands_LLL0;
+  reco::CandidateCollection leptonscands_LLL1;
+  reco::CandidateCollection leptonscands_LLL2;
+  reco::CandidateCollection leptonscands_LLL3;
+  reco::CandidateCollection leptonscands_LLLLss0;
+  reco::CandidateCollection leptonscands_LLLLss1;
+  reco::CandidateCollection leptonscands_LLLLss2;
+  reco::CandidateCollection leptonscands_LLLl0;
+  reco::CandidateCollection leptonscands_LLLl1;
+  reco::CandidateCollection leptonscands_LLLL;
   
 //  /*leptonscands2e2mu_= new (CandidateCollection);//unused branch
 //  leptonscands2e2murf_= new (CandidateCollection);//unused branch
@@ -3499,25 +3499,6 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 //  leptonscands4e_= new (CandidateCollection);//unused branch
 //  leptonscands4erf_= new (CandidateCollection);*///unused branch
   
-  leptonscands_Z0= new (CandidateCollection);
-  leptonscands_Z1= new (CandidateCollection);
-  leptonscands_Zss0= new (CandidateCollection);
-  leptonscands_Zss1= new (CandidateCollection);
-  leptonscands_Zcross= new (CandidateCollection);
-  leptonscands_DiLep= new (CandidateCollection);
-  leptonscands_MMMM= new (CandidateCollection);
-  leptonscands_EEEE= new (CandidateCollection);
-  leptonscands_EEMM= new (CandidateCollection);
-  leptonscands_LLL0= new (CandidateCollection);
-  leptonscands_LLL1= new (CandidateCollection);
-  leptonscands_LLL2= new (CandidateCollection);
-  leptonscands_LLL3= new (CandidateCollection);
-  leptonscands_LLLLss0= new (CandidateCollection);
-  leptonscands_LLLLss1= new (CandidateCollection);
-  leptonscands_LLLLss2= new (CandidateCollection);
-  leptonscands_LLLl0= new (CandidateCollection);
-  leptonscands_LLLl1= new (CandidateCollection);
-  leptonscands_LLLL= new (CandidateCollection);
   //Matching ZtoMuMu:
   edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchZMuMu;
   iEvent.getByLabel("goodZtoMuMuMCMatch", GenParticlesMatchZMuMu);
@@ -3531,8 +3512,8 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
     cout << "The matched map collection has size= " <<  GenParticlesMatchZEE->size() << endl;
   }
   // di-leptons OS
-  leptonscands_Z0->clear();
-  leptonscands_Z1->clear();
+  leptonscands_Z0.clear();
+  leptonscands_Z1.clear();
   for (unsigned int i=0; i<RECOcollNameZ.size(); i++) {  
     edm::Handle<edm::View<Candidate> > CandidatesZ;
     iEvent.getByLabel(RECOcollNameZ.at(i), CandidatesZ); 
@@ -3553,13 +3534,13 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	  RECO_ZMM_PT.push_back(cand->daughter(j)->p4().pt());
 	  RECO_ZMM_ETA.push_back(cand->daughter(j)->p4().eta());
 	  RECO_ZMM_PHI.push_back(cand->daughter(j)->p4().phi());
-	  leptonscands_Z0->push_back( cand->daughter(j)->clone());
+	  leptonscands_Z0.push_back( cand->daughter(j)->clone());
 	}
 	if (i==1) {
 	  RECO_ZEE_PT.push_back(cand->daughter(j)->p4().pt());
 	  RECO_ZEE_ETA.push_back(cand->daughter(j)->p4().eta());
 	  RECO_ZEE_PHI.push_back(cand->daughter(j)->p4().phi());
-	  leptonscands_Z1->push_back(cand->daughter(j)->clone());
+	  leptonscands_Z1.push_back(cand->daughter(j)->clone());
 	}
       }
       if (i==0 && fillMCTruth==true){
@@ -3592,9 +3573,9 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
     }
   }
   // di-leptons SS and cross-leptons
-  leptonscands_Zss0->clear();
-  leptonscands_Zss1->clear();
-  leptonscands_Zcross->clear();
+  leptonscands_Zss0.clear();
+  leptonscands_Zss1.clear();
+  leptonscands_Zcross.clear();
   for (unsigned int i=0; i<RECOcollNameZss.size(); i++) {  
     edm::Handle<edm::View<Candidate> > CandidatesZss;
     iEvent.getByLabel(RECOcollNameZss.at(i), CandidatesZss); 
@@ -3622,26 +3603,26 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	  RECO_ZMMss_PT.push_back(cand->daughter(j)->p4().pt());
 	  RECO_ZMMss_ETA.push_back(cand->daughter(j)->p4().eta());
 	  RECO_ZMMss_PHI.push_back(cand->daughter(j)->p4().phi());
-	  leptonscands_Zss0->push_back( cand->daughter(j)->clone());
+	  leptonscands_Zss0.push_back( cand->daughter(j)->clone());
 	}
 	if (i==1) {
 	  RECO_ZEEss_PT.push_back(cand->daughter(j)->p4().pt());
 	  RECO_ZEEss_ETA.push_back(cand->daughter(j)->p4().eta());
 	  RECO_ZEEss_PHI.push_back(cand->daughter(j)->p4().phi());
-	  leptonscands_Zss1->push_back( cand->daughter(j)->clone());
+	  leptonscands_Zss1.push_back( cand->daughter(j)->clone());
 	}
 	if (i==2) {
 	  RECO_ZEM_PT.push_back(cand->daughter(j)->p4().pt());
 	  RECO_ZEM_ETA.push_back(cand->daughter(j)->p4().eta());
 	  RECO_ZEM_PHI.push_back(cand->daughter(j)->p4().phi());
-	  leptonscands_Zcross->push_back( cand->daughter(j)->clone());	  
+	  leptonscands_Zcross.push_back( cand->daughter(j)->clone());	  
 	}
       }
       kk++;
     }
   }
   // di-leptons ALL
-  leptonscands_DiLep->clear();
+  leptonscands_DiLep.clear();
   edm::Handle<edm::View<Candidate> > CandidatesDiLep;
   iEvent.getByLabel(RECOcollNameDiLep, CandidatesDiLep); 
   int kkk=0;
@@ -3656,13 +3637,13 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
       RECO_DiLep_PT.push_back(cand->daughter(j)->p4().pt());
       RECO_DiLep_ETA.push_back(cand->daughter(j)->p4().eta());
       RECO_DiLep_PHI.push_back(cand->daughter(j)->p4().phi());
-      leptonscands_DiLep->push_back(cand->daughter(j)->clone());
+      leptonscands_DiLep.push_back(cand->daughter(j)->clone());
     }
     kkk++;
   }
   // MuMuMuMu
   //int i=1; 
-  leptonscands_MMMM->clear();
+  leptonscands_MMMM.clear();
   edm::Handle<edm::View<Candidate> > CandidatesMMMM;
   iEvent.getByLabel(RECOcollNameMMMM.at(0), CandidatesMMMM);
   edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchHMMMM;
@@ -3689,7 +3670,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	RECO_MMMM_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	RECO_MMMM_ETA.push_back(cand->daughter(j)->daughter(k)->p4().eta());
 	RECO_MMMM_PHI.push_back(cand->daughter(j)->daughter(k)->p4().phi());
-	leptonscands_MMMM->push_back(cand->daughter(j)->daughter(k)->clone());
+	leptonscands_MMMM.push_back(cand->daughter(j)->daughter(k)->clone());
 	//cout << "index" << i+j+k+l+2 <<endl;
       } 
       l++;
@@ -3711,7 +3692,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
   }
   // EEEE
   //i=1;
-  leptonscands_EEEE->clear();
+  leptonscands_EEEE.clear();
   edm::Handle<edm::View<Candidate> > CandidatesEEEE;
   iEvent.getByLabel(RECOcollNameEEEE.at(0), CandidatesEEEE);
   edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchHEEEE;
@@ -3738,7 +3719,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	RECO_EEEE_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	RECO_EEEE_ETA.push_back(cand->daughter(j)->daughter(k)->p4().eta());
 	RECO_EEEE_PHI.push_back(cand->daughter(j)->daughter(k)->p4().phi());
-	leptonscands_EEEE->push_back(cand->daughter(j)->daughter(k)->clone());
+	leptonscands_EEEE.push_back(cand->daughter(j)->daughter(k)->clone());
 	//cout << "index" << i+j+k+l+2 <<endl;
       }
       l++;
@@ -3760,7 +3741,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
   }
   // EEMM
   //i=1;
-  leptonscands_EEMM->clear();
+  leptonscands_EEMM.clear();
   edm::Handle<edm::View<Candidate> > CandidatesEEMM;
   iEvent.getByLabel(RECOcollNameEEMM.at(0), CandidatesEEMM);
   edm::Handle<edm::Association<vector<reco::GenParticle> > > GenParticlesMatchHEEMM;
@@ -3787,7 +3768,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	RECO_EEMM_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	RECO_EEMM_ETA.push_back(cand->daughter(j)->daughter(k)->p4().eta());
 	RECO_EEMM_PHI.push_back(cand->daughter(j)->daughter(k)->p4().phi());
-	leptonscands_EEMM->push_back(cand->daughter(j)->daughter(k)->clone());
+	leptonscands_EEMM.push_back(cand->daughter(j)->daughter(k)->clone());
 	//cout << "index" << i+j+k+l+2 <<endl;
       }
       l++;
@@ -3808,10 +3789,10 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
     kk++;
   }
   // tri-leptons
-  leptonscands_LLL0->clear();
-  leptonscands_LLL1->clear();
-  leptonscands_LLL2->clear();
-  leptonscands_LLL3->clear();
+  leptonscands_LLL0.clear();
+  leptonscands_LLL1.clear();
+  leptonscands_LLL2.clear();
+  leptonscands_LLL3.clear();
   for (unsigned int i=0; i<RECOcollNameLLL.size(); i++) {  
     edm::Handle<edm::View<Candidate> > CandidatesLLL;
     iEvent.getByLabel(RECOcollNameLLL.at(i), CandidatesLLL); 
@@ -3829,28 +3810,28 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
       for (unsigned j = 0; j < cand->numberOfDaughters(); ++j ) {
 	if (i==0) {
 	  RECO_LLL0_PT.push_back(cand->daughter(j)->p4().pt());
-	  leptonscands_LLL0->push_back( cand->daughter(j)->clone());
+	  leptonscands_LLL0.push_back( cand->daughter(j)->clone());
 	}
 	if (i==1) {
 	  RECO_LLL1_PT.push_back(cand->daughter(j)->p4().pt());
-	  leptonscands_LLL1->push_back(cand->daughter(j)->clone());
+	  leptonscands_LLL1.push_back(cand->daughter(j)->clone());
 	}
 	if (i==2) {
 	  RECO_LLL2_PT.push_back(cand->daughter(j)->p4().pt());
-	  leptonscands_LLL2->push_back(cand->daughter(j)->clone()); 
+	  leptonscands_LLL2.push_back(cand->daughter(j)->clone()); 
 	}
 	if (i==3) {
 	  RECO_LLL3_PT.push_back(cand->daughter(j)->p4().pt());
-	  leptonscands_LLL3->push_back(cand->daughter(j)->clone());
+	  leptonscands_LLL3.push_back(cand->daughter(j)->clone());
 	}
       }
       k++;
     }
   }
   // 4-leptons SS
-  leptonscands_LLLLss0->clear();
-  leptonscands_LLLLss1->clear();
-  leptonscands_LLLLss2->clear();
+  leptonscands_LLLLss0.clear();
+  leptonscands_LLLLss1.clear();
+  leptonscands_LLLLss2.clear();
   for (unsigned int i=0; i<RECOcollNameLLLLss.size(); i++) {  
     edm::Handle<edm::View<Candidate> > CandidatesLLLLss;
     iEvent.getByLabel(RECOcollNameLLLLss.at(i), CandidatesLLLLss);
@@ -3868,17 +3849,17 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	  if (i==0) {
 	    if (j==0) RECO_LLLL0ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	    if (j==1) RECO_LLLL0ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
-	    leptonscands_LLLLss0->push_back(cand->daughter(j)->daughter(k)->clone());
+	    leptonscands_LLLLss0.push_back(cand->daughter(j)->daughter(k)->clone());
 	  }
 	  if (i==1) {
 	    if (j==0) RECO_LLLL1ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	    if (j==1) RECO_LLLL1ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
-	    leptonscands_LLLLss1->push_back(cand->daughter(j)->daughter(k)->clone());
+	    leptonscands_LLLLss1.push_back(cand->daughter(j)->daughter(k)->clone());
 	  }
 	  if (i==2) {
 	    if (j==0) RECO_LLLL2ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	    if (j==1) RECO_LLLL2ss_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
-	    leptonscands_LLLLss2->push_back(cand->daughter(j)->daughter(k)->clone());
+	    leptonscands_LLLLss2.push_back(cand->daughter(j)->daughter(k)->clone());
 	  }
 	}
       }
@@ -3886,8 +3867,8 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
     }      
   }
   // 4-leptons 3l+l
-  leptonscands_LLLl0->clear();
-  leptonscands_LLLl1->clear(); 
+  leptonscands_LLLl0.clear();
+  leptonscands_LLLl1.clear(); 
   for (unsigned int i=0; i<RECOcollNameLLLl.size(); i++){ 
     edm::Handle<edm::View<Candidate> > CandidatesLLLl;  
     iEvent.getByLabel(RECOcollNameLLLl.at(i), CandidatesLLLl);  
@@ -3903,21 +3884,21 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	//cout << "j= " << j << endl;
 	if ( i==0 && j==1) {
 	  RECO_LLLl0_PT.push_back(cand->daughter(j)->p4().pt());
-	  leptonscands_LLLl0->push_back(cand->daughter(j)->clone());
+	  leptonscands_LLLl0.push_back(cand->daughter(j)->clone());
 	}
 	if ( i==1 && j==1) {
 	  RECO_LLLl1_PT.push_back(cand->daughter(j)->p4().pt()); 
-	  leptonscands_LLLl1->push_back(cand->daughter(j)->clone());
+	  leptonscands_LLLl1.push_back(cand->daughter(j)->clone());
 	}
 	for (unsigned k = 0; k < cand->daughter(j)->numberOfDaughters(); ++k ) { 
 	  //cout << "k= " << k << endl;
 	  if (i==0) {
 	    if (j==0) RECO_LLLl0_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
-	    leptonscands_LLLl0->push_back(cand->daughter(j)->daughter(k)->clone());
+	    leptonscands_LLLl0.push_back(cand->daughter(j)->daughter(k)->clone());
 	  }
 	  if (i==1) {
 	    if (j==0) RECO_LLLl1_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
-	    leptonscands_LLLl1->push_back(cand->daughter(j)->daughter(k)->clone());
+	    leptonscands_LLLl1.push_back(cand->daughter(j)->daughter(k)->clone());
 	  }
 	} 
       } 
@@ -3926,7 +3907,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
   }
   // LLLL merged (no flavour, no charge)
   //i=1;
-  leptonscands_LLLL->clear();
+  leptonscands_LLLL.clear();
   edm::Handle<edm::View<Candidate> > CandidatesLLLL;
   iEvent.getByLabel(RECOcollNameLLLL, CandidatesLLLL);
   kk=0;    
@@ -3950,7 +3931,7 @@ void HZZ4LeptonsRootTree::fillAdditionalRECO(const edm::Event& iEvent)
 	RECO_LLLL_PT.push_back(cand->daughter(j)->daughter(k)->p4().pt());
 	RECO_LLLL_ETA.push_back(cand->daughter(j)->daughter(k)->p4().eta());
 	RECO_LLLL_PHI.push_back(cand->daughter(j)->daughter(k)->p4().phi());
-	leptonscands_LLLL->push_back(cand->daughter(j)->daughter(k)->clone());
+	leptonscands_LLLL.push_back(cand->daughter(j)->daughter(k)->clone());
 	//cout << "index" << i+j+k+l+2 <<endl;
       }
       l++;
