@@ -7,7 +7,7 @@ options.register('year',-1,VarParsing.multiplicity.singleton,VarParsing.varType.
 options.parseArguments()
 dataset=options.dataset
 isMC=(dataset=="MC")
-AllowedDatasets=['DoubleMuon','SingleElectron','DoubleEG','MuonEG','SingleMuon','MC']
+AllowedDatasets=['DoubleMuon','SingleElectron','DoubleEG','MuonEG','SingleMuon','EGamma','MC']
 year=options.year
 
 if dataset=='' or year==-1:
