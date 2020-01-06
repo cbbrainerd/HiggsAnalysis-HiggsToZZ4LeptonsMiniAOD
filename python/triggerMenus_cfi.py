@@ -72,7 +72,7 @@ Triggers[2016].add_dataset('SingleElectron',
     ]
 )
 
-Triggers[2016].add_dataset('SingleElectron',
+Triggers[2016].add_dataset('SingleMuon',
     [
     #single muon
     "HLT_IsoMu20_v",
@@ -182,5 +182,4 @@ def get_triggers(year,dataset):
     try:
         return Triggers[year].get_dataset(dataset)
     except KeyError:
-        raise
-        #raise KeyError("Trigger menu for dataset %s in year %i not defined." % (dataset,year))
+        raise KeyError("Trigger menu for dataset %s in year %i not defined." % (dataset,year))
