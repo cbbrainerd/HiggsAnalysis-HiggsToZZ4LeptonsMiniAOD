@@ -1282,6 +1282,21 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
         Tree_->Branch( "RECO_PFMET_TauEnUp ", &pfmet_TauEnUp , "RECO_PFMET_TauEnUp /F");
         Tree_->Branch( "RECO_PFMET_TauEnDown", &pfmet_TauEnDown, "RECO_PFMET_TauEnDown/F");
 
+        Tree_->Branch( "RECO_PUPPIMET_JetEnUp", &puppimet_JetEnUp, "RECO_PUPPIMET_JetEnUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_JetEnDn", &puppimet_JetEnDn, "RECO_PUPPIMET_JetEnDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_ElectronEnUp", &puppimet_ElectronEnUp, "RECO_PUPPIMET_ElectronEnUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_ElectronEnDn", &puppimet_ElectronEnDn, "RECO_PUPPIMET_ElectronEnDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_MuonEnUp", &puppimet_MuonEnUp, "RECO_PUPPIMET_MuonEnUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_MuonEnDn", &puppimet_MuonEnDn, "RECO_PUPPIMET_MuonEnDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_JetResUp", &puppimet_JetResUp, "RECO_PUPPIMET_JetResUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_JetResDn", &puppimet_JetResDn, "RECO_PUPPIMET_JetResDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_UnclusteredEnUp", &puppimet_UnclusteredEnUp, "RECO_PUPPIMET_UnclusteredEnUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_UnclusteredEnDn", &puppimet_UnclusteredEnDn, "RECO_PUPPIMET_UnclusteredEnDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_PhotonEnUp", &puppimet_PhotonEnUp, "RECO_PUPPIMET_PhotonEnUp/F");
+        Tree_->Branch( "RECO_PUPPIMET_PhotonEnDn", &puppimet_PhotonEnDn, "RECO_PUPPIMET_PhotonEnDn/F");
+        Tree_->Branch( "RECO_PUPPIMET_TauEnUp ", &puppimet_TauEnUp , "RECO_PUPPIMET_TauEnUp /F");
+        Tree_->Branch( "RECO_PUPPIMET_TauEnDown", &puppimet_TauEnDown, "RECO_PUPPIMET_TauEnDown/F");
+
         // decision of MET filter
         //Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &PassecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new
         Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new filter 2018
@@ -4561,6 +4576,20 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
             puppimet_x     = i->corPx();
             puppimet_y     = i->corPy();
             puppimet_phi   = i->corPhi();
+            puppimet_JetEnUp         = i->shiftedPt(pat::MET::JetEnUp, pat::MET::Type1);
+            puppimet_JetEnDn         = i->shiftedPt(pat::MET::JetEnDown, pat::MET::Type1);
+            puppimet_ElectronEnUp    = i->shiftedPt(pat::MET::ElectronEnUp, pat::MET::Type1);
+            puppimet_ElectronEnDn    = i->shiftedPt(pat::MET::ElectronEnDown, pat::MET::Type1);
+            puppimet_MuonEnUp        = i->shiftedPt(pat::MET::MuonEnUp, pat::MET::Type1);
+            puppimet_MuonEnDn        = i->shiftedPt(pat::MET::MuonEnDown, pat::MET::Type1);
+            puppimet_JetResUp        = i->shiftedPt(pat::MET::JetResUp, pat::MET::Type1);
+            puppimet_JetResDn        = i->shiftedPt(pat::MET::JetResDown, pat::MET::Type1);
+            puppimet_UnclusteredEnUp = i->shiftedPt(pat::MET::UnclusteredEnUp, pat::MET::Type1);
+            puppimet_UnclusteredEnDn = i->shiftedPt(pat::MET::UnclusteredEnDown, pat::MET::Type1);
+            puppimet_PhotonEnUp      = i->shiftedPt(pat::MET::PhotonEnUp, pat::MET::Type1);
+            puppimet_PhotonEnDn      = i->shiftedPt(pat::MET::PhotonEnDown, pat::MET::Type1);
+            puppimet_TauEnUp         = i->shiftedPt(pat::MET::TauEnUp , pat::MET::Type1);
+            puppimet_TauEnDown       = i->shiftedPt(pat::MET::TauEnDown, pat::MET::Type1);
         }
 
     }
@@ -6176,9 +6205,11 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     float calomet;
     //calometopt,calometoptnohf,calometoptnohfho,calometoptho,calometnohf,calometnohfho,calometho;
     float pfmet,pfmet_x,pfmet_y,pfmet_phi,pfmet_theta,pfmet_uncorr,pfmet_x_uncorr,pfmet_y_uncorr,pfmet_phi_uncorr,pfmet_theta_uncorr,pfmet_xycorr,pfmet_phi_xycorr;
-    float puppimet,puppimet_x,puppimet_y,puppimet_phi;
     float pfmet_JetEnUp, pfmet_JetEnDn, pfmet_ElectronEnUp, pfmet_ElectronEnDn, pfmet_MuonEnUp, pfmet_MuonEnDn;
     float pfmet_JetResUp, pfmet_JetResDn, pfmet_UnclusteredEnUp, pfmet_UnclusteredEnDn, pfmet_PhotonEnUp, pfmet_PhotonEnDn,pfmet_TauEnUp,pfmet_TauEnDown;
+    float puppimet,puppimet_x,puppimet_y,puppimet_phi;
+    float puppimet_JetEnUp, puppimet_JetEnDn, puppimet_ElectronEnUp, puppimet_ElectronEnDn, puppimet_MuonEnUp, puppimet_MuonEnDn;
+    float puppimet_JetResUp, puppimet_JetResDn, puppimet_UnclusteredEnUp, puppimet_UnclusteredEnDn, puppimet_PhotonEnUp, puppimet_PhotonEnDn,puppimet_TauEnUp,puppimet_TauEnDown;
     int PassecalBadCalibFilterUpdated, filterbadChCandidate, filterbadPFMuon;
 
     //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;
