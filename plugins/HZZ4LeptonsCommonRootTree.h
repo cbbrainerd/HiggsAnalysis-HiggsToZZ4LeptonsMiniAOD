@@ -154,6 +154,9 @@
 //ArrayVector hack
 #include "HiggsAnalysis/HiggsToZZ4Leptons/interface/ArrayMDVector.h"
 
+//Four vector
+#include "Math/Vector4D.h"
+
 #include "XYMETCorrection.h"
 
 class MultiTrajectoryStateMode ;
@@ -1297,6 +1300,20 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
         Tree_->Branch( "RECO_PUPPIMET_TauEnUp ", &puppimet_TauEnUp , "RECO_PUPPIMET_TauEnUp /F");
         Tree_->Branch( "RECO_PUPPIMET_TauEnDown", &puppimet_TauEnDown, "RECO_PUPPIMET_TauEnDown/F");
 
+        //Gen level information for recoil corrections
+        MakeBranch(Tree_,"met_recoil_gen_all_Z_pt",(&met_recoil_gen_all_Z_pt));
+        MakeBranch(Tree_,"met_recoil_gen_all_Z_phi",(&met_recoil_gen_all_Z_phi));
+        MakeBranch(Tree_,"met_recoil_gen_all_Z_eta",(&met_recoil_gen_all_Z_eta));
+        MakeBranch(Tree_,"met_recoil_gen_all_Z_mass",(&met_recoil_gen_all_Z_mass));
+        MakeBranch(Tree_,"met_recoil_gen_full_Z_pt",(&met_recoil_gen_full_Z_pt));
+        MakeBranch(Tree_,"met_recoil_gen_full_Z_phi",(&met_recoil_gen_full_Z_phi));
+        MakeBranch(Tree_,"met_recoil_gen_full_Z_eta",(&met_recoil_gen_full_Z_eta));
+        MakeBranch(Tree_,"met_recoil_gen_full_Z_mass",(&met_recoil_gen_full_Z_mass));
+        MakeBranch(Tree_,"met_recoil_gen_visible_Z_pt",(&met_recoil_gen_visible_Z_pt));
+        MakeBranch(Tree_,"met_recoil_gen_visible_Z_phi",(&met_recoil_gen_visible_Z_phi));
+        MakeBranch(Tree_,"met_recoil_gen_visible_Z_eta",(&met_recoil_gen_visible_Z_eta));
+        MakeBranch(Tree_,"met_recoil_gen_visible_Z_mass",(&met_recoil_gen_visible_Z_mass));
+
         // decision of MET filter
         //Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &PassecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new
         Tree_->Branch( "RECO_PFMET_passecalBadCalibFilterUpdate", &passecalBadCalibFilterUpdated, "RECO_PFMET_passecalBadCalibFilterUpdate/I");//new filter 2018
@@ -2348,12 +2365,54 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
             if(HZZ4LeptonsCommonRootTreeH_DEBUG) std::cout << std::endl;
         }
 
+        //Get gen level Z boson information for recoil corrections
+        for(GenParticleCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter) {
+            if(!(mcIter->pdgId()==23 && mcIter->isHardProcess())) continue; //Only select Z bosons that are part of the hard process (so we don't duplicate the Z boson)
+            //Compute boson momentum at gen level (see indico.cern.ch/event/489921/contributions/2000259/attachments/1248156/1839106/Recoil_20160323.pdf for definitions)
+            ROOT::Math::PtEtaPhiMVector Z_all_momentum={};
+            ROOT::Math::PtEtaPhiMVector Z_full_momentum={};
+            ROOT::Math::PtEtaPhiMVector Z_visible_momentum={};
+            std::queue<GenParticleRef> daughter_search;
+            daughter_search.push(GenParticleRef(genCandidates,mcIter-genCandidates->begin()));
+            while(daughter_search.size() > 0) {
+                auto cand=*(daughter_search.front());
+                auto daughters=cand.daughterRefVector();
+                for(auto const& daughter_it : daughters) {
+                    bool tau_decay=daughter_it->isDirectHardProcessTauDecayProductFinalState();
+                    if(daughter_it->fromHardProcessFinalState() || tau_decay) {
+                        int abs_pdgid=abs(daughter_it->pdgId());
+                        ROOT::Math::PtEtaPhiMVector my_4v(daughter_it->pt(),daughter_it->eta(),daughter_it->phi(),daughter_it->mass());
+                        Z_all_momentum+=my_4v;
+                        //Add to full momentum if a charged lepton or neutrino, or a direct tau decay product
+                        if((abs_pdgid>=11 && abs_pdgid<=14) || abs_pdgid==16 || tau_decay) Z_full_momentum+=my_4v;
+                        //Add to visible momentum if a charged lepton or non-neutrino tau decay product
+                        if(abs_pdgid==11 || abs_pdgid==13 || (tau_decay && (abs_pdgid!=12 && abs_pdgid!=14 && abs_pdgid!=16))) Z_visible_momentum+=my_4v;
+                    } else { //Not final state: look for further decays
+                        daughter_search.push(daughter_it);
+                    }
+                }
+                daughter_search.pop();
+            }
+            met_recoil_gen_all_Z_pt.push_back(Z_all_momentum.Pt());
+            met_recoil_gen_all_Z_phi.push_back(Z_all_momentum.Phi());
+            met_recoil_gen_all_Z_eta.push_back(Z_all_momentum.Eta());
+            met_recoil_gen_all_Z_mass.push_back(Z_all_momentum.M());
+            met_recoil_gen_full_Z_pt.push_back(Z_full_momentum.Pt());
+            met_recoil_gen_full_Z_phi.push_back(Z_full_momentum.Phi());
+            met_recoil_gen_full_Z_eta.push_back(Z_full_momentum.Eta());
+            met_recoil_gen_full_Z_mass.push_back(Z_full_momentum.M());
+            met_recoil_gen_visible_Z_pt.push_back(Z_visible_momentum.Pt());
+            met_recoil_gen_visible_Z_phi.push_back(Z_visible_momentum.Phi());
+            met_recoil_gen_visible_Z_eta.push_back(Z_visible_momentum.Eta());
+            met_recoil_gen_visible_Z_mass.push_back(Z_visible_momentum.M());
+        }
+
         // Check if Z bosons are generated (specially for Z + jet MC)
         int i=0;
         //j=0;
         for ( GenParticleCollection::const_iterator mcIter=genCandidates->begin(); mcIter!=genCandidates->end(); ++mcIter ) {
             // Select the Z decay: status 3
-            if ( abs(mcIter->pdgId())==23 && mcIter->status()==3 ) {
+            if ( abs(mcIter->pdgId())==23 && mcIter->status()==3 ) { //status 3 no longer used since pythia6, so these branches aren't filled
                 int j=0;
                 //@//	std::cout << "\n Found generated Z with PDGId = " << mcIter->pdgId() << " and status = "<< mcIter->status() << " and " << mcIter->numberOfDaughters() << " daughts |";
                 //@//	std::cout << " pt = "<<std::setw(12)<<mcIter->pt()<<" GeV/c | eta = "<<std::setw(12)<<mcIter->eta()<<" | phi = "<<std::setw(12)<<mcIter->phi();
@@ -6211,6 +6270,12 @@ class HZZ4LeptonsCommonRootTree : public edm::EDAnalyzer {
     float puppimet_JetEnUp, puppimet_JetEnDn, puppimet_ElectronEnUp, puppimet_ElectronEnDn, puppimet_MuonEnUp, puppimet_MuonEnDn;
     float puppimet_JetResUp, puppimet_JetResDn, puppimet_UnclusteredEnUp, puppimet_UnclusteredEnDn, puppimet_PhotonEnUp, puppimet_PhotonEnDn,puppimet_TauEnUp,puppimet_TauEnDown;
     int PassecalBadCalibFilterUpdated, filterbadChCandidate, filterbadPFMuon;
+
+    //For MET recoil corrections
+    //To derive corrections, need muon pt, muon phi, jet multiplicity, met pt, and met phi. All of this info is already stored in the ntuples
+
+    //Quantities used to apply the correction. Stored for every Z in the gen level event
+    ArrayMDVector<float,1,-999> met_recoil_gen_full_Z_pt, met_recoil_gen_full_Z_phi, met_recoil_gen_full_Z_eta, met_recoil_gen_full_Z_mass, met_recoil_gen_all_Z_pt, met_recoil_gen_all_Z_phi, met_recoil_gen_all_Z_eta, met_recoil_gen_all_Z_mass, met_recoil_gen_visible_Z_pt, met_recoil_gen_visible_Z_phi, met_recoil_gen_visible_Z_eta, met_recoil_gen_visible_Z_mass;
 
     //htmetic5,htmetkt4,htmetkt6,htmetsc5,htmetsc7;
     float tcmet;
