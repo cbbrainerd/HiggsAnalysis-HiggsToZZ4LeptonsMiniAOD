@@ -1,10 +1,10 @@
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
-#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/GenAnalyzer.h>
-#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZbbGenAnalyzer.h>
-#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZccGenAnalyzer.h>
-#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZjetsGenAnalyzer.h>
+//#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/GenAnalyzer.h>
+//#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZbbGenAnalyzer.h>
+//#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZccGenAnalyzer.h>
+//#include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/ZjetsGenAnalyzer.h>
 #include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsRunEventFilter.h>
 #include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsHLTAnalysis.h>
 #include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsHLTAnalysisFilter.h>
@@ -29,10 +29,10 @@
 #include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsPFJetSelector.h>
 #include <HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsZZMassErrors.h>
 
-DEFINE_FWK_MODULE(GenAnalyzer);
-DEFINE_FWK_MODULE(ZbbGenAnalyzer);
-DEFINE_FWK_MODULE(ZccGenAnalyzer);
-DEFINE_FWK_MODULE(ZjetsGenAnalyzer);
+//DEFINE_FWK_MODULE(GenAnalyzer);
+//DEFINE_FWK_MODULE(ZbbGenAnalyzer);
+//DEFINE_FWK_MODULE(ZccGenAnalyzer);
+//DEFINE_FWK_MODULE(ZjetsGenAnalyzer);
 DEFINE_FWK_MODULE(HZZ4LeptonsRunEventFilter);
 DEFINE_FWK_MODULE(HZZ4LeptonsHLTAnalysis);
 DEFINE_FWK_MODULE(HZZ4LeptonsHLTAnalysisFilter);
