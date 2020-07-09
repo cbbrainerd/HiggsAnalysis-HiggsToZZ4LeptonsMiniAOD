@@ -129,7 +129,7 @@ void HZZ4LeptonsMCParticleDecayProducer::produce(edm::Event& iEvent, const edm::
 		if (p->daughter(i)->daughter(k)->pdgId()==seconddaughtersPdgId_[l] && p->daughter(i)->daughter(k)->status()==1 ){
 		  if (tmpindex==j){
 		    firstdaughterscands_->push_back(p->daughter(i)->clone());
-		    H.addDaughter(*(p->daughter(i)->clone()));
+		    H.addDaughter(*(p->daughter(i))); //Composite candidate calls clone itself. If we call clone here, clone is called twice and leaks memory
 		    tmpid=firstdaughtersPdgId_[j];
 		    tmpindex=999;
 		  }

@@ -101,9 +101,9 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
   // Loop over muons
   for (mIter = muons->begin(); mIter != muons->end(); ++mIter ) {
 
-    edm::Ref<edm::View<pat::Muon>>muref(muons,jj);
+    edm::Ref<edm::View<pat::Muon>>muref(muons,jj); //Unused
     
-    pat::Muon* calibmu = mIter->clone();
+    //pat::Muon* calibmu = mIter->clone(); //Memory leak
 
     //
     vector<double> vcorrPt, vcorrPtError;
@@ -212,8 +212,11 @@ void HZZ4LeptonsMuonRochesterCalibrator::produce(edm::Event& iEvent, const edm::
      
     pterror.push_back(smearedPtError);    
     p4.SetPtEtaPhiM(smearedPt, mIter->eta(), mIter->phi(), mIter->mass());
-    calibmu->setP4(reco::Particle::PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), mIter->mass())); 
-    Gmuon->push_back( *calibmu );
+    //Leaks memory- replace with construction in place so that we don't have a dangling calibmu
+    //calibmu->setP4(reco::Particle::PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), mIter->mass())); 
+    //Gmuon->push_back( *calibmu );
+    Gmuon->emplace_back(*mIter);
+    Gmuon->back().setP4(reco::Particle::PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), mIter->mass()));
     jj++;
   }
   

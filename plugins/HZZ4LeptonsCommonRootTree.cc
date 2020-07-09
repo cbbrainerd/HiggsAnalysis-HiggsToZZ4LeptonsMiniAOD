@@ -60,32 +60,32 @@ HZZ4LeptonsCommonRootTree::HZZ4LeptonsCommonRootTree(const edm::ParameterSet& ps
   // Counter of number of analyzed events
   nevt=0;
   //Create candidate collections
-//    leptonscands2e2mu_= new (CandidateCollection);//unused branch
-//    leptonscands2e2murf_= new (CandidateCollection);//unused branch
-//    leptonscands4mu_= new (CandidateCollection);//unused branch
-//    leptonscands4murf_= new (CandidateCollection);//unused branch
-//    leptonscands4e_= new (CandidateCollection);//unused branch
-//    leptonscands4erf_= new (CandidateCollection);//unused branch
+////    leptonscands2e2mu_= new (CandidateCollection);//unused branch
+////    leptonscands2e2murf_= new (CandidateCollection);//unused branch
+////    leptonscands4mu_= new (CandidateCollection);//unused branch
+////    leptonscands4murf_= new (CandidateCollection);//unused branch
+////    leptonscands4e_= new (CandidateCollection);//unused branch
+////    leptonscands4erf_= new (CandidateCollection);//unused branch
 
-    leptonscands_Z0.clear();
-    leptonscands_Z1.clear();
-    leptonscands_Zss0.clear();
-    leptonscands_Zss1.clear();
-    leptonscands_Zcross.clear();
-    leptonscands_DiLep.clear();
-    leptonscands_MMMM.clear();
-    leptonscands_EEEE.clear();
-    leptonscands_EEMM.clear();
-//    leptonscands_LLL0= new (CandidateCollection);//unused branch
-//    leptonscands_LLL1= new (CandidateCollection);//unused branch
-//    leptonscands_LLL2= new (CandidateCollection);//unused branch
-//    leptonscands_LLL3= new (CandidateCollection);//unused branch
-//    leptonscands_LLLLss0= new (CandidateCollection);//unused branch
-//    leptonscands_LLLLss1= new (CandidateCollection);//unused branch
-//    leptonscands_LLLLss2= new (CandidateCollection);//unused branch
-//    leptonscands_LLLl0= new (CandidateCollection);//unused branch
-//    leptonscands_LLLl1= new (CandidateCollection);//unused branch
-//    leptonscands_LLLL= new (CandidateCollection);//unused branch
+    //leptonscands_Z0.clear();
+    //leptonscands_Z1.clear();
+    //leptonscands_Zss0.clear();
+    //leptonscands_Zss1.clear();
+    //leptonscands_Zcross.clear();
+    //leptonscands_DiLep.clear();
+    //leptonscands_MMMM.clear();
+    //leptonscands_EEEE.clear();
+    //leptonscands_EEMM.clear();
+////    leptonscands_LLL0= new (CandidateCollection);//unused branch
+////    leptonscands_LLL1= new (CandidateCollection);//unused branch
+////    leptonscands_LLL2= new (CandidateCollection);//unused branch
+////    leptonscands_LLL3= new (CandidateCollection);//unused branch
+////    leptonscands_LLLLss0= new (CandidateCollection);//unused branch
+////    leptonscands_LLLLss1= new (CandidateCollection);//unused branch
+////    leptonscands_LLLLss2= new (CandidateCollection);//unused branch
+////    leptonscands_LLLl0= new (CandidateCollection);//unused branch
+////    leptonscands_LLLl1= new (CandidateCollection);//unused branch
+////    leptonscands_LLLL= new (CandidateCollection);//unused branch
     rgen_ = std::unique_ptr<TRandom3>(new TRandom3(0));
     edm::FileInPath corrPath("roccor_Run2_v3/data/RoccoR2018.txt");
     calibrator.reset(new RoccoR(corrPath.fullPath()));
